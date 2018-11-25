@@ -413,48 +413,28 @@ end
 
 for compress=1:1
 
+Blobs = Player.empty(23,0);
 Processed = zeros(rows,columns);
-BlobMap = cell(rows,columns);
-TmpBlobMap = cell(rows,columns);
-ZeroMask = cell(rows,columns);
 
-%We use it for indexing Blobs array
-%So it must begin with 1 but if is a ider shall begin at 0
-%So decerease one at the end
+%Initial set. Each position stores 0 (== no player)
+ZeroMask = zeros(rows,columns,'uint8');
+TmpBlobMap = zeros(rows,columns,'uint8');
+BlobMap = zeros(rows,columns,'uint8');
 
 global top;
 global bottom;
 global left;
 global right;
 global weight;
-
             
 top = 0;
 bottom = 0;
 left = 0;
-right = 0;   
+right = 0;
+weight = 1;
+id = 1;   
 
-
-%Entonces dentro del bucle si que recorreria todos los pseudoblobs
-%luego calculo la media aritmetica 
-Blobs = Player.empty(23,0);
-
-%Each "position" store 2 values (i,j) so it must be double sized.
-tmpBlobs = zeros(25,2000);
-npixels = 1;
-id = 7;
-weight = 1; 
-
-
-%Initial set. Each position stores -1 (== no player)
-for ii=1:rows
-    for jj=1:columns
-        TmpBlobMap{ii,jj} = 0;
-        ZeroMask{ii,jj} = 0;
-    end
-end
-
-
+%Blob Detection
 for i = 1: rows
     for j = 1: columns        
         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
@@ -469,7 +449,7 @@ for i = 1: rows
             
                 if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > 10))
                     
-                    TmpBlobMap{i,j} = id;
+                    TmpBlobMap(i,j) = id;
                     
                     Blobs(id).top = top;
                     Blobs(id).bottom = bottom;
@@ -477,28 +457,15 @@ for i = 1: rows
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
                     fprintf("Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n",i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
-                                        
-                    %Set on BlobMap the pixels of Blob's box   
-                    for ii=1:rows
-                        for jj=1:columns
-                            aux = bitor(BlobMap{ii,jj},TmpBlobMap{ii,jj}); 
-                            BlobMap{ii,jj}=aux;
-                        end
-                    end
-
+                             
+                    BlobMap = bitor(BlobMap,TmpBlobMap);       
                     id = id+1;                    
                 end 
                 
                 %C = bitand(A,B) Use BlobMap as argument because soruce
                 %cannot be the same as target 
+                TmpBlobMap = bitand(TmpBlobMap,ZeroMask);
                 
-                for ii=1:rows
-                        for jj=1:columns
-                            BlobMap{ii,jj}=0;
-                        end
-                end
-                
-                %TmpBlobMap = bitand(BlobMap,ZeroMask);
                 top = 0;
                 bottom = 0;
                 left = 0;
@@ -511,10 +478,10 @@ end
 id = id-1;
 fprintf("There are %d Blobs!\n",id);
 
-
 end
 
 %%
+
 %% Merge Blobs:
 %  For each Blob if there is a neighbour too close
 %  Means that is part of the same Blob so merge them
@@ -534,6 +501,7 @@ for compress=1:1
             %current i,j with top-left pixel
             
             if (BlobMap(i,j)~=0)
+                %fprintf("Pixel %d,%d is id %d\n",i,j,BlobMap(i,j));
                 
                 %Blobs.size == 23;
                 while (trobat == 0 && k < 22)
@@ -585,6 +553,8 @@ end
 %  else set to GroupB). Then calculate left and right position of each
 %  Group (Player) and set them individually on Output vector
 
+for compress=1:1
+
 sumR = 0;
 sumG = 0;
 sumB = 0;
@@ -621,6 +591,8 @@ for k=1:id
     end
 end
 
+end
+
 figure, imshow(I);
 %%
 
@@ -649,16 +621,16 @@ function Blob(ii,jj,id)
     
     if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
         Processed(ii-1,jj) = 1;
-        TmpBlobMap{ii-1,jj} = id;
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap{ii-11,jj});
+        TmpBlobMap(ii-1,jj) = id;
+        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii-1,jj));
         weight = weight +1;
         top = ii-1;
         Blob(ii-1,jj,id);
     end
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0)   
-        TmpBlobMap{ii+1,jj} = id;
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap{ii+1,jj});
+        TmpBlobMap(ii+1,jj) = id;
+        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;
         bottom = ii+1;
@@ -666,8 +638,8 @@ function Blob(ii,jj,id)
     end     
     
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)
-        TmpBlobMap{ii,jj-1} = id;        
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap{ii,jj-1});
+        TmpBlobMap(ii,jj-1) = id;        
+        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;
         left = jj-1;
@@ -675,8 +647,8 @@ function Blob(ii,jj,id)
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        TmpBlobMap{ii,jj+1} = id;
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap{ii,jj+1});
+        TmpBlobMap(ii,jj+1) = id;
+        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1;
         right = jj+1;
