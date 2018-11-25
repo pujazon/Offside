@@ -14,12 +14,13 @@ figure, imshow(I);
 end
 
 %GLOBALS
-
+global MarkedBlobs;
 global Processed;
 global BlobMap;
 global TmpBlobMap;
 global Blobs;
 global ZeroMask;
+global FinalBlobs;
 
 %%
 
@@ -456,7 +457,7 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    fprintf("Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n",i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
+                    %fprintf("Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n",i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
                              
                     BlobMap = bitor(BlobMap,TmpBlobMap);       
                     id = id+1;                    
@@ -488,55 +489,31 @@ end
 
 for compress=1:1
     
-    %Blob iterator    
-    k = 1;
-    trobat = 0;        
+    FinalBlobs = Player.empty(23,0);
+    MarkedBlobs = zeros(22);   
+    fid = 1;
    
     for i=1:rows
         for j=1:columns
             
-            %Because all llops go from left to right and from top to left
-            %means that when we found a Processd pixel it must be the
-            %top-left boundary and we can know which Blob is comparing the 
-            %current i,j with top-left pixel
+            %Because all lops go from left to right and from top to left
+            %means that when we found a pixel to be processed it will be 
+            %top-left Blob box.
             
-            if (BlobMap(i,j)~=0)
-                %fprintf("Pixel %d,%d is id %d\n",i,j,BlobMap(i,j));
-                
-                %Blobs.size == 23;
-                while (trobat == 0 && k < 22)
-                    
-                    %Must be a Blob
-                    if (Blobs(k).top ~= -1)
-                        %fprintf("K is %d\n",k);
-                        x = Blobs(k).top;
-                        y = Blobs(k).left;
-
-                        %fprintf("top-left is (%d,%d) i'm on (%d,%d)\n",y,x,i,j);
-                        
-                        %we must process when we find it:
-                        %Merge nearest blobs and store it on FinalBlobs array
-                        %(!) Miss 1 condition: & not Merged.
-                        %if merged we don't have to proceed it.
-                        
-                        if(x == i && y == j)
-                            %fprintf("top-left is (%d,%d) i'm on (%d,%d)\n",y,x,i,j);
-                            Merge(k);
-                            trobat = 1;
-                        end
-
-                        k = k+1;
-                    end
-                    
-                end
-                
-                trobat = 0;               
-                k = 1;
-                
-            end            
+            current_Blob = BlobMap(i,j);
+            
+            %If there is a blob (c_Blob != 0) and has not been processed
+            %(MarkedBlob == 0) procced it, merge            
+            if (current_Blob ~=0 && MarkedBlobs(current_Blob) == 0)
+                MarkedBlobs(current_Blob) = 1;
+                Merge(current_Blob,fid);
+                fid = fid+1;
+            end
             
         end
     end
+    
+    fprintf("Final Blobs are %d\n",fid);
     
 end
 
@@ -622,7 +599,7 @@ function Blob(ii,jj,id)
     if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
         Processed(ii-1,jj) = 1;
         TmpBlobMap(ii-1,jj) = id;
-        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii-1,jj));
+        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii-1,jj));
         weight = weight +1;
         top = ii-1;
         Blob(ii-1,jj,id);
@@ -630,7 +607,7 @@ function Blob(ii,jj,id)
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0)   
         TmpBlobMap(ii+1,jj) = id;
-        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii+1,jj));
+        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;
         bottom = ii+1;
@@ -639,7 +616,7 @@ function Blob(ii,jj,id)
     
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)
         TmpBlobMap(ii,jj-1) = id;        
-        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj-1));
+        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;
         left = jj-1;
@@ -648,7 +625,7 @@ function Blob(ii,jj,id)
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
         TmpBlobMap(ii,jj+1) = id;
-        fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj+1));
+        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1;
         right = jj+1;
@@ -656,10 +633,12 @@ function Blob(ii,jj,id)
     end    
 end
 
-function Merge(id)
+function Merge(id,fid)
 
     global BlobMap;
     global Blobs;
+    global FinalBlobs;
+    global MarkedBlobs;
 
     %Iterate arround Blob(id) box and if on that positions in 
     %BlobMap is different to 0 (other id) these blobs must be merged
@@ -669,9 +648,22 @@ function Merge(id)
     for ii=Blobs(id).top:Blobs(id).bottom
         for jj=Blobs(id).left:Blobs(id).right
             
-            %fprintf("look is merge in Blob(%d): Map(%d,%d) = %d\n",id,ii,jj,BlobMap(ii,jj));
-            if (BlobMap(ii,jj) ~= 0)
+            current_Blob = BlobMap(ii,jj);
+            fprintf("Merge: Pixel (%d,%d); current_Blob = %d AND id = %d\n",ii,jj,current_Blob, id);
+            
+            if (current_Blob ~= 0 && current_Blob ~= id)
+                fprintf("Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n",id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
+                fprintf("Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n",current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
                 
+                %Set new boundaries                
+                FinalBlobs.top = min(Blobs(id).top,Blobs(current_Blob).top);
+                FinalBlobs.bottom = max(Blobs(id).bottom,Blobs(current_Blob).bottom);
+                FinalBlobs.left = min(Blobs(id).left,Blobs(current_Blob).left);
+                FinalBlobs.right = max(Blobs(id).right,Blobs(current_Blob).right);
+                
+                %Recursive call. All contiguos Blobs of fid Blob
+                MarkedBlobs(current_Blob) = 1;
+                Merge(current_Blob,fid);
             end
         end
     end
