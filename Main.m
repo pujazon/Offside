@@ -23,7 +23,12 @@ global TmpBlobMap;
 global Blobs;
 global ZeroMask;
 global FinalBlobs;
-global N;
+global N;    
+global global_std_top;
+global global_std_bottom;
+global global_std_left;
+global global_std_right;
+
 N = 30;
 
 %%
@@ -433,7 +438,6 @@ global right;
 global weight;
 
 id = 1;   
-
 BlobTotalWeight = 0;
 
 %Blob Detection
@@ -481,8 +485,6 @@ for i = 1: rows
                     id = id+1;                    
                 end 
                 
-                %C = bitand(A,B) Use BlobMap as argument because soruce
-                %cannot be the same as target 
                 TmpBlobMap = bitand(TmpBlobMap,ZeroMask);
         end
     end
@@ -490,7 +492,6 @@ end
 
 id = id-1;
 fprintf("There are %d Blobs!\n",id);
-imshow(T);
 end
 
 
@@ -502,6 +503,26 @@ end
 
 for compress=1:1
     
+    %First calculate standrad recivation of four directions.
+    
+    Vtop = zeros(N,0);
+    Vbottom = zeros(N,0);
+    Vleft = zeros(N,0);
+    Vright = zeros(N,0);
+    
+    for k=1:N
+        Vtop(k) = Blobs(k).top;
+        Vbottom(k) = Blobs(k).bottom;
+        Vleft(k) = Blobs(k).left;
+        Vright(k) = Blobs(k).right;
+    end
+
+    global_std_top = std(Vtop);
+    global_std_bottom = std(Vbottom);
+    global_std_left = std(Vleft);
+    global_std_right = std(Vright);
+    
+    %Set init values
     FinalBlobs = Player.empty(N,0);
     MarkedBlobs = zeros(N);   
     fid = 1;
@@ -530,6 +551,19 @@ for compress=1:1
     
 end
 
+%debug
+for compress=1:1
+   for id=1:N
+       for iii= FinalBlobs(id).top:FinalBlobs(id).bottom 
+            for jjj = FinalBlobs(id).left:FinalBlobs(id).right
+                T(iii,jjj,1) = 0;
+                T(iii,jjj,2) = 0;
+                T(iii,jjj,3) = 255;
+            end
+       end
+   end
+    imshow(T);                
+end
 %%
 
 %% Player detection:
@@ -660,6 +694,13 @@ function Merge(id,fid)
     global Blobs;
     global FinalBlobs;
     global MarkedBlobs;
+    global global_std_top;
+    global global_std_bottom;
+    global global_std_left;
+    global global_std_right;
+    
+    
+    
 
     %Iterate arround Blob(id) box and if on that positions in 
     %BlobMap is different to 0 (other id) these blobs must be merged
@@ -671,20 +712,40 @@ function Merge(id,fid)
             
             current_Blob = BlobMap(ii,jj);
             fprintf("Merge: Pixel (%d,%d); current_Blob = %d AND id = %d\n",ii,jj,current_Blob, id);
-            
-            if (current_Blob ~= 0 && current_Blob ~= id)
-                %fprintf("Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n",id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
-                %fprintf("Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n",current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
+            fprintf("Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n",id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
+            fprintf("Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n",current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
                 
-                %Set new boundaries                
-                FinalBlobs.top = min(Blobs(id).top,Blobs(current_Blob).top);
-                FinalBlobs.bottom = max(Blobs(id).bottom,Blobs(current_Blob).bottom);
-                FinalBlobs.left = min(Blobs(id).left,Blobs(current_Blob).left);
-                FinalBlobs.right = max(Blobs(id).right,Blobs(current_Blob).right);
+            if (current_Blob ~= 0 && current_Blob ~= id)               
                 
-                %Recursive call. All contiguos Blobs of fid Blob
-                MarkedBlobs(current_Blob) = 1;
-                Merge(current_Blob,fid);
+                %Merge if only if the std of dimension between two blobs is 
+                %less than global std deviation
+                
+                tmpTop = [Blobs(id).top,Blobs(current_Blob).top];
+                tmpBottom = [Blobs(id).bottom,Blobs(current_Blob).bottom];
+                tmpLeft = [Blobs(id).left,Blobs(current_Blob).left];
+                tmpRight = [Blobs(id).right,Blobs(current_Blob).right];
+                
+                std_top = std(tmpTop);
+                std_bottom = std(tmpBottom);
+                std_left = std(tmpLeft);
+                std_right = std(tmpRight);
+                
+                if(std_top < global_std_top || ...
+                        std_bottom < global_std_bottom || ...
+                        std_left < global_std_left || ...
+                        std_right < global_std_right )
+                                    
+                    FinalBlobs(fid).top = min(Blobs(id).top,Blobs(current_Blob).top);
+                    FinalBlobs(fid).bottom = max(Blobs(id).bottom,Blobs(current_Blob).bottom);
+                    FinalBlobs(fid).left = min(Blobs(id).left,Blobs(current_Blob).left);
+                    FinalBlobs(fid).right = max(Blobs(id).right,Blobs(current_Blob).right);
+                    
+                    %Recursive call. All contiguos Blobs of fid Blob
+                    MarkedBlobs(current_Blob) = 1;
+                    Merge(current_Blob,fid);
+                    
+                end                
+                
             end
         end
     end
