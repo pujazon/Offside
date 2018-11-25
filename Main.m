@@ -9,6 +9,8 @@ maxNumCompThreads(8);
 fprintf('Hilos: %d\n',maxNumCompThreads);
 
 I = imread('test6.jpg');
+T = imread('test6.jpg');
+
 figure, imshow(I);
 
 end
@@ -21,6 +23,8 @@ global TmpBlobMap;
 global Blobs;
 global ZeroMask;
 global FinalBlobs;
+global N;
+N = 30;
 
 %%
 
@@ -414,7 +418,7 @@ end
 
 for compress=1:1
 
-Blobs = Player.empty(23,0);
+Blobs = Player.empty(N,0);
 Processed = zeros(rows,columns);
 
 %Initial set. Each position stores 0 (== no player)
@@ -427,20 +431,24 @@ global bottom;
 global left;
 global right;
 global weight;
-            
-top = 0;
-bottom = 0;
-left = 0;
-right = 0;
-weight = 1;
+
 id = 1;   
+
+BlobTotalWeight = 0;
 
 %Blob Detection
 for i = 1: rows
     for j = 1: columns        
         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
             
+            %Ini setup before Blob detection function
             Processed(i,j) = 1;
+            top = i;
+            bottom = i;
+            left = j;
+            right = j;
+            weight = 1; 
+            
             Blob(i,j,id);
             
             %Hay que refinarlo. 1 pixel ya es un blob. 
@@ -457,8 +465,18 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    %fprintf("Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n",i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
-                             
+                    fprintf("Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n",i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
+                    BlobTotalWeight = BlobTotalWeight + weight;
+                    
+                    %Debug
+                    for iii= Blobs(id).top:Blobs(id).bottom 
+                        for jjj = Blobs(id).left:Blobs(id).right
+                            T(iii,jjj,1) = 255;
+                            T(iii,jjj,2) = 0;
+                            T(iii,jjj,3) = 255;
+                        end
+                    end
+                    
                     BlobMap = bitor(BlobMap,TmpBlobMap);       
                     id = id+1;                    
                 end 
@@ -466,20 +484,15 @@ for i = 1: rows
                 %C = bitand(A,B) Use BlobMap as argument because soruce
                 %cannot be the same as target 
                 TmpBlobMap = bitand(TmpBlobMap,ZeroMask);
-                
-                top = 0;
-                bottom = 0;
-                left = 0;
-                right = 0;
-                weight = 1;
         end
     end
 end
 
 id = id-1;
 fprintf("There are %d Blobs!\n",id);
-
+imshow(T);
 end
+
 
 %%
 
@@ -489,8 +502,8 @@ end
 
 for compress=1:1
     
-    FinalBlobs = Player.empty(23,0);
-    MarkedBlobs = zeros(22);   
+    FinalBlobs = Player.empty(N,0);
+    MarkedBlobs = zeros(N);   
     fid = 1;
    
     for i=1:rows
@@ -584,6 +597,7 @@ function ret = in_of_bounds(i,j)
     
 end
 
+
 function Blob(ii,jj,id)
 
     global PlayersMask;
@@ -596,12 +610,15 @@ function Blob(ii,jj,id)
     global right;
     global weight;
     
+    %fprintf("(%d,%d)\n",ii,jj);
+    
     if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
         Processed(ii-1,jj) = 1;
         TmpBlobMap(ii-1,jj) = id;
         %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii-1,jj));
         weight = weight +1;
-        top = ii-1;
+        top = min(ii-1,top);
+        %fprintf("top = %d\n",top);
         Blob(ii-1,jj,id);
     end
         
@@ -610,7 +627,8 @@ function Blob(ii,jj,id)
         %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;
-        bottom = ii+1;
+        bottom = max(ii+1,bottom);
+        %fprintf("bottom = %d\n",bottom);
         Blob(ii+1,jj,id);
     end     
     
@@ -619,7 +637,8 @@ function Blob(ii,jj,id)
         %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;
-        left = jj-1;
+        left = min(jj-1,left);
+        %fprintf("left = %d\n",left);
         Blob(ii,jj-1,id);
     end
     
@@ -628,10 +647,12 @@ function Blob(ii,jj,id)
         %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1;
-        right = jj+1;
+        right = max(jj+1,right);
+        %fprintf("right = %d\n",right);
         Blob(ii,jj+1,id);
     end    
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function Merge(id,fid)
 
@@ -652,8 +673,8 @@ function Merge(id,fid)
             fprintf("Merge: Pixel (%d,%d); current_Blob = %d AND id = %d\n",ii,jj,current_Blob, id);
             
             if (current_Blob ~= 0 && current_Blob ~= id)
-                fprintf("Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n",id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
-                fprintf("Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n",current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
+                %fprintf("Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n",id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
+                %fprintf("Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n",current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
                 
                 %Set new boundaries                
                 FinalBlobs.top = min(Blobs(id).top,Blobs(current_Blob).top);
