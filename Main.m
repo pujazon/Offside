@@ -1,7 +1,7 @@
 %% Init
 %  Get the image and show it. Set number of thread
-addpath 'C:\Users\danie\Desktop\TFG\img'
-addpath 'C:\Users\danie\Desktop\TFG\img\test4_players'
+addpath 'F:\tfg\offside\img'
+addpath 'F:\tfg\offside\img\test4_players'
 
 for compress=1:1
     
@@ -10,6 +10,7 @@ fprintf('Hilos: %d\n',maxNumCompThreads);
 
 I = imread('test6.jpg');
 T = imread('test6.jpg');
+T2 = imread('test6.jpg');
 
 figure, imshow(I);
 
@@ -24,6 +25,7 @@ global Blobs;
 global ZeroMask;
 global FinalBlobs;
 global N;    
+global NBlobs;    
 global global_std_top;
 global global_std_bottom;
 global global_std_left;
@@ -123,7 +125,7 @@ end
 
 %Printf Histograms
 % for i = 1:N
-%     %fprintf("Player B(%d) Greens\n",i);
+%     %fprintf('Player B(%d) Greens\n',i);
 %     %idGTeamA{i}
 %     
 %     figure, subplot(3,1,1);
@@ -161,7 +163,7 @@ for i = 1:N
     PixelsBPeak = 0;
     
     for j = 1:255     
-        %fprintf("R: Value %d #pixels = %d, max = %d\n",j,auxidsR(j),PixelsRPeak);
+        %fprintf('R: Value %d #pixels = %d, max = %d\n',j,auxidsR(j),PixelsRPeak);
         if(auxidsR(j) > PixelsRPeak)
             RPeak(i) = j;
             PixelsRPeak = auxidsR(j);
@@ -190,9 +192,9 @@ TeamB_BPeak = floor(TeamB_BPeak/N);
 
 %Print R,G,B Peaks
 % for i = 1:N
-%     fprintf("B(%d): RGB: (%d,%d,%d)\n",i,RPeak(i),GPeak(i),BPeak(i));
+%     fprintf('B(%d): RGB: (%d,%d,%d)\n',i,RPeak(i),GPeak(i),BPeak(i));
 % end
-fprintf("Team B RGB: (%d,%d,%d)\n",TeamB_RPeak,TeamB_GPeak,TeamB_BPeak);
+fprintf('Team B RGB: (%d,%d,%d)\n',TeamB_RPeak,TeamB_GPeak,TeamB_BPeak);
 
 
 % RGB TeamA
@@ -212,7 +214,7 @@ for i = 1:N
     PixelsBPeak = 0;    
     
     for j = 1:255     
-        %fprintf("R: Value %d #pixels = %d, max = %d\n",j,auxidsR(j),PixelsRPeak);
+        %fprintf('R: Value %d #pixels = %d, max = %d\n',j,auxidsR(j),PixelsRPeak);
         if(auxidsR(j) > PixelsRPeak)
             RPeak(i) = j;
             PixelsRPeak = auxidsR(j);
@@ -242,9 +244,9 @@ TeamA_BPeak = floor(TeamA_BPeak/N);
 
 %Print R,G,B Peaks
 % for i = 1:N
-%     fprintf("A(%d): RGB: (%d,%d,%d)\n",i,RPeak(i),GPeak(i),BPeak(i));
+%     fprintf('A(%d): RGB: (%d,%d,%d)\n',i,RPeak(i),GPeak(i),BPeak(i));
 % end
-fprintf("Team A RGB: (%d,%d,%d)\n",TeamA_RPeak,TeamA_GPeak,TeamA_BPeak);
+fprintf('Team A RGB: (%d,%d,%d)\n',TeamA_RPeak,TeamA_GPeak,TeamA_BPeak);
 
 end
 
@@ -354,6 +356,7 @@ end
 
 figure, imshow(FieldMask);
 
+
 end
 
 %%
@@ -404,10 +407,9 @@ for i = 1: boundary
 end
 
 global PlayersMask;
-PlayersMask = imgaussfilt(tmp_PlayersMask,1);
+PlayersMask = tmp_PlayersMask;
 
 %If image has quality is no needed Gaussian Blur
-
 figure, imshow(PlayersMask);
 
 end
@@ -435,7 +437,8 @@ global top;
 global bottom;
 global left;
 global right;
-global weight;
+global weight;    
+SWeight = 0;
 
 id = 1;   
 BlobTotalWeight = 0;
@@ -469,20 +472,11 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    fprintf("Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n",i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
+                    %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
                     BlobTotalWeight = BlobTotalWeight + weight;
                     
-                    %Debug
-                    for iii= Blobs(id).top:Blobs(id).bottom 
-                        for jjj = Blobs(id).left:Blobs(id).right
-                            T(iii,jjj,1) = 255;
-                            T(iii,jjj,2) = 0;
-                            T(iii,jjj,3) = 255;
-                        end
-                    end
-                    
                     BlobMap = bitor(BlobMap,TmpBlobMap);       
-                    id = id+1;                    
+                    id = id+1; 
                 end 
                 
                 TmpBlobMap = bitand(TmpBlobMap,ZeroMask);
@@ -490,80 +484,155 @@ for i = 1: rows
     end
 end
 
-id = id-1;
-fprintf("There are %d Blobs!\n",id);
+NBlobs = id-1;
+
+
+%Debug
+for q=1:NBlobs
+    for iii= Blobs(q).top:Blobs(q).bottom 
+        for jjj = Blobs(q).left:Blobs(q).right
+            T(iii,jjj,1) = 0;
+            T(iii,jjj,2) = 0;
+            T(iii,jjj,3) = 255;
+        end
+    end    
+end
+
+fprintf('There are %d Blobs!\n',NBlobs);
+imshow(T);
 end
 
 
 %%
 
+
+%% Blob Filter
+%  Calculate weight std and only will be blobs the ones that 
+%  have less deviation than std. otherwise will be discarted
+
+for compress=1:1   
+
+    FinalBlobs = Player.empty(NBlobs,0);
+    
+    %Ini calculus varaibles    
+    SWeight = 0;
+    tmp = 0;
+    tmp2 = 0;
+    sum = 0;
+
+    for k=1:NBlobs
+        
+        %Weight Mean calculus
+        SWeight = SWeight + Blobs(k).weight;  
+        
+        %Weight STD Calculus
+        tmp=(Blobs(k).weight-mean_weight);
+        tmp2 = tmp*tmp;
+        sum = sum+tmp2;
+    end
+    
+    %Finish Weight STD Calculus
+    tmp = floor(sum/(NBlobs-1));
+    tmp2= sqrt(tmp);
+    std_weight = floor(tmp2);
+    
+    %fprintf('SUM->%d; \n',sum);
+    mean_weight = floor(SWeight/NBlobs);
+
+    fprintf('std_weight = %d\n',std_weight);
+    fprintf('mean_weight = %d\n',mean_weight);
+  
+    fid = 1;
+
+    %If Blob is inside STD means that is not noise.
+    %If it's not inside means that is too big or too small.
+    %If it's too big must be stored as a Blob to, so we must take care
+    
+    for k=1:NBlobs
+         if (~(abs(mean_weight - Blobs(k).weight) > std_weight) || ...
+                 Blobs(k).weight > mean_weight)
+            FinalBlobs(fid) = Blobs(k);
+            fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',iii,jjj,FinalBlobs(fid).weight,FinalBlobs(fid).top,FinalBlobs(fid).bottom,FinalBlobs(fid).right,FinalBlobs(fid).left);                
+            fid = fid+1;
+        end
+    end    
+
+    
+    fid = fid-1;
+    
+    %Debug
+    for w=1:fid-1
+        %fprintf('iter %d\n',w);
+        for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
+            for jjj = FinalBlobs(w).left:FinalBlobs(w).right
+                T2(iii,jjj,1) = 255;
+                T2(iii,jjj,2) = 0;
+                T2(iii,jjj,3) = 255;
+            end
+        end    
+    end
+    
+    fprintf('Really, there are %d Blobs!\n',fid);
+    %imshow(T2);
+end
+
+%%
+
+
 %% Merge Blobs:
 %  For each Blob if there is a neighbour too close
 %  Means that is part of the same Blob so merge them
+% 
+% for compress=1:1
+%     
+%     %First calculate standrad recivation of four directions.
+%     
+%     Vtop = zeros(N,0);
+%     Vbottom = zeros(N,0);
+%     Vleft = zeros(N,0);
+%     Vright = zeros(N,0);
+%     
+%     for k=1:N
+%         Vtop(k) = Blobs(k).top;
+%         Vbottom(k) = Blobs(k).bottom;
+%         Vleft(k) = Blobs(k).left;
+%         Vright(k) = Blobs(k).right;
+%     end
+% 
+%     global_std_top = std(Vtop);
+%     global_std_bottom = std(Vbottom);
+%     global_std_left = std(Vleft);
+%     global_std_right = std(Vright);
+%     
+%     %Set init values
+%     FinalBlobs = Player.empty(N,0);
+%     MarkedBlobs = zeros(N);   
+%     fid = 1;
+%    
+%     for i=1:rows
+%         for j=1:columns
+%             
+%             %Because all lops go from left to right and from top to left
+%             %means that when we found a pixel to be processed it will be 
+%             %top-left Blob box.
+%             
+%             current_Blob = BlobMap(i,j);
+%             
+%             %If there is a blob (c_Blob != 0) and has not been processed
+%             %(MarkedBlob == 0) procced it, merge            
+%             if (current_Blob ~=0 && MarkedBlobs(current_Blob) == 0)
+%                 MarkedBlobs(current_Blob) = 1;
+%                 Merge(current_Blob,fid);
+%                 fid = fid+1;
+%             end
+%             
+%         end
+%     end
+%     
+%     fprintf('Final Blobs are %d\n',fid);
+%     
+% end
 
-for compress=1:1
-    
-    %First calculate standrad recivation of four directions.
-    
-    Vtop = zeros(N,0);
-    Vbottom = zeros(N,0);
-    Vleft = zeros(N,0);
-    Vright = zeros(N,0);
-    
-    for k=1:N
-        Vtop(k) = Blobs(k).top;
-        Vbottom(k) = Blobs(k).bottom;
-        Vleft(k) = Blobs(k).left;
-        Vright(k) = Blobs(k).right;
-    end
-
-    global_std_top = std(Vtop);
-    global_std_bottom = std(Vbottom);
-    global_std_left = std(Vleft);
-    global_std_right = std(Vright);
-    
-    %Set init values
-    FinalBlobs = Player.empty(N,0);
-    MarkedBlobs = zeros(N);   
-    fid = 1;
-   
-    for i=1:rows
-        for j=1:columns
-            
-            %Because all lops go from left to right and from top to left
-            %means that when we found a pixel to be processed it will be 
-            %top-left Blob box.
-            
-            current_Blob = BlobMap(i,j);
-            
-            %If there is a blob (c_Blob != 0) and has not been processed
-            %(MarkedBlob == 0) procced it, merge            
-            if (current_Blob ~=0 && MarkedBlobs(current_Blob) == 0)
-                MarkedBlobs(current_Blob) = 1;
-                Merge(current_Blob,fid);
-                fid = fid+1;
-            end
-            
-        end
-    end
-    
-    fprintf("Final Blobs are %d\n",fid);
-    
-end
-
-%debug
-for compress=1:1
-   for id=1:N
-       for iii= FinalBlobs(id).top:FinalBlobs(id).bottom 
-            for jjj = FinalBlobs(id).left:FinalBlobs(id).right
-                T(iii,jjj,1) = 0;
-                T(iii,jjj,2) = 0;
-                T(iii,jjj,3) = 255;
-            end
-       end
-   end
-    imshow(T);                
-end
 %%
 
 %% Player detection:
@@ -573,51 +642,51 @@ end
 %  the Team and set the Player to Output array.
 %  If there is some pixels which are outside of standard derivation means
 %  that there are more than one Player on Blob so we must group all pixels
-%  that are near (get 1 pixel. If following pixel is "near" set to GroupA
+%  that are near (get 1 pixel. If following pixel is 'near' set to GroupA
 %  else set to GroupB). Then calculate left and right position of each
 %  Group (Player) and set them individually on Output vector
-
-for compress=1:1
-
-sumR = 0;
-sumG = 0;
-sumB = 0;
-meanR = 0;
-meanG = 0;
-meanB = 0;
-
-
-for k=1:id
-    if(Blobs(k).top > 0)
-        
-        M = (Blobs(k).bottom - Blobs(k).top) * (Blobs(k).right - Blobs(k).left) ;
-        fprintf("B(%d)\n",k);
-        for i= Blobs(k).top:Blobs(k).bottom
-            for j = Blobs(k).left:Blobs(k).right 
-                
-                if(k < 4) 
-                %fprintf("pixel(%d,%d) =[%d,%d,%d]\n",i,j,RChannel(i,j),GChannel(i,j),BChannel(i,j)); 
-                %fprintf("Color k*50 = %d\n",k*50);
-                I(i,j,1) = 255;
-                I(i,j,2) = 0;
-                I(i,j,3) = 0;
-                end
-                sumR = sumR+RChannel(i,j);
-                sumG = sumG+GChannel(i,j);
-                sumB = sumB+BChannel(i,j);
-            end
-        end
-        
-        meanR = floor(sumR/M);
-        meanG = floor(sumG/M);
-        meanB = floor(sumB/M);
-        
-    end
-end
-
-end
-
-figure, imshow(I);
+% 
+% for compress=1:1
+% 
+% sumR = 0;
+% sumG = 0;
+% sumB = 0;
+% meanR = 0;
+% meanG = 0;
+% meanB = 0;
+% 
+% 
+% for k=1:id
+%     if(Blobs(k).top > 0)
+%         
+%         M = (Blobs(k).bottom - Blobs(k).top) * (Blobs(k).right - Blobs(k).left) ;
+%         fprintf('B(%d)\n',k);
+%         for i= Blobs(k).top:Blobs(k).bottom
+%             for j = Blobs(k).left:Blobs(k).right 
+%                 
+%                 if(k < 4) 
+%                 %fprintf('pixel(%d,%d) =[%d,%d,%d]\n',i,j,RChannel(i,j),GChannel(i,j),BChannel(i,j)); 
+%                 %fprintf('Color k*50 = %d\n',k*50);
+%                 I(i,j,1) = 255;
+%                 I(i,j,2) = 0;
+%                 I(i,j,3) = 0;
+%                 end
+%                 sumR = sumR+RChannel(i,j);
+%                 sumG = sumG+GChannel(i,j);
+%                 sumB = sumB+BChannel(i,j);
+%             end
+%         end
+%         
+%         meanR = floor(sumR/M);
+%         meanG = floor(sumG/M);
+%         meanB = floor(sumB/M);
+%         
+%     end
+% end
+% 
+% end
+% 
+% figure, imshow(I);
 %%
 
 %% Functions
@@ -644,45 +713,45 @@ function Blob(ii,jj,id)
     global right;
     global weight;
     
-    %fprintf("(%d,%d)\n",ii,jj);
+    %fprintf('(%d,%d)\n',ii,jj);
     
     if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
         Processed(ii-1,jj) = 1;
         TmpBlobMap(ii-1,jj) = id;
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii-1,jj));
+        %fprintf('TmpBlob() = %d\n',TmpBlobMap(ii-1,jj));
         weight = weight +1;
         top = min(ii-1,top);
-        %fprintf("top = %d\n",top);
+        %fprintf('top = %d\n',top);
         Blob(ii-1,jj,id);
     end
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0)   
         TmpBlobMap(ii+1,jj) = id;
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii+1,jj));
+        %fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;
         bottom = max(ii+1,bottom);
-        %fprintf("bottom = %d\n",bottom);
+        %fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj,id);
     end     
     
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)
         TmpBlobMap(ii,jj-1) = id;        
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj-1));
+        %fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;
         left = min(jj-1,left);
-        %fprintf("left = %d\n",left);
+        %fprintf('left = %d\n',left);
         Blob(ii,jj-1,id);
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
         TmpBlobMap(ii,jj+1) = id;
-        %fprintf("TmpBlob() = %d\n",TmpBlobMap(ii,jj+1));
+        %fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1;
         right = max(jj+1,right);
-        %fprintf("right = %d\n",right);
+        %fprintf('right = %d\n',right);
         Blob(ii,jj+1,id);
     end    
 end
@@ -711,9 +780,9 @@ function Merge(id,fid)
         for jj=Blobs(id).left:Blobs(id).right
             
             current_Blob = BlobMap(ii,jj);
-            fprintf("Merge: Pixel (%d,%d); current_Blob = %d AND id = %d\n",ii,jj,current_Blob, id);
-            fprintf("Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n",id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
-            fprintf("Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n",current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
+            fprintf('Merge: Pixel (%d,%d); current_Blob = %d AND id = %d\n',ii,jj,current_Blob, id);
+            fprintf('Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n',id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
+            fprintf('Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n',current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
                 
             if (current_Blob ~= 0 && current_Blob ~= id)               
                 
