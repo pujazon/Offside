@@ -8,9 +8,9 @@ for compress=1:1
 maxNumCompThreads(8);
 fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('test6.jpg');
-T = imread('test6.jpg');
-T2 = imread('test6.jpg');
+I = imread('test1.jpg');
+T = imread('test1.jpg');
+T2 = imread('test1.jpg');
 
 figure, imshow(I);
 
@@ -515,48 +515,75 @@ for compress=1:1
     FinalBlobs = Player.empty(NBlobs,0);
     
     %Ini calculus varaibles    
-    Sheight = 0;
-    tmp = 0;
-    tmp2 = 0;
-    sum = 0;   
-
-    %Height Mean calculus
-    for k=1:NBlobs                
-        height = Blobs(k).bottom - Blobs(k).top;          
-        %fprintf('height(%d) = %d cm\n',k,height);
-        Sheight = Sheight + height;
-    end    
-    mean_height = floor(Sheight/NBlobs);
+    SWeight = 0; 
+    Sheight = 0;    
+    sum = 0;
+    sum2 = 0;
     
-    %Height STD Calculus
-    for k=1:NBlobs         
+    %Weight Mean calculus
+    for k=1:NBlobs               
+        SWeight = SWeight + Blobs(k).weight;
         height = Blobs(k).bottom - Blobs(k).top;    
-        tmp=(height-mean_height);
-        tmp2 = tmp*tmp;
-        sum = sum+tmp2;
+        Sheight = Sheight + height;
     end
     
-    %Finish Height STD Calculus
+    mean_weight = floor(SWeight/NBlobs);
+    mean_height = floor(Sheight/NBlobs);
+
+    %Weight STD Calculus
+    for k=1:NBlobs  
+        tmp=(Blobs(k).weight-mean_weight);
+        tmp2 = tmp*tmp;
+        sum = sum+tmp2;
+        
+        height = Blobs(k).bottom - Blobs(k).top;    
+        aux=(height-mean_height);
+        aux2 = aux*aux;
+        sum2 = sum2+aux2;        
+        
+    end
+    
+    %Finish Weight STD Calculus
     tmp = floor(sum/(NBlobs-1));
     tmp2= sqrt(tmp);
-    std_height = floor(tmp2);  
+    std_weight = floor(tmp2);
+    
+    aux = floor(sum2/(NBlobs-1));
+    aux2= sqrt(aux);
+    std_height = floor(aux2);  
 
-    fprintf('std_weight = %d cm\n',std_height);
-    fprintf('mean_weight = %d cm\n',mean_height);
+    fprintf('std_weight = %d\n',std_weight);
+    fprintf('mean_weight = %d\n',mean_weight);
+    fprintf('std_height = %d\n',std_height);
   
     fid = 1;
 
-    %If Blob is inside STD means that is not noise.
-    %If it's not inside means that is too big or too small.
-    %If it's too big must be stored as a Blob to, so we must take care
+    %If Blob height deviation is less than STD height deviation
+    %means that Blob has similar height than the mean (Players)
+    %so must be added as a real Blob
+            
+    %Only with that filter, could be vertical line which has similar height
+    %than Players that pass the filter. So in order to avoid that kind of
+    %noise weight filter must be also used
     
-    for k=1:NBlobs        
+    %height filter doesn't work beacuse Player heights are too small
+    %so noise has too much probabilities to be inside
+    %let-height-range and pass the filter
+    
+    %We must make other deviation calculation:
+    
+    
+    
+    for k=1:NBlobs
+
          height = Blobs(k).bottom - Blobs(k).top;    
-         
-         if (~(abs(mean_height - height) > std_height) || ...
-                height > mean_height)
+        
+         if ((~(abs(mean_weight - Blobs(k).weight) > std_weight) && ...
+             ~(abs(mean_height - height) > std_height)) || ...
+                 Blobs(k).weight > mean_weight)
+             
             FinalBlobs(fid) = Blobs(k);
-            fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',iii,jjj,FinalBlobs(fid).weight,FinalBlobs(fid).top,FinalBlobs(fid).bottom,FinalBlobs(fid).right,FinalBlobs(fid).left);                
+            fprintf('FBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',iii,jjj,FinalBlobs(fid).weight,FinalBlobs(fid).top,FinalBlobs(fid).bottom,FinalBlobs(fid).right,FinalBlobs(fid).left);                
             fid = fid+1;
         end
     end    
