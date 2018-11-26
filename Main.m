@@ -515,32 +515,34 @@ for compress=1:1
     FinalBlobs = Player.empty(NBlobs,0);
     
     %Ini calculus varaibles    
-    SWeight = 0;
+    Sheight = 0;
     tmp = 0;
     tmp2 = 0;
-    sum = 0;
+    sum = 0;   
 
-    for k=1:NBlobs
-        
-        %Weight Mean calculus
-        SWeight = SWeight + Blobs(k).weight;  
-        
-        %Weight STD Calculus
-        tmp=(Blobs(k).weight-mean_weight);
+    %Height Mean calculus
+    for k=1:NBlobs                
+        height = Blobs(k).bottom - Blobs(k).top;          
+        %fprintf('height(%d) = %d cm\n',k,height);
+        Sheight = Sheight + height;
+    end    
+    mean_height = floor(Sheight/NBlobs);
+    
+    %Height STD Calculus
+    for k=1:NBlobs         
+        height = Blobs(k).bottom - Blobs(k).top;    
+        tmp=(height-mean_height);
         tmp2 = tmp*tmp;
         sum = sum+tmp2;
     end
     
-    %Finish Weight STD Calculus
+    %Finish Height STD Calculus
     tmp = floor(sum/(NBlobs-1));
     tmp2= sqrt(tmp);
-    std_weight = floor(tmp2);
-    
-    %fprintf('SUM->%d; \n',sum);
-    mean_weight = floor(SWeight/NBlobs);
+    std_height = floor(tmp2);  
 
-    fprintf('std_weight = %d\n',std_weight);
-    fprintf('mean_weight = %d\n',mean_weight);
+    fprintf('std_weight = %d cm\n',std_height);
+    fprintf('mean_weight = %d cm\n',mean_height);
   
     fid = 1;
 
@@ -548,9 +550,11 @@ for compress=1:1
     %If it's not inside means that is too big or too small.
     %If it's too big must be stored as a Blob to, so we must take care
     
-    for k=1:NBlobs
-         if (~(abs(mean_weight - Blobs(k).weight) > std_weight) || ...
-                 Blobs(k).weight > mean_weight)
+    for k=1:NBlobs        
+         height = Blobs(k).bottom - Blobs(k).top;    
+         
+         if (~(abs(mean_height - height) > std_height) || ...
+                height > mean_height)
             FinalBlobs(fid) = Blobs(k);
             fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',iii,jjj,FinalBlobs(fid).weight,FinalBlobs(fid).top,FinalBlobs(fid).bottom,FinalBlobs(fid).right,FinalBlobs(fid).left);                
             fid = fid+1;
@@ -561,7 +565,7 @@ for compress=1:1
     fid = fid-1;
     
     %Debug
-    for w=1:fid-1
+    for w=1:fid
         %fprintf('iter %d\n',w);
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
@@ -573,7 +577,7 @@ for compress=1:1
     end
     
     fprintf('Really, there are %d Blobs!\n',fid);
-    %imshow(T2);
+    imshow(T2);
 end
 
 %%
