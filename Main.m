@@ -1,16 +1,16 @@
 %% Init
 %  Get the image and show it. Set number of thread
-addpath 'F:\tfg\offside\img'
-addpath 'F:\tfg\offside\img\test4_players'
+addpath 'C:\Users\danie\Desktop\offside\img'
+addpath 'C:\Users\danie\Desktop\offside\img\test4_players'
 
 for compress=1:1
     
 maxNumCompThreads(8);
 fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('test1.jpg');
-T = imread('test1.jpg');
-T2 = imread('test1.jpg');
+I = imread('test6.jpg');
+T = imread('test6.jpg');
+T2 = imread('test6.jpg');
 
 figure, imshow(I);
 
@@ -498,7 +498,6 @@ for q=1:NBlobs
     end    
 end
 
-fprintf('There are %d Blobs!\n',NBlobs);
 imshow(T);
 end
 
@@ -551,11 +550,11 @@ for compress=1:1
     aux = floor(sum2/(NBlobs-1));
     aux2= sqrt(aux);
     std_height = floor(aux2);  
+% 
+%     fprintf('std_weight = %d\n',std_weight);
+%     fprintf('mean_weight = %d\n',mean_weight);
+%     fprintf('std_height = %d\n',std_height);
 
-    fprintf('std_weight = %d\n',std_weight);
-    fprintf('mean_weight = %d\n',mean_weight);
-    fprintf('std_height = %d\n',std_height);
-  
     fid = 1;
 
     %If Blob height deviation is less than STD height deviation
@@ -576,8 +575,8 @@ for compress=1:1
     
     for k=1:NBlobs
 
-         height = Blobs(k).bottom - Blobs(k).top;    
-        
+         height = Blobs(k).bottom - Blobs(k).top;       
+         
          if ((~(abs(mean_weight - Blobs(k).weight) > std_weight) && ...
              ~(abs(mean_height - height) > std_height)) || ...
                  Blobs(k).weight > mean_weight)
@@ -604,69 +603,14 @@ for compress=1:1
     end
     
     fprintf('Really, there are %d Blobs!\n',fid);
+    NBlobs = fid;
     imshow(T2);
 end
 
 %%
 
 
-%% Merge Blobs:
-%  For each Blob if there is a neighbour too close
-%  Means that is part of the same Blob so merge them
-% 
-% for compress=1:1
-%     
-%     %First calculate standrad recivation of four directions.
-%     
-%     Vtop = zeros(N,0);
-%     Vbottom = zeros(N,0);
-%     Vleft = zeros(N,0);
-%     Vright = zeros(N,0);
-%     
-%     for k=1:N
-%         Vtop(k) = Blobs(k).top;
-%         Vbottom(k) = Blobs(k).bottom;
-%         Vleft(k) = Blobs(k).left;
-%         Vright(k) = Blobs(k).right;
-%     end
-% 
-%     global_std_top = std(Vtop);
-%     global_std_bottom = std(Vbottom);
-%     global_std_left = std(Vleft);
-%     global_std_right = std(Vright);
-%     
-%     %Set init values
-%     FinalBlobs = Player.empty(N,0);
-%     MarkedBlobs = zeros(N);   
-%     fid = 1;
-%    
-%     for i=1:rows
-%         for j=1:columns
-%             
-%             %Because all lops go from left to right and from top to left
-%             %means that when we found a pixel to be processed it will be 
-%             %top-left Blob box.
-%             
-%             current_Blob = BlobMap(i,j);
-%             
-%             %If there is a blob (c_Blob != 0) and has not been processed
-%             %(MarkedBlob == 0) procced it, merge            
-%             if (current_Blob ~=0 && MarkedBlobs(current_Blob) == 0)
-%                 MarkedBlobs(current_Blob) = 1;
-%                 Merge(current_Blob,fid);
-%                 fid = fid+1;
-%             end
-%             
-%         end
-%     end
-%     
-%     fprintf('Final Blobs are %d\n',fid);
-%     
-% end
-
-%%
-
-%% Player detection:
+%% Team detection:
 %  For each Blob get RGB mean and standard derivation.
 %  If all pixels are inside that derivation, means that on Blob there is
 %  only one player. Compare it mean RGB with mean RGB Team A or B, set
@@ -677,47 +621,61 @@ end
 %  else set to GroupB). Then calculate left and right position of each
 %  Group (Player) and set them individually on Output vector
 % 
-% for compress=1:1
-% 
-% sumR = 0;
-% sumG = 0;
-% sumB = 0;
-% meanR = 0;
-% meanG = 0;
-% meanB = 0;
-% 
-% 
-% for k=1:id
-%     if(Blobs(k).top > 0)
-%         
-%         M = (Blobs(k).bottom - Blobs(k).top) * (Blobs(k).right - Blobs(k).left) ;
-%         fprintf('B(%d)\n',k);
-%         for i= Blobs(k).top:Blobs(k).bottom
-%             for j = Blobs(k).left:Blobs(k).right 
-%                 
-%                 if(k < 4) 
-%                 %fprintf('pixel(%d,%d) =[%d,%d,%d]\n',i,j,RChannel(i,j),GChannel(i,j),BChannel(i,j)); 
-%                 %fprintf('Color k*50 = %d\n',k*50);
-%                 I(i,j,1) = 255;
-%                 I(i,j,2) = 0;
-%                 I(i,j,3) = 0;
+
+%Implemented. Only if Blob is 1 player. Else must be implemented
+for compress=1:1
+
+    
+sumR = uint64(1);
+sumG = uint64(1);
+sumB = uint64(1);
+meanR = uint64(1);
+meanG = uint64(1);
+meanB = uint64(1);
+    
+sumR(1) = 0;
+sumG(1) = 0;
+sumB(1) = 0;
+meanR(1) = 0;
+meanG(1) = 0;
+meanB(1) = 0;
+counter = 0;
+
+for k=1:NBlobs      
+            
+        for i= FinalBlobs(k).top:FinalBlobs(k).bottom
+            for j = FinalBlobs(k).left:FinalBlobs(k).right 
+                
+                sumR(1) = sumR(1)+uint64(RChannel(i,j));
+                sumG(1) = sumG(1)+uint64(GChannel(i,j));
+                sumB(1) = sumB(1)+uint64(BChannel(i,j));
+                counter = counter+1;
+                
+                %Debug
+%                 if (k == 3)
+%                     fprintf('pixel(%d,%d) =[%d,%d,%d]\n',i,j,RChannel(i,j),GChannel(i,j),BChannel(i,j));
+%                     fprintf("XColor Player(%d) = (%d,%d,%d)\n",k,sumR(1),sumG(1),sumB(1));
 %                 end
-%                 sumR = sumR+RChannel(i,j);
-%                 sumG = sumG+GChannel(i,j);
-%                 sumB = sumB+BChannel(i,j);
-%             end
-%         end
-%         
-%         meanR = floor(sumR/M);
-%         meanG = floor(sumG/M);
-%         meanB = floor(sumB/M);
-%         
-%     end
-% end
-% 
-% end
-% 
-% figure, imshow(I);
+            end
+        end
+        
+        %nn != counter. Why? Must be investigated
+        %nn = (FinalBlobs(k).bottom-FinalBlobs(k).top)*(FinalBlobs(k).right-FinalBlobs(k).left);        
+        
+        meanR = floor(sumR(1)/counter);
+        meanG = floor(sumG(1)/counter);
+        meanB = floor(sumB(1)/counter);
+        
+        fprintf("XColor Player(%d) = (%d,%d,%d)\n",k,meanR,meanG,meanB);
+        
+        sumR(1) = 0;
+        sumG(1) = 0;
+        sumB(1) = 0;
+        counter = 0;
+end
+
+end
+
 %%
 
 %% Functions
