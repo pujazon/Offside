@@ -1,16 +1,16 @@
 %% Init
 %  Get the image and show it. Set number of thread
 addpath 'C:\Users\danie\Desktop\offside\img'
-addpath 'C:\Users\danie\Desktop\offside\img\test4_players'
+addpath 'C:\Users\danie\Desktop\offside\img\test1_players'
 
 for compress=1:1
     
 maxNumCompThreads(8);
 fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('test6.jpg');
-T = imread('test6.jpg');
-T2 = imread('test6.jpg');
+I = imread('test1.jpg');
+T = imread('test1.jpg');
+T2 = imread('test1.jpg');
 
 figure, imshow(I);
 
@@ -340,6 +340,7 @@ tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
     for j = 1: columns        
+        
         if (abs(RChannel(i,j)- RPeak) < Rth &&...
             abs(GChannel(i,j)- GPeak) < Gth &&...
             abs(BChannel(i,j)- BPeak) < Bth &&...
@@ -504,7 +505,6 @@ end
 
 %%
 
-
 %% Blob Filter
 %  Calculate weight std and only will be blobs the ones that 
 %  have less deviation than std. otherwise will be discarted
@@ -609,7 +609,6 @@ end
 
 %%
 
-
 %% Team detection:
 %  For each Blob get RGB mean and standard derivation.
 %  If all pixels are inside that derivation, means that on Blob there is
@@ -625,56 +624,68 @@ end
 %Implemented. Only if Blob is 1 player. Else must be implemented
 for compress=1:1
 
+    %First we apply threshold to Blob box in order to delete Field pixels
+    %And we will get cleaner the color shirt Player
     
-sumR = uint64(1);
-sumG = uint64(1);
-sumB = uint64(1);
-meanR = uint64(1);
-meanG = uint64(1);
-meanB = uint64(1);
-    
-sumR(1) = 0;
-sumG(1) = 0;
-sumB(1) = 0;
-meanR(1) = 0;
-meanG(1) = 0;
-meanB(1) = 0;
-counter = 0;
+    for k=2:2
+        
+        comptador = 1;
+        
+        box_rows = FinalBlobs(k).bottom-FinalBlobs(k).top;
+        box_columns = FinalBlobs(k).right-FinalBlobs(k).left;
 
-for k=1:NBlobs      
-            
-        for i= FinalBlobs(k).top:FinalBlobs(k).bottom
-            for j = FinalBlobs(k).left:FinalBlobs(k).right 
+        pR = zeros(box_rows*box_columns);
+        pG = zeros(box_rows*box_columns);
+        pB = zeros(box_rows*box_columns);
+        
+        for i=FinalBlobs(k).top:FinalBlobs(k).bottom
+            for j=FinalBlobs(k).left:FinalBlobs(k).right
                 
-                sumR(1) = sumR(1)+uint64(RChannel(i,j));
-                sumG(1) = sumG(1)+uint64(GChannel(i,j));
-                sumB(1) = sumB(1)+uint64(BChannel(i,j));
-                counter = counter+1;
                 
-                %Debug
-%                 if (k == 3)
-%                     fprintf('pixel(%d,%d) =[%d,%d,%d]\n',i,j,RChannel(i,j),GChannel(i,j),BChannel(i,j));
-%                     fprintf("XColor Player(%d) = (%d,%d,%d)\n",k,sumR(1),sumG(1),sumB(1));
-%                 end
+                
+                fprintf("(%d,%d) = [%d,%d,%d]\n",i,j,RChannel(i,j),GChannel(i,j),GChannel(i,j));
+                if (abs(RChannel(i,j)- RPeak) < Rth &&...
+                    abs(GChannel(i,j)- GPeak) < Gth &&...
+                    abs(BChannel(i,j)- BPeak) < Bth &&...
+                    GChannel(i,j) > RChannel(i,j) &&...
+                    GChannel(i,j) > BChannel(i,j))
+                
+                    %Not Grass%%
+                    pR(comptador)=RChannel(i,j);
+                    pG(comptador)=GChannel(i,j);
+                    pB(comptador)=BChannel(i,j);
+                    %if(k==1)
+                    % fprintf("i = %d, pG()=%d\n",comptador,pG(comptador));
+                    %end
+                    comptador = comptador+1;
+                    %%%
+                end
             end
+        end  
+        
+        Nbox = comptador-1;
+        tR = zeros(Nbox);
+        tG = zeros(Nbox);
+        tB = zeros(Nbox);
+        
+        %Get arrays again to histogram process
+        for c=1:Nbox
+            tR(c) = pR(c);
+            tG(c) = pG(c);
+            tB(c) = pB(c);
+            %fprintf("i = %d, pG()=%d\n",c,tG(c));
         end
-        
-        %nn != counter. Why? Must be investigated
-        %nn = (FinalBlobs(k).bottom-FinalBlobs(k).top)*(FinalBlobs(k).right-FinalBlobs(k).left);        
-        
-        meanR = floor(sumR(1)/counter);
-        meanG = floor(sumG(1)/counter);
-        meanB = floor(sumB(1)/counter);
-        
-        fprintf("XColor Player(%d) = (%d,%d,%d)\n",k,meanR,meanG,meanB);
-        
-        sumR(1) = 0;
-        sumG(1) = 0;
-        sumB(1) = 0;
-        counter = 0;
-end
 
-end
+            if(k==1)
+                figure, subplot(3,1,1);
+                x = linspace(0,10,50);
+                plot(tG,'r');
+                title('RED 1')
+            end
+   
+    end
+    
+end     
 
 %%
 
