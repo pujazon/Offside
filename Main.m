@@ -576,15 +576,10 @@ for compress=1:1
     %let-height-range and pass the filter
     
     %We must make other deviation calculation:
-    
-    
-    
+   
     for k=1:NBlobs
 
          height = Blobs(k).bottom - Blobs(k).top;       
-         
-         %If negative STDi means that is bigger than STD so 
-         %is a Blob.                 
          
          if ((~((mean_weight - Blobs(k).weight) > std_weight) && ...
              ~((mean_height - height) > std_height)) || ...
@@ -599,12 +594,11 @@ for compress=1:1
         end
     end    
 
-    
     fid = fid-1;
     
     %Debug
     for w=1:fid
-        %fprintf('iter %d\n',w);
+        %fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
                 T2(iii,jjj,1) = 133;
@@ -622,80 +616,48 @@ end
 %%
 
 %% Team detection:
-%  For each Blob get RGB mean and standard derivation.
-%  If all pixels are inside that derivation, means that on Blob there is
-%  only one player. Compare it mean RGB with mean RGB Team A or B, set
-%  the Team and set the Player to Output array.
-%  If there is some pixels which are outside of standard derivation means
-%  that there are more than one Player on Blob so we must group all pixels
-%  that are near (get 1 pixel. If following pixel is 'near' set to GroupA
-%  else set to GroupB). Then calculate left and right position of each
-%  Group (Player) and set them individually on Output vector
 % 
 
-%Implemented. Only if Blob is 1 player. Else must be implemented
 for compress=1:1
 
-    %First we apply threshold to Blob box in order to delete Field pixels
-    %And we will get cleaner the color shirt Player
+      %We will work with Blob box not only with player pixels so
+      %there will be field pixels noise    
     
-    for k=2:2
+    for k=1:NBlobs    
         
         comptador = 1;
         
         box_rows = FinalBlobs(k).bottom-FinalBlobs(k).top;
         box_columns = FinalBlobs(k).right-FinalBlobs(k).left;
+        
+        %coords [xmin ymin width height]
+        %fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",k,FinalBlobs(k).top,FinalBlobs(k).left,FinalBlobs(k).bottom,FinalBlobs(k).right,(FinalBlobs(k).bottom-FinalBlobs(k).top),(FinalBlobs(k).right-FinalBlobs(k).left));
+        tmp_Player  = imcrop(I,[FinalBlobs(k).left FinalBlobs(k).top box_columns box_rows]);
+        %imshow(tmp_Player);
+        [tmpR,bR] = imhist(tmp_Player(:,:,1));
+        [tmpG,bG] = imhist(tmp_Player(:,:,2));
+        [tmpB,bB] = imhist(tmp_Player(:,:,3));
+        
+        %Debug, print Histograms
+%         figure, subplot(3,1,1);
+%         x = linspace(0,10,50);
+%         R=[tmpR];
+%         plot(R,'r');
+%         title('RED 1')
+%         
+%         subplot(3,1,2);
+%         G=[tmpG];
+%         plot(G,'g');
+%         title('GREEN 2')
+%         
+%         subplot(3,1,3);
+%         B=[tmpB];
+%         plot(B,'b');
+%         title('BLUE 3')          
 
-        pR = zeros(box_rows*box_columns);
-        pG = zeros(box_rows*box_columns);
-        pB = zeros(box_rows*box_columns);
-        
-        for i=FinalBlobs(k).top:FinalBlobs(k).bottom
-            for j=FinalBlobs(k).left:FinalBlobs(k).right
-                
-                
-                
-                %fprintf("(%d,%d) = [%d,%d,%d]\n",i,j,RChannel(i,j),GChannel(i,j),GChannel(i,j));
-                if (abs(RChannel(i,j)- RPeak) < Rth &&...
-                    abs(GChannel(i,j)- GPeak) < Gth &&...
-                    abs(BChannel(i,j)- BPeak) < Bth &&...
-                    GChannel(i,j) > RChannel(i,j) &&...
-                    GChannel(i,j) > BChannel(i,j))
-                
-                    %Not Grass%%
-                    pR(comptador)=RChannel(i,j);
-                    pG(comptador)=GChannel(i,j);
-                    pB(comptador)=BChannel(i,j);
-                    %if(k==1)
-                    % fprintf("i = %d, pG()=%d\n",comptador,pG(comptador));
-                    %end
-                    comptador = comptador+1;
-                    %%%
-                end
-            end
-        end  
-        
-        Nbox = comptador-1;
-        tR = zeros(Nbox);
-        tG = zeros(Nbox);
-        tB = zeros(Nbox);
-        
-        %Get arrays again to histogram process
-        for c=1:Nbox
-            tR(c) = pR(c);
-            tG(c) = pG(c);
-            tB(c) = pB(c);
-            %fprintf("i = %d, pG()=%d\n",c,tG(c));
-        end
+     end
 
-            if(k==1)
-                figure, subplot(3,1,1);
-                x = linspace(0,10,50);
-                plot(tG,'r');
-                title('RED 1')
-            end
-   
-    end
+        
     
 end     
 
