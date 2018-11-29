@@ -1,7 +1,7 @@
 %% Init
 %  Get the image and show it. Set number of thread
 addpath 'C:\Users\danie\Desktop\offside\img'
-addpath 'C:\Users\danie\Desktop\offside\img\test1_players'
+addpath 'C:\Users\danie\Desktop\offside\img\test4_players'
 
 for compress=1:1
     
@@ -459,12 +459,11 @@ for i = 1: rows
             
             Blob(i,j,id);
             
-            %Hay que refinarlo. 1 pixel ya es un blob. 
-            %Ha de haber un mínim de pixels cjt                        
-            % ahora > 10 pxls pero s'ha de fer be amb la mitjana i les
-            % desviacions
+            %We must add 30-bigger-weight condition in order to delete
+            %noise. Else STD calcus won't be realistic because there were
+            %too fake values           
             
-                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > 10))
+                if ((weight > 30)&&(top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > 10))
                     
                     TmpBlobMap(i,j) = id;
                     
@@ -511,6 +510,13 @@ end
 
 for compress=1:1   
 
+    %Problem is that there are too many noise and then that noise 
+    %affects too much on STDi values and then on STD
+    %and smal fake blobs pass STD filter because there were 
+    %noise pixels blobs too small.
+    %SOLVED-> Add pixel weight filter, enmpiristic (Knowing that 10 px is
+    %too lees for a Player).
+    
     FinalBlobs = Player.empty(NBlobs,0);
     
     %Ini calculus varaibles    
@@ -577,12 +583,18 @@ for compress=1:1
 
          height = Blobs(k).bottom - Blobs(k).top;       
          
-         if ((~(abs(mean_weight - Blobs(k).weight) > std_weight) && ...
-             ~(abs(mean_height - height) > std_height)) || ...
+         %If negative STDi means that is bigger than STD so 
+         %is a Blob.                 
+         
+         if ((~((mean_weight - Blobs(k).weight) > std_weight) && ...
+             ~((mean_height - height) > std_height)) || ...
                  Blobs(k).weight > mean_weight)
-             
+            
             FinalBlobs(fid) = Blobs(k);
-            fprintf('FBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',iii,jjj,FinalBlobs(fid).weight,FinalBlobs(fid).top,FinalBlobs(fid).bottom,FinalBlobs(fid).right,FinalBlobs(fid).left);                
+             
+            %fprintf("[%d]::W()=%d,XW()=%d STD_W=%d,,H()=%d,STD_H=%d\n",fid,(mean_weight - Blobs(k).weight),mean_weight,std_weight,(mean_height - (Blobs(k).bottom - Blobs(k).top)),std_height);
+            fprintf('FBlob[%d](%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',fid,iii,jjj,FinalBlobs(fid).weight,FinalBlobs(fid).top,FinalBlobs(fid).bottom,FinalBlobs(fid).right,FinalBlobs(fid).left);                
+            
             fid = fid+1;
         end
     end    
@@ -595,9 +607,9 @@ for compress=1:1
         %fprintf('iter %d\n',w);
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                T2(iii,jjj,1) = 255;
-                T2(iii,jjj,2) = 0;
-                T2(iii,jjj,3) = 255;
+                T2(iii,jjj,1) = 133;
+                T2(iii,jjj,2) = 90;
+                T2(iii,jjj,3) = 133;
             end
         end    
     end
@@ -643,7 +655,7 @@ for compress=1:1
                 
                 
                 
-                fprintf("(%d,%d) = [%d,%d,%d]\n",i,j,RChannel(i,j),GChannel(i,j),GChannel(i,j));
+                %fprintf("(%d,%d) = [%d,%d,%d]\n",i,j,RChannel(i,j),GChannel(i,j),GChannel(i,j));
                 if (abs(RChannel(i,j)- RPeak) < Rth &&...
                     abs(GChannel(i,j)- GPeak) < Gth &&...
                     abs(BChannel(i,j)- BPeak) < Bth &&...
