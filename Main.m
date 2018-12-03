@@ -2,9 +2,10 @@
 %  Get the image and show it. Set number of thread
 addpath 'C:\Users\danie\Desktop\offside\img'
 addpath 'C:\Users\danie\Desktop\offside\img\test4_players'
+
 %Profiling
-format shortg
-c = clock
+% format shortg
+% c = clock
 
 for compress=1:1
     
@@ -15,7 +16,7 @@ I = imread('test1.jpg');
 T = imread('test1.jpg');
 T2 = imread('test1.jpg');
 
-%figure, imshow(I);
+figure, imshow(I);
 
 end
 
@@ -29,232 +30,10 @@ global ZeroMask;
 global FinalBlobs;
 global N;    
 global NBlobs;    
-global global_std_top;
-global global_std_bottom;
-global global_std_left;
-global global_std_right;
 
 N = 30;
 
 %%
-
-%% MaskTeam:    
-%  Get RGB mean of each RGB Peaks Team B Player 
-%  Get RGB mean of each RGB Peaks Team A Player 
-
-for k = 1:1
-%Declare Variables
-
-N=5;
-
-TeamA = cell(1,N);
-TeamB = cell(1,N);
-
-RLevelTeamB = cell(1,N);
-GLevelTeamB = cell(1,N);
-BLevelTeamB = cell(1,N);
-
-idRTeamB = cell(1,N);
-idGTeamB = cell(1,N);
-idBTeamB = cell(1,N);
-
-RLevelTeamA = cell(1,N);
-GLevelTeamA = cell(1,N);
-BLevelTeamA = cell(1,N);
-
-idRTeamA = cell(1,N);
-idGTeamA = cell(1,N);
-idBTeamA = cell(1,N);
-
-RPeak = zeros(N);
-GPeak = zeros(N);
-BPeak = zeros(N);
-
-PixelsRPeak = 0;
-PixelsGPeak = 0;
-PixelsBPeak = 0;
-
-
-% Get Teams
-
-%TeamA
-for i = 1:N
-
-    path = sprintf('a%d.png',i);
-    TeamA{i}= imread(path);
- 
-end
-
-%TeamB
-for i = 1:N
-       
-    path = sprintf('b%d.png',i);
-    TeamB{i}= imread(path);
- 
-end
-
-% Get Histograms
-
-%Take Histograms
-for i = 1:N
-    
-    %TeamB
-    [BidR, BtmpR] = imhist(TeamB{i}(:,:,1));
-    [BidG, BtmpG] = imhist(TeamB{i}(:,:,2));
-    [BidB, BtmpB] = imhist(TeamB{i}(:,:,3));
-    
-    RLevelTeamB{i} = BtmpR;
-    GLevelTeamB{i} = BtmpG;
-    BLevelTeamB{i} = BtmpB;     
-
-    idRTeamB{i} = BidR;
-    idGTeamB{i} = BidG;
-    idBTeamB{i} = BidB;    
-    
-    %TeamA
-    [AidR, AtmpR] = imhist(TeamA{i}(:,:,1));
-    [AidG, AtmpG] = imhist(TeamA{i}(:,:,2));
-    [AidB, AtmpB] = imhist(TeamA{i}(:,:,3));
-    
-    RLevelTeamA{i} = AtmpR;
-    GLevelTeamA{i} = AtmpG;
-    BLevelTeamA{i} = AtmpB;     
-
-    idRTeamA{i} = AidR;
-    idGTeamA{i} = AidG;
-    idBTeamA{i} = AidB;
- 
-end
-
-%Printf Histograms
-% for i = 1:N
-%     %%fprintf('Player B(%d) Greens\n',i);
-%     %idGTeamA{i}
-%     
-%     figure, subplot(3,1,1);
-%     x = linspace(0,10,50);
-%     R=[idRTeamB{i}];
-%     plot(R,'r');
-%     title('RED 1')
-%     
-%     subplot(3,1,2);
-%     G=[idGTeamB{i}];
-%     plot(G,'g');
-%     title('GREEN 2')
-%     
-%     subplot(3,1,3);
-%     B=[idBTeamB{i}];
-%     plot(B,'b');
-%     title('BLUE 3')    
-%     
-% end
-
-% RGB TeamB
-
-TeamB_RPeak = 0;
-TeamB_GPeak = 0;
-TeamB_BPeak = 0;
-
-%RPeak(n), GPeak(n), BPeak(n) TeamB
-for i = 1:N
-    
-    auxidsR = idRTeamB{i};
-    auxidsG = idGTeamB{i};
-    auxidsB = idBTeamB{i};
-    PixelsRPeak = 0;
-    PixelsGPeak = 0;
-    PixelsBPeak = 0;
-    
-    for j = 1:255     
-        %%fprintf('R: Value %d #pixels = %d, max = %d\n',j,auxidsR(j),PixelsRPeak);
-        if(auxidsR(j) > PixelsRPeak)
-            RPeak(i) = j;
-            PixelsRPeak = auxidsR(j);
-        end
-
-        if(auxidsG(j) > PixelsGPeak)
-            GPeak(i) = j;
-            PixelsGPeak = auxidsG(j);
-        end
-
-        if(auxidsB(j) > PixelsBPeak)
-            BPeak(i) = j;
-            PixelsBPeak = auxidsB(j);
-        end
-        
-    end
-    
-    TeamB_RPeak = TeamB_BPeak + RPeak(i);
-    TeamB_GPeak = TeamB_BPeak + GPeak(i);
-    TeamB_BPeak = TeamB_BPeak + BPeak(i);
-end
-
-TeamB_RPeak = floor(TeamB_RPeak/N);
-TeamB_GPeak = floor(TeamB_GPeak/N);
-TeamB_BPeak = floor(TeamB_BPeak/N);
-
-%Print R,G,B Peaks
-% for i = 1:N
-%     %fprintf('B(%d): RGB: (%d,%d,%d)\n',i,RPeak(i),GPeak(i),BPeak(i));
-% end
-%fprintf('Team B RGB: (%d,%d,%d)\n',TeamB_RPeak,TeamB_GPeak,TeamB_BPeak);
-
-
-% RGB TeamA
-
-TeamA_RPeak = 0;
-TeamA_GPeak = 0;
-TeamA_BPeak = 0;
-
-%RPeak(n), GPeak(n), BPeak(n) TeamA
-for i = 1:N
-    
-    auxidsR = idRTeamA{i};
-    auxidsG = idGTeamA{i};
-    auxidsB = idBTeamA{i};
-    PixelsRPeak = 0;
-    PixelsGPeak = 0;
-    PixelsBPeak = 0;    
-    
-    for j = 1:255     
-        %%fprintf('R: Value %d #pixels = %d, max = %d\n',j,auxidsR(j),PixelsRPeak);
-        if(auxidsR(j) > PixelsRPeak)
-            RPeak(i) = j;
-            PixelsRPeak = auxidsR(j);
-        end
-
-        if(auxidsG(j) > PixelsGPeak)
-            GPeak(i) = j;
-            PixelsGPeak = auxidsG(j);
-        end
-
-        if(auxidsB(j) > PixelsBPeak)
-            BPeak(i) = j;
-            PixelsBPeak = auxidsB(j);
-        end
-        
-    end
-    
-    TeamA_RPeak = TeamA_RPeak + RPeak(i);
-    TeamA_GPeak = TeamA_GPeak + GPeak(i);
-    TeamA_BPeak = TeamA_BPeak + BPeak(i);
-    
-end
-
-TeamA_RPeak = floor(TeamA_RPeak/N);
-TeamA_GPeak = floor(TeamA_GPeak/N);
-TeamA_BPeak = floor(TeamA_BPeak/N);
-
-%Print R,G,B Peaks
-% for i = 1:N
-%     %fprintf('A(%d): RGB: (%d,%d,%d)\n',i,RPeak(i),GPeak(i),BPeak(i));
-% end
-%%fprintf('Team A RGB: (%d,%d,%d)\n',TeamA_RPeak,TeamA_GPeak,TeamA_BPeak);
-
-end
-
-%%
-
 %% Plotting Image Histogram:
 %  Plot image histogram in order to get an image
 %  that there are big acumulation of pixels in each components
@@ -318,6 +97,8 @@ end
 
 end
 
+%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+
 %%
 
 %% FieldMask:
@@ -350,6 +131,7 @@ for i = 1: rows
             GChannel(i,j) > RChannel(i,j) &&...
             GChannel(i,j) > BChannel(i,j))    
         
+            %It's grass
             tmp_PlayersMask(i,j) = 255;
             FieldMask(i,j) = 0;
         else
@@ -613,7 +395,7 @@ for compress=1:1
     
     %fprintf('Really, there are %d Blobs!\n',fid);
     NBlobs = fid;
-    %imshow(T2);
+    imshow(T2);
 end
 
 %%
@@ -637,9 +419,37 @@ for compress=1:1
         %%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",k,FinalBlobs(k).top,FinalBlobs(k).left,FinalBlobs(k).bottom,FinalBlobs(k).right,(FinalBlobs(k).bottom-FinalBlobs(k).top),(FinalBlobs(k).right-FinalBlobs(k).left));
         tmp_Player  = imcrop(I,[FinalBlobs(k).left FinalBlobs(k).top box_columns box_rows]);
         %imshow(tmp_Player);
+        Rp = tmp_Player(:,:,1);
+        Gp = tmp_Player(:,:,2);
+        Bp = tmp_Player(:,:,3);
         [tmpR,bR] = imhist(tmp_Player(:,:,1));
         [tmpG,bG] = imhist(tmp_Player(:,:,2));
         [tmpB,bB] = imhist(tmp_Player(:,:,3));
+        
+        %We want to get mean Shirt color. So cropping the blobs as a box
+        %there is too much Grass-noise. So we must erase it of histogram
+        
+        %The solution will be: If Grass one colour using 255 255 0 (Cyan)
+        %Then we compute the Peak. IF the peak is Cyan one we take the
+        %second one.
+        
+        for i=FinalBlobs(k).top:FinalBlobs(k).bottom
+            for j=FinalBlobs(k).left:FinalBlobs(k).right
+                
+                    if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
+                    abs(GChannel(i,j)- max_GLevels) < Gth &&...
+                    abs(BChannel(i,j)- max_BLevels) < Bth &&...
+                    GChannel(i,j) > RChannel(i,j) &&...
+                    GChannel(i,j) > BChannel(i,j))    
+                                        
+                    Rp = 255;
+                    Gp = 255;
+                    Bp = 0;
+                    
+                    end                    
+            end
+        end
+            
         
         %Debug, print Histograms
 %         figure, subplot(3,1,1);
@@ -658,6 +468,8 @@ for compress=1:1
 %         plot(B,'b');
 %         title('BLUE 3')          
 
+imshow(tmp_Player);
+
      end
 
         
@@ -667,8 +479,9 @@ end
 %%
 
 %Profiling
-format shortg
-c = clock
+% format shortg
+% c = clock
+
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
