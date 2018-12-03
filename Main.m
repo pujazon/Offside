@@ -13,6 +13,7 @@ maxNumCompThreads(8);
 %fprintf('Hilos: %d\n',maxNumCompThreads);
 
 I = imread('test1.jpg');
+TeamMap = imread('test1.jpg');
 T = imread('test1.jpg');
 T2 = imread('test1.jpg');
 
@@ -415,17 +416,6 @@ for compress=1:1
         box_rows = FinalBlobs(k).bottom-FinalBlobs(k).top;
         box_columns = FinalBlobs(k).right-FinalBlobs(k).left;
         
-        %coords [xmin ymin width height]
-        %%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",k,FinalBlobs(k).top,FinalBlobs(k).left,FinalBlobs(k).bottom,FinalBlobs(k).right,(FinalBlobs(k).bottom-FinalBlobs(k).top),(FinalBlobs(k).right-FinalBlobs(k).left));
-        tmp_Player  = imcrop(I,[FinalBlobs(k).left FinalBlobs(k).top box_columns box_rows]);
-        %imshow(tmp_Player);
-        Rp = tmp_Player(:,:,1);
-        Gp = tmp_Player(:,:,2);
-        Bp = tmp_Player(:,:,3);
-        [tmpR,bR] = imhist(tmp_Player(:,:,1));
-        [tmpG,bG] = imhist(tmp_Player(:,:,2));
-        [tmpB,bB] = imhist(tmp_Player(:,:,3));
-        
         %We want to get mean Shirt color. So cropping the blobs as a box
         %there is too much Grass-noise. So we must erase it of histogram
         
@@ -436,39 +426,47 @@ for compress=1:1
         for i=FinalBlobs(k).top:FinalBlobs(k).bottom
             for j=FinalBlobs(k).left:FinalBlobs(k).right
                 
-                    if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
-                    abs(GChannel(i,j)- max_GLevels) < Gth &&...
-                    abs(BChannel(i,j)- max_BLevels) < Bth &&...
+                    if (abs(RChannel(i,j)- max_RLevels) < Rth+45 &&...
+                    abs(GChannel(i,j)- max_GLevels) < Gth+45 &&...
+                    abs(BChannel(i,j)- max_BLevels) < Bth+45 &&...
                     GChannel(i,j) > RChannel(i,j) &&...
                     GChannel(i,j) > BChannel(i,j))    
                                         
-                    Rp = 255;
-                    Gp = 255;
-                    Bp = 0;
+                    TeamMap(i,j,1) = 255;
+                    TeamMap(i,j,2) = 0;
+                    TeamMap(i,j,3) = 255;
                     
                     end                    
             end
         end
-            
+        
+        %coords [xmin ymin width height]
+        %%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",k,FinalBlobs(k).top,FinalBlobs(k).left,FinalBlobs(k).bottom,FinalBlobs(k).right,(FinalBlobs(k).bottom-FinalBlobs(k).top),(FinalBlobs(k).right-FinalBlobs(k).left));
+        tmp_Player  = imcrop(TeamMap,[FinalBlobs(k).left FinalBlobs(k).top box_columns box_rows]);
+        %imshow(tmp_Player);
+        
+        [tmpR,bR] = imhist(tmp_Player(:,:,1));
+        [tmpG,bG] = imhist(tmp_Player(:,:,2));
+        [tmpB,bB] = imhist(tmp_Player(:,:,3));            
         
         %Debug, print Histograms
-%         figure, subplot(3,1,1);
-%         x = linspace(0,10,50);
-%         R=[tmpR];
-%         plot(R,'r');
-%         title('RED 1')
-%         
-%         subplot(3,1,2);
-%         G=[tmpG];
-%         plot(G,'g');
-%         title('GREEN 2')
-%         
-%         subplot(3,1,3);
-%         B=[tmpB];
-%         plot(B,'b');
-%         title('BLUE 3')          
+        figure, subplot(3,1,1);
+        x = linspace(0,10,50);
+        R=[tmpR];
+        plot(R,'r');
+        title('RED 1')
+        
+        subplot(3,1,2);
+        G=[tmpG];
+        plot(G,'g');
+        title('GREEN 2')
+        
+        subplot(3,1,3);
+        B=[tmpB];
+        plot(B,'b');
+        title('BLUE 3')          
 
-imshow(tmp_Player);
+    figure, imshow(tmp_Player);
 
      end
 
