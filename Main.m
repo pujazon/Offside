@@ -1,7 +1,6 @@
 %% Init
 %  Get the image and show it. Set number of thread
 addpath 'C:\Users\danie\Desktop\offside\img'
-addpath 'C:\Users\danie\Desktop\offside\img\test4_players'
 
 %Profiling
 % format shortg
@@ -12,17 +11,16 @@ for compress=1:1
 maxNumCompThreads(8);
 %fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('test1.jpg');
-TeamMap = imread('test1.jpg');
-T = imread('test1.jpg');
-T2 = imread('test1.jpg');
+I = imread('test8.jpg');
+TeamMap = imread('test8.jpg');
+T = imread('test8.jpg');
+T2 = imread('test8.jpg');
 
 figure, imshow(I);
 
 end
 
 %GLOBALS
-global MarkedBlobs;
 global Processed;
 global BlobMap;
 global TmpBlobMap;
@@ -408,7 +406,9 @@ for compress=1:1
 
       %We will work with Blob box not only with player pixels so
       %there will be field pixels noise    
-    
+      cteamA = 0;
+      cteamB = 0;
+      
     for k=1:NBlobs    
         
         comptador = 1;
@@ -432,9 +432,9 @@ for compress=1:1
                     GChannel(i,j) > RChannel(i,j) &&...
                     GChannel(i,j) > BChannel(i,j))    
                                         
-                    TeamMap(i,j,1) = 255;
+                    TeamMap(i,j,1) = 0;
                     TeamMap(i,j,2) = 0;
-                    TeamMap(i,j,3) = 255;
+                    TeamMap(i,j,3) = 0;
                     
                     end                    
             end
@@ -443,36 +443,38 @@ for compress=1:1
         %coords [xmin ymin width height]
         %%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",k,FinalBlobs(k).top,FinalBlobs(k).left,FinalBlobs(k).bottom,FinalBlobs(k).right,(FinalBlobs(k).bottom-FinalBlobs(k).top),(FinalBlobs(k).right-FinalBlobs(k).left));
         tmp_Player  = imcrop(TeamMap,[FinalBlobs(k).left FinalBlobs(k).top box_columns box_rows]);
-        %imshow(tmp_Player);
         
         [tmpR,bR] = imhist(tmp_Player(:,:,1));
         [tmpG,bG] = imhist(tmp_Player(:,:,2));
-        [tmpB,bB] = imhist(tmp_Player(:,:,3));            
-        
-        %Debug, print Histograms
-        figure, subplot(3,1,1);
-        x = linspace(0,10,50);
-        R=[tmpR];
-        plot(R,'r');
-        title('RED 1')
-        
-        subplot(3,1,2);
-        G=[tmpG];
-        plot(G,'g');
-        title('GREEN 2')
-        
-        subplot(3,1,3);
-        B=[tmpB];
-        plot(B,'b');
-        title('BLUE 3')          
+        [tmpB,bB] = imhist(tmp_Player(:,:,3));             
 
-    figure, imshow(tmp_Player);
-
-     end
-
+        max_RLevels = 1;
+        RPeak = 0;
+        max_GLevels = 1;
+        GPeak = 0;
+        max_BLevels = 1;
+        BPeak = 0;
         
+        for i = 2:256
+            if(tmpR(i) > RPeak)
+                max_RLevels = i;
+                RPeak = tmpR(i);
+            end
+            if(tmpG(i) > GPeak)
+                max_GLevels = i;
+                GPeak = tmpG(i);
+            end
+            if(tmpB(i) > BPeak)
+                max_BLevels = i;
+                BPeak = tmpB(i);
+            end
+        end
+
+       fprintf("Player %d color (%d,%d,%d)\n",k,max_RLevels,max_GLevels,max_BLevels);
+    end        
     
 end     
+
 
 %%
 
