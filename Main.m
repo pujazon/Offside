@@ -11,10 +11,10 @@ for compress=1:1
 maxNumCompThreads(8);
 %fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('test8.jpg');
-TeamMap = imread('test8.jpg');
-T = imread('test8.jpg');
-T2 = imread('test8.jpg');
+I = imread('test1.jpg');
+TeamMap = imread('test1.jpg');
+T = imread('test1.jpg');
+T2 = imread('test1.jpg');
 
 figure, imshow(I);
 
@@ -28,7 +28,8 @@ global Blobs;
 global ZeroMask;
 global FinalBlobs;
 global N;    
-global NBlobs;    
+global NBlobs;  
+global PlayerColors;    
 
 N = 30;
 
@@ -402,6 +403,9 @@ end
 %% Team detection:
 % 
 
+PlayerColors = zeros(NBlobs,3);
+
+
 for compress=1:1
 
       %We will work with Blob box not only with player pixels so
@@ -426,9 +430,9 @@ for compress=1:1
         for i=FinalBlobs(k).top:FinalBlobs(k).bottom
             for j=FinalBlobs(k).left:FinalBlobs(k).right
                 
-                    if (abs(RChannel(i,j)- max_RLevels) < Rth+45 &&...
-                    abs(GChannel(i,j)- max_GLevels) < Gth+45 &&...
-                    abs(BChannel(i,j)- max_BLevels) < Bth+45 &&...
+                    if (abs(RChannel(i,j)- max_RLevels) < Rth+255 &&...
+                    abs(GChannel(i,j)- max_GLevels) < Gth+255 &&...
+                    abs(BChannel(i,j)- max_BLevels) < Bth+255 &&...
                     GChannel(i,j) > RChannel(i,j) &&...
                     GChannel(i,j) > BChannel(i,j))    
                                         
@@ -470,9 +474,20 @@ for compress=1:1
             end
         end
 
-       fprintf("Player %d color (%d,%d,%d)\n",k,max_RLevels,max_GLevels,max_BLevels);
+        PlayerColors(k,1) = max_RLevels;
+        PlayerColors(k,2) = max_GLevels;
+        PlayerColors(k,3) = max_BLevels;
+        
+       fprintf("Player %d color (%d,%d,%d)\n",k,PlayerColors(k,1),PlayerColors(k,2),PlayerColors(k,3));
+       figure, imshow(tmp_Player);
+       
     end        
     
+    SetTeam();
+    
+    for k=1:NBlobs
+        fprintf("Player %d is team %d\n",k,FinalBlobs(k).team);
+    end
 end     
 
 
@@ -492,7 +507,7 @@ function ret = in_of_bounds(i,j)
     ret = (i > 0 && j > 0 && i < rows && j < columns );
     
 end
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function Blob(ii,jj,id)
 
@@ -611,5 +626,60 @@ function Merge(id,fid)
             end
         end
     end
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function SetTeam()
+
+global FinalBlobs;
+global PlayerColors;
+n = size(PlayerColors);
+
+tRth = 50;
+tGth = 50;
+tBth = 50;
+
+team_id = 1;
+counter = 0;
+
+for i=1:n
+    
+    %If we have assigned team to i Player we don't have to iteretae through
+    %him. Also, if not team assigned, first assigned counter team and then
+    %iterate
+    
+    if (FinalBlobs(i).team == -1)
+        
+        FinalBlobs(i).team=team_id;
+        
+        %We will travell whole array if the neighbours 
+        %color is inside mine with threshold && has not been proceesed
+        for j = 1:n
+            
+            %fprintf("I=%d [%d,%d,%d]; J=%d [%d,%d,%d]\n",i,PlayerColors(i,1),PlayerColors(i,2),PlayerColors(i,3),j,PlayerColors(j,1),PlayerColors(j,2),PlayerColors(j,3));
+            
+            if (i ~= j && ...
+                   (PlayerColors(i,1)+tRth > PlayerColors(j,1) && PlayerColors(i,1)-tRth < PlayerColors(j,1)) && ...
+                   (PlayerColors(i,1)+tGth > PlayerColors(j,1) && PlayerColors(i,1)-tGth < PlayerColors(j,1)) && ...
+                   (PlayerColors(i,1)+tBth > PlayerColors(j,1) && PlayerColors(i,1)-tBth < PlayerColors(j,1)) && ...
+                   FinalBlobs(j).team < 1)
+               
+                fprintf("SET:: Player %d is team %d\n",j,FinalBlobs(j).team);
+                FinalBlobs(j).team=team_id;
+
+            end
+
+        end
+       
+        if (counter == 0)
+            FinalBlobs(i).team=-1;
+        end
+        
+        team_id = team_id+1;
+        counter = 0;
+        
+    end
+end
+
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

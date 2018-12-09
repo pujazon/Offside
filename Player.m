@@ -5,7 +5,8 @@ classdef Player
       left
       right
       weight 
-      processed = 0     
+      processed = 0    
+      team = -1;
    end
    methods
       function obj = SimpleValue(v)
