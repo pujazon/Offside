@@ -11,10 +11,10 @@ for compress=1:1
 maxNumCompThreads(8);
 %%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('test1.jpg');
-TeamMap = imread('test1.jpg');
-T = imread('test1.jpg');
-T2 = imread('test1.jpg');
+I = imread('i.png');
+TeamMap = imread('i.png');
+T = imread('i.png');
+T2 = imread('i.png');
 
 %figure, imshow(I);
 
@@ -478,15 +478,15 @@ for compress=1:1
         PlayerColors(k,2) = max_GLevels;
         PlayerColors(k,3) = max_BLevels;
         
-       %fprintf("Player %d color (%d,%d,%d)\n",k,PlayerColors(k,1),PlayerColors(k,2),PlayerColors(k,3));
-       %figure, imshow(tmp_Player);
+       fprintf("Player %d color (%d,%d,%d)\n",k,PlayerColors(k,1),PlayerColors(k,2),PlayerColors(k,3));
+       figure, imshow(tmp_Player);
        
     end        
     
     SetTeam();
     
     for k=1:NBlobs
-        %fprintf("Player %d is team %d\n",k,FinalBlobs(k).team);
+        fprintf("Player %d is team %d\n",k,FinalBlobs(k).team);
     end
 end     
 
@@ -635,12 +635,11 @@ global FinalBlobs;
 global PlayerColors;
 n = size(PlayerColors);
 
-tRth = 50;
-tGth = 50;
-tBth = 50;
+tRth = 90;
+tGth = 90;
+tBth = 90;
 
 team_id = 1;
-counter = 0;
 
 for i=1:n
     
@@ -665,24 +664,26 @@ for i=1:n
                    (PlayerColors(i,1)+tRth > PlayerColors(j,1) && PlayerColors(i,1)-tRth < PlayerColors(j,1)) && ...
                    (PlayerColors(i,2)+tGth > PlayerColors(j,2) && PlayerColors(i,2)-tGth < PlayerColors(j,2)) && ...
                    (PlayerColors(i,3)+tBth > PlayerColors(j,3) && PlayerColors(i,3)-tBth < PlayerColors(j,3)) && ...
-                   FinalBlobs(j).team < 1)              
-               
+                   FinalBlobs(j).team < 1)                                                           
+
                 FinalBlobs(j).team=team_id;
                 counter = counter+1;
-                %fprintf("SET:: Player %d is team %d\n",j,FinalBlobs(j).team);               
+                %fprintf("SET:: Player %d is team %d\n",j,FinalBlobs(j).team); 
 
             end
 
         end
       
+        team_id = team_id+1;
+
+        if (counter == 0)
+            FinalBlobs(i).team=-1;        
+            team_id = team_id-1;
+        end        
+
     end
             
-    team_id = team_id+1;
-
-    if (counter == 0)
-        FinalBlobs(i).team=-1;        
-        team_id = team_id-1;
-    end           
+   
         
 end
 
