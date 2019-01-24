@@ -3,14 +3,16 @@
 
 
 CC=gcc
-CFLAGS=
+CFLAGS=-lwiringPi
+OBJS=./objs/
+HEADERS=./include/
+EXE=./bin/
+SRC=./src/
 
-make: ./src/blink.c
+make: $(SRC)blink.c
 	$(CC) -c $(CFLAGS) ./src/blink.c
-	mv blink.o ./objs
-	cd ./objs
-	cp ../include/wiringPi/*.o .
-	gcc -g -o blink blink.o 
+	mv blink.o $(OBJS)	
+	$(CC) -o $(EXE)blink $(SRC)blink.c $(CFLAGS)
 	
 clean:
 	rm ./objs/*.o
