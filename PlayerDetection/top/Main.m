@@ -11,12 +11,10 @@ for compress=1:1
 maxNumCompThreads(8);
 %%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('003.jpg');
-TeamMap = imread('003.jpg');
-T = imread('003.jpg');
-T2 = imread('003.jpg');
-
-figure, imshow(I);
+I = imread('001.jpg');
+TeamMap = imread('001.jpg');
+T = imread('001.jpg');
+T2 = imread('001.jpg');
 
 end
 
@@ -24,6 +22,7 @@ end
 global Processed;
 global BlobMap;
 global TmpBlobMap;
+global MergeMap;
 global Blobs;
 global ZeroMask;
 global FinalBlobs;
@@ -139,9 +138,132 @@ for i = 1: rows
     end
 end
 
-figure, imshow(FieldMask);
+% figure, imshow(FieldMask);
 
 
+end
+
+
+%%
+
+%% Edge detection
+
+for compress=1:1
+
+    IGray = rgb2gray(I);
+    IGray2 = imgaussfilt(IGray,10);
+    Edges = edge(IGray2,'sobel');
+    %figure, imshow(BW1);
+
+end
+
+%%
+
+%% Merge filters
+
+for compress=1:1
+
+    MergeMap = ones(rows,columns);
+
+    for i = 1: rows
+        for j = 1: columns  
+            if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
+                MergeMap(i,j) = 0;
+            end
+        end
+    end
+    
+    
+    PlayersMask = imgaussfilt(MergeMap,10);    
+    figure, imshow(PlayersMask);
+    
+    %Debug
+    for i = 1: rows
+        for j = 1: columns  
+            if (PlayersMask(i,j) == 0)               
+                fprintf("%i == d; j == %d\n",i,j);
+            end
+        end
+    end
+    
+end
+
+%%
+
+%% Blob detection
+
+%% Blob detection:
+%  Detect all Blobs, filtered by size (not too much pixels means is no a
+%  Blob) and store them into a Matrix where each row is one Blob and
+%  columns are each one of pixels where even positions are the row (i)
+%  and their respectives consecutive odd positions are the column (j) 
+%  where pixel is on image
+
+for compress=1:1
+
+Blobs = Player.empty(N,0);
+Processed = zeros(rows,columns);
+
+%Initial set. Each position stores 0 (== no player)
+ZeroMask = zeros(rows,columns,'uint8');
+TmpBlobMap = zeros(rows,columns,'uint8');
+BlobMap = zeros(rows,columns,'uint8');
+
+global top;
+global bottom;
+global left;
+global right;
+global weight;    
+SWeight = 0;
+
+id = 1;   
+BlobTotalWeight = 0;
+
+while(1)
+end
+
+%Blob Detection
+for i = 1: rows
+    for j = 1: columns                    
+        
+        if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
+            %Ini setup before Blob detection function
+            Processed(i,j) = 1;
+            top = i;
+            bottom = i;
+            left = j;
+            right = j;
+            weight = 1; 
+            
+            fprintf("in\n");
+            Blob(i,j,id);
+            
+            %We must add 30-bigger-weight condition in order to delete
+            %noise. Else STD calcus won't be realistic because there were
+            %too fake values           
+            
+                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > 10))
+                    
+                    TmpBlobMap(i,j) = id;
+                    
+                    Blobs(id).top = top;
+                    Blobs(id).bottom = bottom;
+                    Blobs(id).left = left;
+                    Blobs(id).right = right;
+                    Blobs(id).weight = weight;                 
+                    %%%fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
+                    BlobTotalWeight = BlobTotalWeight + weight;
+                    
+                    BlobMap = bitor(BlobMap,TmpBlobMap);       
+                    id = id+1; 
+                end 
+                
+                TmpBlobMap = bitand(TmpBlobMap,ZeroMask);
+        end
+    end
+end
+
+NBlobs = id-1;
 end
 
 
@@ -175,7 +297,7 @@ function Blob(ii,jj,id)
     global right;
     global weight;
     
-    %%%fprintf('(%d,%d)\n',ii,jj);
+    fprintf('(%d,%d)\n',ii,jj);
     
     if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
         Processed(ii-1,jj) = 1;
@@ -187,7 +309,9 @@ function Blob(ii,jj,id)
         Blob(ii-1,jj,id);
     end
         
-    if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0)   
+    if(in_of_bounds(ii+1,jj)==1)
+        if(PlayersMask(ii+1,jj) == 0)
+            if (Processed(ii+1,jj) == 0)   
         TmpBlobMap(ii+1,jj) = id;
         %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
@@ -195,6 +319,8 @@ function Blob(ii,jj,id)
         bottom = max(ii+1,bottom);
         %%%fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj,id);
+            end
+        end
     end     
     
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)
@@ -229,9 +355,7 @@ function Merge(id,fid)
     global global_std_bottom;
     global global_std_left;
     global global_std_right;
-    
-    
-    
+ 
 
     %Iterate arround Blob(id) box and if on that positions in 
     %BlobMap is different to 0 (other id) these blobs must be merged
