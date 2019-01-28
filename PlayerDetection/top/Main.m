@@ -11,24 +11,20 @@ for compress=1:1
 maxNumCompThreads(8);
 %%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('001.jpg');
-TeamMap = imread('001.jpg');
-T = imread('001.jpg');
-T2 = imread('001.jpg');
+I = imread('004.jpg');
+TeamMap = imread('004.jpg');
+T = imread('004.jpg');
+T2 = imread('004.jpg');
 
 end
 
 %GLOBALS
 global Processed;
-global BlobMap;
 global TmpBlobMap;
-global MergeMap;
+global PlayersMask;
 global Blobs;
-global ZeroMask;
-global FinalBlobs;
 global N;    
-global NBlobs;  
-global PlayerColors;    
+global NBlobs;   
 
 N = 30;
 
@@ -138,7 +134,8 @@ for i = 1: rows
     end
 end
 
-% figure, imshow(FieldMask);
+ PlayersMask = tmp_PlayersMask;
+ figure, imshow(PlayersMask);
 
 
 end
@@ -147,50 +144,46 @@ end
 %%
 
 %% Edge detection
-
-for compress=1:1
-
-    IGray = rgb2gray(I);
-    IGray2 = imgaussfilt(IGray,10);
-    Edges = edge(IGray2,'sobel');
-    %figure, imshow(BW1);
-
-end
-
-%%
-
-%% Merge filters
-
-for compress=1:1
-
-    MergeMap = ones(rows,columns);
-
-    for i = 1: rows
-        for j = 1: columns  
-            if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
-                MergeMap(i,j) = 0;
-            end
-        end
-    end
-    
-    
-    PlayersMask = imgaussfilt(MergeMap,10);    
-    figure, imshow(PlayersMask);
-    
-    %Debug
-    for i = 1: rows
-        for j = 1: columns  
-            if (PlayersMask(i,j) == 0)               
-                fprintf("%i == d; j == %d\n",i,j);
-            end
-        end
-    end
-    
-end
+%Not needed. Adds more problems than solutions
+ for compress=1:1
+% 
+%     IGray = rgb2gray(I);
+%     IGray2 = imgaussfilt(IGray,10);
+%     Edges = edge(IGray2,'sobel');
+%     figure, imshow(BW1);
+% 
+% end
+% 
+% Merge filters
+% 
+% for compress=1:1
+% 
+%     MergeMap = ones(rows,columns);
+% 
+%     for i = 1: rows
+%         for j = 1: columns  
+%             if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
+%                 MergeMap(i,j) = 0;
+%             end
+%         end
+%     end
+%     
+%     
+%     PlayersMask = imgaussfilt(MergeMap,10);    
+%     figure, imshow(PlayersMask);
+%     
+%     Debug
+%     for i = 1: rows
+%         for j = 1: columns  
+%             if (PlayersMask(i,j) == 0)               
+%                 fprintf("%i == d; j == %d\n",i,j);
+%             end
+%         end
+%     end
+%     
+ end
 
 %%
-
-%% Blob detection
 
 %% Blob detection:
 %  Detect all Blobs, filtered by size (not too much pixels means is no a
@@ -205,22 +198,22 @@ Blobs = Player.empty(N,0);
 Processed = zeros(rows,columns);
 
 %Initial set. Each position stores 0 (== no player)
-ZeroMask = zeros(rows,columns,'uint8');
 TmpBlobMap = zeros(rows,columns,'uint8');
-BlobMap = zeros(rows,columns,'uint8');
 
 global top;
 global bottom;
 global left;
 global right;
-global weight;    
-SWeight = 0;
+global weight;
+
+%Weight threshold. or put it after too many examples or do it dinamically
+%Difficult to do it dinamically. It will be hardcoded but must be good
+%justifyed
+
+thWeight = 400;
 
 id = 1;   
 BlobTotalWeight = 0;
-
-while(1)
-end
 
 %Blob Detection
 for i = 1: rows
@@ -234,15 +227,14 @@ for i = 1: rows
             left = j;
             right = j;
             weight = 1; 
-            
-            fprintf("in\n");
+
             Blob(i,j,id);
             
             %We must add 30-bigger-weight condition in order to delete
             %noise. Else STD calcus won't be realistic because there were
             %too fake values           
             
-                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > 10))
+                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > thWeight))
                     
                     TmpBlobMap(i,j) = id;
                     
@@ -251,19 +243,30 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    %%%fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
+                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
                     BlobTotalWeight = BlobTotalWeight + weight;
                     
                     BlobMap = bitor(BlobMap,TmpBlobMap);       
                     id = id+1; 
                 end 
                 
-                TmpBlobMap = bitand(TmpBlobMap,ZeroMask);
-        end
+                TmpBlobMap = bitxor(TmpBlobMap,TmpBlobMap);
+%                 
+%                 %Debug
+%                 for z = 1: rows
+%                 for k = 1: columns     
+%                 if(Processed(z,k) == 1)
+%                 fprintf("Processed (%d,%d)\n",z,k); 
+%                 end
+%                 end
+%                 end
+          end       
+        
     end
 end
 
 NBlobs = id-1;
+
 end
 
 
@@ -296,8 +299,8 @@ function Blob(ii,jj,id)
     global left;
     global right;
     global weight;
-    
-    fprintf('(%d,%d)\n',ii,jj);
+
+    %fprintf('weight: %d\n',weight);
     
     if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
         Processed(ii-1,jj) = 1;
@@ -309,9 +312,7 @@ function Blob(ii,jj,id)
         Blob(ii-1,jj,id);
     end
         
-    if(in_of_bounds(ii+1,jj)==1)
-        if(PlayersMask(ii+1,jj) == 0)
-            if (Processed(ii+1,jj) == 0)   
+    if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
         TmpBlobMap(ii+1,jj) = id;
         %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
@@ -319,8 +320,6 @@ function Blob(ii,jj,id)
         bottom = max(ii+1,bottom);
         %%%fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj,id);
-            end
-        end
     end     
     
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)
@@ -342,128 +341,5 @@ function Blob(ii,jj,id)
         %%%fprintf('right = %d\n',right);
         Blob(ii,jj+1,id);
     end    
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function Merge(id,fid)
-
-    global BlobMap;
-    global Blobs;
-    global FinalBlobs;
-    global MarkedBlobs;
-    global global_std_top;
-    global global_std_bottom;
-    global global_std_left;
-    global global_std_right;
- 
-
-    %Iterate arround Blob(id) box and if on that positions in 
-    %BlobMap is different to 0 (other id) these blobs must be merged
-    %pe: TmpMergeBlob=(id,new id) recursively
-    %at the end merge boundaries add to FinalBlob array
-    
-    for ii=Blobs(id).top:Blobs(id).bottom
-        for jj=Blobs(id).left:Blobs(id).right
-            
-            current_Blob = BlobMap(ii,jj);
-            %%fprintf('Merge: Pixel (%d,%d); current_Blob = %d AND id = %d\n',ii,jj,current_Blob, id);
-            %%fprintf('Merge: Old B(%d): t=%d, b=%d, l=%d,r=%d\n',id,Blobs(id).top,Blobs(id).bottom,Blobs(id).left,Blobs(id).right);
-            %%fprintf('Merge: New B(%d): t=%d, b=%d, l=%d,r=%d\n',current_Blob,Blobs(current_Blob).top,Blobs(current_Blob).bottom,Blobs(current_Blob).left,Blobs(current_Blob).right);
-                
-            if (current_Blob ~= 0 && current_Blob ~= id)               
-                
-                %Merge if only if the std of dimension between two blobs is 
-                %less than global std deviation
-                
-                tmpTop = [Blobs(id).top,Blobs(current_Blob).top];
-                tmpBottom = [Blobs(id).bottom,Blobs(current_Blob).bottom];
-                tmpLeft = [Blobs(id).left,Blobs(current_Blob).left];
-                tmpRight = [Blobs(id).right,Blobs(current_Blob).right];
-                
-                std_top = std(tmpTop);
-                std_bottom = std(tmpBottom);
-                std_left = std(tmpLeft);
-                std_right = std(tmpRight);
-                
-                if(std_top < global_std_top || ...
-                        std_bottom < global_std_bottom || ...
-                        std_left < global_std_left || ...
-                        std_right < global_std_right )
-                                    
-                    FinalBlobs(fid).top = min(Blobs(id).top,Blobs(current_Blob).top);
-                    FinalBlobs(fid).bottom = max(Blobs(id).bottom,Blobs(current_Blob).bottom);
-                    FinalBlobs(fid).left = min(Blobs(id).left,Blobs(current_Blob).left);
-                    FinalBlobs(fid).right = max(Blobs(id).right,Blobs(current_Blob).right);
-                    
-                    %Recursive call. All contiguos Blobs of fid Blob
-                    MarkedBlobs(current_Blob) = 1;
-                    Merge(current_Blob,fid);
-                    
-                end                
-                
-            end
-        end
-    end
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-function SetTeam()
-
-global FinalBlobs;
-global PlayerColors;
-n = size(PlayerColors);
-
-tRth = 90;
-tGth = 90;
-tBth = 90;
-
-team_id = 1;
-
-for i=1:n
-    
-    %If we have assigned team to i Player we don't have to iteretae through
-    %him. Also, if not team assigned, first assigned counter team and then
-    %iterate
-    
-    counter = 0;
-
-    if (FinalBlobs(i).team == -1)
-        
-        FinalBlobs(i).team=team_id;
-        
-        %We will travell whole array if the neighbours 
-        %color is inside mine with threshold && has not been proceesed
-        
-        for j = 1:n
-            
-            %fprintf("I=%d [%d,%d,%d]; J=%d [%d,%d,%d]\n",i,PlayerColors(i,1),PlayerColors(i,2),PlayerColors(i,3),j,PlayerColors(j,1),PlayerColors(j,2),PlayerColors(j,3));
-            
-            if (i ~= j && ...
-                   (PlayerColors(i,1)+tRth > PlayerColors(j,1) && PlayerColors(i,1)-tRth < PlayerColors(j,1)) && ...
-                   (PlayerColors(i,2)+tGth > PlayerColors(j,2) && PlayerColors(i,2)-tGth < PlayerColors(j,2)) && ...
-                   (PlayerColors(i,3)+tBth > PlayerColors(j,3) && PlayerColors(i,3)-tBth < PlayerColors(j,3)) && ...
-                   FinalBlobs(j).team < 1)                                                           
-
-                FinalBlobs(j).team=team_id;
-                counter = counter+1;
-                %fprintf("SET:: Player %d is team %d\n",j,FinalBlobs(j).team); 
-
-            end
-
-        end
-      
-        team_id = team_id+1;
-
-        if (counter == 0)
-            FinalBlobs(i).team=-1;        
-            team_id = team_id-1;
-        end        
-
-    end
-            
-   
-        
-end
-
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
