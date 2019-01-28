@@ -53,48 +53,37 @@ N = 30;
 % 
  end
 
-%% RGB Peks Grass:
-% Get R,G,B Peaks of each components
-% and then you will get Grass mean color
-% (!!) Cannot be calculated here because not all background is from that
-% color.
-
-
+%% RGB Shirt color:
+% Must be passed as an input before STR system run.
 for compress=1:1
     
-max_RLevels = 54;
-max_GLevels = 139;
-max_BLevels = 120;
+%pe: Red     
+max_RLevels = 145;
+max_GLevels = 23;
+max_BLevels = 46;
 
 end
-%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
 %% Preprocessing
-%  FieldMask:
-%  1st) apply preBackgroundSegmentation, only partial because here not all
-%  image has field as a background
-%  2nd) Knowing that from bottom to some higher point called A it will be grass and rows
-%  higher than that A point will be grades, which means noise for us, which mean all 0s, 
-%  So we need to know that A point because topper things won't interes us.
+%  Shirt color mask
+% Here the segmentation will be using shirt color
 
 for compress=1:1
 
-global rows;
-global columns;
 rows = size(I,1);
 columns = size(I,2);
 
-% 1st)
 RChannel = I(:,:,1);
 GChannel = I(:,:,2);
 BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
-Rth = 50;
-Gth = 50;
-Bth = 50;
+%Difference from field segmentation this must be very restrictive
+Rth = 10;
+Gth = 10;
+Bth = 10;
 
-FieldMask = zeros(rows,columns);
 tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
@@ -102,28 +91,17 @@ for i = 1: rows
         %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
         if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
             abs(GChannel(i,j)- max_GLevels) < Gth &&...
-            abs(BChannel(i,j)- max_BLevels) < Bth )    
-        
+            abs(BChannel(i,j)- max_BLevels) < Bth )            
             %It's grass
-            tmp_PlayersMask(i,j) = 255;
-            FieldMask(i,j) = 0;
         else
-            FieldMask(i,j) = 255;
+            tmp_PlayersMask(i,j) = 255;
         end        
     end
 end
-
  PlayersMask = tmp_PlayersMask;
+ %PlayersMask = imgaussfilt(tmp_PlayersMask, 10);
  figure, imshow(PlayersMask);
-
- % 2nd)
-    global top_field;
     
-    %Begin being the bottom one.
-    top_field = rows;    
-
-    find_top();
-
 end
 
 
@@ -282,9 +260,9 @@ for compress=1:1
         %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                I(iii,jjj,1) = 133;
-                I(iii,jjj,2) = 90;
-                I(iii,jjj,3) = 133;
+                I(iii,jjj,1) = 234;
+                I(iii,jjj,2) = 34;
+                I(iii,jjj,3) = 234;
             end
         end    
     end
@@ -306,36 +284,6 @@ function ret = in_of_bounds(i,j)
 
     ret = (i > 0 && j > 0 && i < rows && j < columns );
     
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function find_top()
-
-    global rows;
-    global columns;
-    global top_field;      
-    global PlayersMask; 
-    
-    ii = rows;
-    trobat = 0;
-    
-    while(trobat == 0 && ii > 1)
-        jj = 1;
-        zero_row = 1;
-        
-        while (zero_row == 1 && jj < columns)
-            if (PlayersMask(ii,jj) ~= 0)
-                zero_row = 0;
-            end
-            jj = jj+1;
-        end
-        
-        if (zero_row == 1)
-            trobat = 1;
-            top_field = ii;
-        end
-        ii=ii-1;
-    end
-
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Blob(ii,jj)
