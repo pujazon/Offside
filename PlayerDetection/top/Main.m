@@ -11,10 +11,10 @@ for compress=1:1
 maxNumCompThreads(8);
 %%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('004.jpg');
-TeamMap = imread('004.jpg');
-T = imread('004.jpg');
-T2 = imread('004.jpg');
+I = imread('002.jpg');
+TeamMap = imread('002.jpg');
+T = imread('002.jpg');
+T2 = imread('002.jpg');
 
 end
 
@@ -228,47 +228,37 @@ for i = 1: rows
             right = j;
             weight = 1; 
 
-            Blob(i,j,id);
+            Blob(i,j);
             
             %We must add 30-bigger-weight condition in order to delete
             %noise. Else STD calcus won't be realistic because there were
             %too fake values           
             
                 if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > thWeight))
-                    
-                    TmpBlobMap(i,j) = id;
-                    
+
                     Blobs(id).top = top;
                     Blobs(id).bottom = bottom;
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                
-                    BlobTotalWeight = BlobTotalWeight + weight;
-                    
-                    BlobMap = bitor(BlobMap,TmpBlobMap);       
+                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
                 end 
-                
-                TmpBlobMap = bitxor(TmpBlobMap,TmpBlobMap);
-%                 
-%                 %Debug
-%                 for z = 1: rows
-%                 for k = 1: columns     
-%                 if(Processed(z,k) == 1)
-%                 fprintf("Processed (%d,%d)\n",z,k); 
-%                 end
-%                 end
-%                 end
-          end       
+
+        end       
         
     end
 end
 
 NBlobs = id-1;
-
+figure, imshow(Processed); 
+    
 end
 
+%%
+%% Postprocessing
+
+%Delete noisy Blobs using variance
 
 %%
 
@@ -288,58 +278,42 @@ function ret = in_of_bounds(i,j)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function Blob(ii,jj,id)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function Blob(ii,jj)
 
     global PlayersMask;
     global Processed;
-    global TmpBlobMap;
-    
-    global top;
     global bottom;
-    global left;
     global right;
+    global left;
     global weight;
-
-    %fprintf('weight: %d\n',weight);
-    
-    if(in_of_bounds(ii-1,jj)==1 && PlayersMask(ii-1,jj) == 0 && Processed(ii-1,jj) == 0)
-        Processed(ii-1,jj) = 1;
-        TmpBlobMap(ii-1,jj) = id;
-        %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii-1,jj));
-        weight = weight +1;
-        top = min(ii-1,top);
-        %%%fprintf('top = %d\n',top);
-        Blob(ii-1,jj,id);
-    end
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
-        TmpBlobMap(ii+1,jj) = id;
         %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
-        weight = weight +1;
+        weight = weight +1;        
         bottom = max(ii+1,bottom);
         %%%fprintf('bottom = %d\n',bottom);
-        Blob(ii+1,jj,id);
-    end     
-    
-    if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)
-        TmpBlobMap(ii,jj-1) = id;        
+        Blob(ii+1,jj);
+    end  
+            
+    if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
         %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
-        weight = weight +1;
+        weight = weight +1;        
         left = min(jj-1,left);
         %%%fprintf('left = %d\n',left);
-        Blob(ii,jj-1,id);
+        Blob(ii,jj-1);
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        TmpBlobMap(ii,jj+1) = id;
         %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
-        weight = weight +1;
+        weight = weight +1; 
         right = max(jj+1,right);
         %%%fprintf('right = %d\n',right);
-        Blob(ii,jj+1,id);
+        Blob(ii,jj+1);
     end    
+
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
