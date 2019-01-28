@@ -3,16 +3,16 @@
 addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
 %Profiling
-% format shortg
-% c = clock
+format shortg
+c = clock
 
 for compress=1:1
     
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_001.jpg');
-Ori = imread('m_001.jpg');
+I = imread('001.jpg');
+Ori = imread('001.jpg');
 
 %%figure, imshow(Ori);
 
@@ -200,7 +200,7 @@ global weight;
 %Difficult to do it dinamically. It will be hardcoded but must be good
 %justifyed
 
-minWeight = 400;
+thWeight = 400;
 
 id = 1;   
 BlobTotalWeight = 0;
@@ -224,14 +224,14 @@ for i = 1: rows
             %noise. Else STD calcus won't be realistic because there were
             %too fake values           
             
-                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
+                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > thWeight))
 
                     Blobs(id).top = top;
                     Blobs(id).bottom = bottom;
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
                 end 
 
@@ -241,7 +241,7 @@ for i = 1: rows
 end
 
 NBlobs = id-1;
-%figure, imshow(Processed); 
+%%figure, imshow(Processed); 
     
 end
 
@@ -259,7 +259,6 @@ for compress=1:1
     %too lees for a Player).
     
     FinalBlobs = Player.empty(NBlobs,0);
-    maxWeight = 1000;
     
     %Ini calculus varaibles    
     SWeight = 0; 
@@ -299,25 +298,14 @@ for compress=1:1
     aux2= sqrt(aux);
     std_height = floor(aux2);  
 
-    fprintf('std_weight = %d\n',std_weight);
-    fprintf('mean_weight = %d\n',mean_weight);
+    %fprintf('std_weight = %d\n',std_weight);
+    %fprintf('mean_weight = %d\n',mean_weight);
+    %fprintf('std_height = %d\n',std_height);
 
     fid = 1;
    
     for k=1:NBlobs
-        
-        %reorder conditional statements in order to impreove performance.
-        %also, mean_weight can be processed befeore on Blob, loop fusion
-       
-        std_i= abs(Blobs(k).weight - mean_weight);
-        fprintf('std_i = %d\n',std_i);
-        
-        %Processed output shows the curve of camera.
-        %this origins that center players will have less pixels
-        %than the others, so probablly std_i won't be correct.
-        %So there is other filter. maxWeight
-        
-         if (Blobs(k).weight > maxWeight || std_i < std_weight)            
+         if (Blobs(k).weight > mean_weight || Blobs(k).weight == mean_weight)            
             FinalBlobs(fid) = Blobs(k);                        
             fid = fid+1;
         end
@@ -337,14 +325,14 @@ for compress=1:1
         end    
     end
     
-    fprintf('Really, there are %d Blobs!\n',fid);
+    %fprintf('Really, there are %d Blobs!\n',fid);
     NBlobs = fid;
-    imshow(I);
+    %imshow(I);
 end
 
 %% Profiling
-% format shortg
-% c = clock
+format shortg
+c = clock
 
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

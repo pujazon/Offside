@@ -1,6 +1,6 @@
-%% TOP Camera
+%% FRONT Camera
 %  Get the image and show it. Set number of thread
-addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
+addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\front\testcases'
 
 %Profiling
 % format shortg
@@ -14,7 +14,7 @@ maxNumCompThreads(16);
 I = imread('m_001.jpg');
 Ori = imread('m_001.jpg');
 
-%%figure, imshow(Ori);
+figure, imshow(Ori);
 
 end
 
@@ -54,53 +54,37 @@ N = 30;
  end
 
 %% RGB Peks Grass:
-%  Get R,G,B Peaks of each components
-%  and then you will get Grass mean color
+% Get R,G,B Peaks of each components
+% and then you will get Grass mean color
+% (!!) Cannot be calculated here because not all background is from that
+% color.
+
 
 for compress=1:1
     
-[pixelidsG, GLevels] = imhist(I(:,:,2));
-[pixelidsB, BLevels] = imhist(I(:,:,3));
-[pixelidsR, RLevels] = imhist(I(:,:,1));
-
-max_RLevels = 1;
-RPeak = pixelidsR(1);
-max_GLevels = 1;
-GPeak = pixelidsG(1);
-max_BLevels = 1;
-BPeak = pixelidsB(1);
-
-%Loop fusion
-
-for i = 2:255
-    if(pixelidsR(i) > RPeak)
-        max_RLevels = i;
-        RPeak = pixelidsR(i);
-    end
-    if(pixelidsG(i) > GPeak)
-        max_GLevels = i;
-        GPeak = pixelidsG(i);
-    end
-    if(pixelidsB(i) > BPeak)
-        max_BLevels = i;
-        BPeak = pixelidsB(i);
-    end
-end
+max_RLevels = 54;
+max_GLevels = 139;
+max_BLevels = 120;
 
 end
 %%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
 %% Preprocessing
 %  FieldMask:
-%  Apply thresholding with Grass mean color and offset
+%  1st) apply preBackgroundSegmentation, only partial because here not all
+%  image has field as a background
+%  2nd) Knowing that from bottom to some higher point called A it will be grass and rows
+%  higher than that A point will be grades, which means noise for us, which mean all 0s, 
+%  So we need to know that A point because topper things won't interes us.
 
 for compress=1:1
-    
+
 global rows;
 global columns;
 rows = size(I,1);
 columns = size(I,2);
 
+% 1st)
 RChannel = I(:,:,1);
 GChannel = I(:,:,2);
 BChannel = I(:,:,3);
@@ -130,50 +114,18 @@ for i = 1: rows
 end
 
  PlayersMask = tmp_PlayersMask;
- %%figure, imshow(PlayersMask);
+ figure, imshow(PlayersMask);
 
+ % 2nd)
+    global top_field;
+    
+    %Begin being the bottom one.
+    top_field = rows;    
+
+    find_top();
 
 end
 
-%% Edge detection
-%Not needed. Adds more problems than solutions
- for compress=1:1
-% 
-%     IGray = rgb2gray(I);
-%     IGray2 = imgaussfilt(IGray,10);
-%     Edges = edge(IGray2,'sobel');
-%     %figure, imshow(BW1);
-% 
-% end
-% 
-% Merge filters
-% 
-% for compress=1:1
-% 
-%     MergeMap = ones(rows,columns);
-% 
-%     for i = 1: rows
-%         for j = 1: columns  
-%             if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
-%                 MergeMap(i,j) = 0;
-%             end
-%         end
-%     end
-%     
-%     
-%     PlayersMask = imgaussfilt(MergeMap,10);    
-%     %figure, imshow(PlayersMask);
-%     
-%     Debug
-%     for i = 1: rows
-%         for j = 1: columns  
-%             if (PlayersMask(i,j) == 0)               
-%                 %fprintf("%i == d; j == %d\n",i,j);
-%             end
-%         end
-%     end
-%     
- end
 
 %% Blob detection:
 %  Detect all Blobs, filtered by size (not too much pixels means is no a
@@ -356,7 +308,35 @@ function ret = in_of_bounds(i,j)
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_top()
 
+    global rows;
+    global columns;
+    global top_field;      
+    global PlayersMask; 
+    
+    ii = rows;
+    trobat = 0;
+    
+    while(trobat == 0 && ii > 1)
+        jj = 1;
+        zero_row = 1;
+        
+        while (zero_row == 1 && jj < columns)
+            if (PlayersMask(ii,jj) ~= 0)
+                zero_row = 0;
+            end
+            jj = jj+1;
+        end
+        
+        if (zero_row == 1)
+            trobat = 1;
+            top_field = ii;
+        end
+        ii=ii-1;
+    end
+
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Blob(ii,jj)
 
