@@ -1,20 +1,20 @@
-%% Init
+%% TOP Camera
 %  Get the image and show it. Set number of thread
 addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
 %Profiling
-% format shortg
-% c = clock
+format shortg
+c = clock
 
 for compress=1:1
     
-maxNumCompThreads(8);
-%%fprintf('Hilos: %d\n',maxNumCompThreads);
+maxNumCompThreads(16);
+%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('002.jpg');
-TeamMap = imread('002.jpg');
-T = imread('002.jpg');
-T2 = imread('002.jpg');
+I = imread('001.jpg');
+Ori = imread('001.jpg');
+
+%%figure, imshow(Ori);
 
 end
 
@@ -28,15 +28,14 @@ global NBlobs;
 
 N = 30;
 
-%%
 %% Plotting Image Histogram:
 %  Plot image histogram in order to get an image
 %  that there are big acumulation of pixels in each components
 %  which are grass pixels
 % 
-% for compress=1:1
+ for compress=1:1
 %     
-% %figure, subplot(3,1,1);
+% %%figure, subplot(3,1,1);
 % x = linspace(0,10,50);
 % R=imhist(I(:,:,1));
 % plot(R,'r');
@@ -52,9 +51,7 @@ N = 30;
 % plot(B,'b');
 % title('BLUE 3')
 % 
-% end
-
-%%
+ end
 
 %% RGB Peks Grass:
 %  Get R,G,B Peaks of each components
@@ -91,12 +88,10 @@ for i = 2:255
 end
 
 end
+%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
-fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
-
-%%
-
-%% FieldMask:
+%% Preprocessing
+%  FieldMask:
 %  Apply thresholding with Grass mean color and offset
 
 for compress=1:1
@@ -120,7 +115,7 @@ tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
     for j = 1: columns                        
-        %fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
+        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
         if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
             abs(GChannel(i,j)- max_GLevels) < Gth &&...
             abs(BChannel(i,j)- max_BLevels) < Bth )    
@@ -135,13 +130,10 @@ for i = 1: rows
 end
 
  PlayersMask = tmp_PlayersMask;
- figure, imshow(PlayersMask);
+ %%figure, imshow(PlayersMask);
 
 
 end
-
-
-%%
 
 %% Edge detection
 %Not needed. Adds more problems than solutions
@@ -150,7 +142,7 @@ end
 %     IGray = rgb2gray(I);
 %     IGray2 = imgaussfilt(IGray,10);
 %     Edges = edge(IGray2,'sobel');
-%     figure, imshow(BW1);
+%     %figure, imshow(BW1);
 % 
 % end
 % 
@@ -170,20 +162,18 @@ end
 %     
 %     
 %     PlayersMask = imgaussfilt(MergeMap,10);    
-%     figure, imshow(PlayersMask);
+%     %figure, imshow(PlayersMask);
 %     
 %     Debug
 %     for i = 1: rows
 %         for j = 1: columns  
 %             if (PlayersMask(i,j) == 0)               
-%                 fprintf("%i == d; j == %d\n",i,j);
+%                 %fprintf("%i == d; j == %d\n",i,j);
 %             end
 %         end
 %     end
 %     
  end
-
-%%
 
 %% Blob detection:
 %  Detect all Blobs, filtered by size (not too much pixels means is no a
@@ -241,7 +231,7 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
                 end 
 
@@ -251,24 +241,101 @@ for i = 1: rows
 end
 
 NBlobs = id-1;
-figure, imshow(Processed); 
+%%figure, imshow(Processed); 
     
 end
 
-%%
 %% Postprocessing
+%  Calculate weight std and only will be blobs the ones that 
+%  have less deviation than std. otherwise will be discarted
 
-%Delete noisy Blobs using variance
+for compress=1:1   
 
-%%
+    %Problem is that there are too many noise and then that noise 
+    %affects too much on STDi values and then on STD
+    %and smal fake blobs pass STD filter because there were 
+    %noise pixels blobs too small.
+    %SOLVED-> Add pixel weight filter, enmpiristic (Knowing that 10 px is
+    %too lees for a Player).
+    
+    FinalBlobs = Player.empty(NBlobs,0);
+    
+    %Ini calculus varaibles    
+    SWeight = 0; 
+    Sheight = 0;    
+    sum = 0;
+    sum2 = 0;
+    
+    %Weight Mean calculus
+    for k=1:NBlobs               
+        SWeight = SWeight + Blobs(k).weight;
+        height = Blobs(k).bottom - Blobs(k).top;    
+        Sheight = Sheight + height;
+    end
+    
+    mean_weight = floor(SWeight/NBlobs);
+    mean_height = floor(Sheight/NBlobs);
 
-%Profiling
-% format shortg
-% c = clock
+    %Weight STD Calculus
+    for k=1:NBlobs  
+        tmp=(Blobs(k).weight-mean_weight);
+        tmp2 = tmp*tmp;
+        sum = sum+tmp2;
+        
+        height = Blobs(k).bottom - Blobs(k).top;    
+        aux=(height-mean_height);
+        aux2 = aux*aux;
+        sum2 = sum2+aux2;        
+        
+    end
+    
+    %Finish Weight STD Calculus
+    tmp = floor(sum/(NBlobs-1));
+    tmp2= sqrt(tmp);
+    std_weight = floor(tmp2);
+    
+    aux = floor(sum2/(NBlobs-1));
+    aux2= sqrt(aux);
+    std_height = floor(aux2);  
+
+    %fprintf('std_weight = %d\n',std_weight);
+    %fprintf('mean_weight = %d\n',mean_weight);
+    %fprintf('std_height = %d\n',std_height);
+
+    fid = 1;
+   
+    for k=1:NBlobs
+         if (Blobs(k).weight > mean_weight || Blobs(k).weight == mean_weight)            
+            FinalBlobs(fid) = Blobs(k);                        
+            fid = fid+1;
+        end
+    end    
+
+    fid = fid-1;
+    
+    %Debug
+    for w=1:fid
+        %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
+        for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
+            for jjj = FinalBlobs(w).left:FinalBlobs(w).right
+                I(iii,jjj,1) = 133;
+                I(iii,jjj,2) = 90;
+                I(iii,jjj,3) = 133;
+            end
+        end    
+    end
+    
+    %fprintf('Really, there are %d Blobs!\n',fid);
+    NBlobs = fid;
+    %imshow(I);
+end
+
+%% Profiling
+format shortg
+c = clock
 
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 function ret = in_of_bounds(i,j)    
     global rows;
     global columns;
@@ -279,7 +346,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 function Blob(ii,jj)
 
     global PlayersMask;
@@ -290,30 +356,31 @@ function Blob(ii,jj)
     global weight;
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
-        %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
+        %%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
         bottom = max(ii+1,bottom);
-        %%%fprintf('bottom = %d\n',bottom);
+        %%%%fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj);
     end  
             
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
-        %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
+        %%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
         left = min(jj-1,left);
-        %%%fprintf('left = %d\n',left);
+        %%%%fprintf('left = %d\n',left);
         Blob(ii,jj-1);
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        %%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
+        %%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
         right = max(jj+1,right);
-        %%%fprintf('right = %d\n',right);
+        %%%%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
 
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
