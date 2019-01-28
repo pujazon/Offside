@@ -70,7 +70,9 @@ end
 % Here the segmentation will be using shirt color
 
 for compress=1:1
-
+    
+global rows;
+global columns;
 rows = size(I,1);
 columns = size(I,2);
 
@@ -80,9 +82,9 @@ BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
 %Difference from field segmentation this must be very restrictive
-Rth = 10;
-Gth = 10;
-Bth = 10;
+Rth = 30;
+Gth = 30;
+Bth = 30;
 
 tmp_PlayersMask = zeros(rows,columns);
 
@@ -99,7 +101,7 @@ for i = 1: rows
     end
 end
  PlayersMask = tmp_PlayersMask;
- %PlayersMask = imgaussfilt(tmp_PlayersMask, 10);
+ %PlayersMask = imgaussfilt(tmp_PlayersMask, 4);
  figure, imshow(PlayersMask);
     
 end
@@ -161,8 +163,9 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    %fprintf('PreBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
+                    %figure, imshow(Processed); 
                 end 
 
         end       
@@ -189,7 +192,7 @@ for compress=1:1
     %too lees for a Player).
     
     FinalBlobs = Player.empty(NBlobs,0);
-    maxWeight = 1000;
+    maxWeight = 10000;
     
     %Ini calculus varaibles    
     SWeight = 0; 
@@ -240,14 +243,16 @@ for compress=1:1
         %also, mean_weight can be processed befeore on Blob, loop fusion
        
         std_i= abs(Blobs(k).weight - mean_weight);
-        fprintf('std_i = %d\n',std_i);
+        %fprintf('weight_i = %d\n',Blobs(k).weight);
         
         %Processed output shows the curve of camera.
         %this origins that center players will have less pixels
         %than the others, so probablly std_i won't be correct.
         %So there is other filter. maxWeight
         
-         if (Blobs(k).weight > maxWeight || std_i < std_weight)            
+         if (Blobs(k).weight > maxWeight )
+             % NOT WORKS|| std_i < std_weight)
+            fprintf('Blob has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Blobs(k).weight,Blobs(k).top,Blobs(k).bottom,Blobs(k).right,Blobs(k).left);                                    
             FinalBlobs(fid) = Blobs(k);                        
             fid = fid+1;
         end

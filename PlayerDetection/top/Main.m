@@ -14,7 +14,7 @@ maxNumCompThreads(16);
 I = imread('m_001.jpg');
 Ori = imread('m_001.jpg');
 
-%%figure, imshow(Ori);
+figure, imshow(Ori);
 
 end
 
@@ -330,9 +330,9 @@ for compress=1:1
         %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                I(iii,jjj,1) = 133;
-                I(iii,jjj,2) = 90;
-                I(iii,jjj,3) = 133;
+                I(iii,jjj,1) = 234;
+                I(iii,jjj,2) = 34;
+                I(iii,jjj,3) = 234;
             end
         end    
     end
