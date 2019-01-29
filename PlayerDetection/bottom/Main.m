@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_003_04.jpg');
-Ori = imread('m_003_04.jpg');
+I = imread('m_001.jpg');
+Ori = imread('m_001.jpg');
 
 figure, imshow(Ori);
 
@@ -58,9 +58,9 @@ N = 30;
 for compress=1:1
     
 %pe: Red     
-max_RLevels = 234;
-max_GLevels = 34;
-max_BLevels = 234;
+max_RLevels = 139;
+max_GLevels = 70;
+max_BLevels = 31;
 
 end
 %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
@@ -82,19 +82,21 @@ BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
 %Difference from field segmentation this must be very restrictive
-Rth = 1;
-Gth = 1;
-Bth = 1;
+Rth = 10;
+Gth = 10;
+Bth = 10;
 
 tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
     for j = 1: columns                        
-        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-        if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
-            abs(GChannel(i,j)- max_GLevels) < Gth &&...
-            abs(BChannel(i,j)- max_BLevels) < Bth )            
-            %It's grass
+%        fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
+%        fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%        fprintf("Diff RGB Grass %d,%d,%d\n",mabs(RChannel(i,j),max_RLevels),mabs(GChannel(i,j),max_GLevels),mabs(BChannel(i,j),max_BLevels));        
+        if (mabs(RChannel(i,j),max_RLevels) < Rth &&...
+            mabs(GChannel(i,j),max_GLevels) < Gth &&...
+            mabs(BChannel(i,j),max_BLevels) < Bth )            
+            tmp_PlayersMask(i,j) = 0;
         else
             tmp_PlayersMask(i,j) = 255;
         end        
@@ -289,6 +291,12 @@ function ret = in_of_bounds(i,j)
 
     ret = (i > 0 && j > 0 && i < rows && j < columns );
     
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = mabs(a,b)    
+    if (a > b) ret = a-b;
+    else ret = b-a;
+    end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Blob(ii,jj)

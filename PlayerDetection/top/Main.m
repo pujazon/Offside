@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_003.jpg');
-Ori = imread('m_003.jpg');
+I = imread('m_001.jpg');
+Ori = imread('m_001.jpg');
 
 figure, imshow(Ori);
 
@@ -106,23 +106,24 @@ GChannel = I(:,:,2);
 BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
-Rth = 50;
-Gth = 50;
-Bth = 50;
+Rth = 80;
+Gth = 80;
+Bth = 80;
 
 FieldMask = zeros(rows,columns);
 tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
     for j = 1: columns                        
-        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-        if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
-            abs(GChannel(i,j)- max_GLevels) < Gth &&...
-            abs(BChannel(i,j)- max_BLevels) < Bth )    
+%        fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
+%        fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%        fprintf("Diff RGB Grass %d,%d,%d\n",mabs(RChannel(i,j),max_RLevels),mabs(GChannel(i,j),max_GLevels),mabs(BChannel(i,j),max_BLevels));        
+        if (mabs(RChannel(i,j),max_RLevels) < Rth &&...
+            mabs(GChannel(i,j),max_GLevels) < Gth &&...
+            mabs(BChannel(i,j),max_BLevels) < Bth )   
         
             %It's grass
             tmp_PlayersMask(i,j) = 255;
-            FieldMask(i,j) = 0;
         else
             FieldMask(i,j) = 255;
         end        
@@ -130,7 +131,7 @@ for i = 1: rows
 end
 
  PlayersMask = tmp_PlayersMask;
- %%figure, imshow(PlayersMask);
+ figure, imshow(FieldMask);
 
 
 end
@@ -356,7 +357,11 @@ function ret = in_of_bounds(i,j)
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+function ret = mabs(a,b)    
+    if (a > b) ret = a-b;
+    else ret = b-a;
+    end
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Blob(ii,jj)
 
