@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_001.jpg');
-Ori = imread('m_001.jpg');
+I = imread('m_003.jpg');
+Ori = imread('m_003.jpg');
 
 figure, imshow(Ori);
 

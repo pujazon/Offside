@@ -1,6 +1,6 @@
 %% FRONT Camera
 %  Get the image and show it. Set number of thread
-addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\front\testcases'
+addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\bottom\testcases'
 
 %Profiling
 % format shortg
@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_001.jpg');
-Ori = imread('m_001.jpg');
+I = imread('m_003_04.jpg');
+Ori = imread('m_003_04.jpg');
 
 figure, imshow(Ori);
 
@@ -58,9 +58,9 @@ N = 30;
 for compress=1:1
     
 %pe: Red     
-max_RLevels = 145;
-max_GLevels = 23;
-max_BLevels = 46;
+max_RLevels = 234;
+max_GLevels = 34;
+max_BLevels = 234;
 
 end
 %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
@@ -82,9 +82,9 @@ BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
 %Difference from field segmentation this must be very restrictive
-Rth = 30;
-Gth = 30;
-Bth = 30;
+Rth = 1;
+Gth = 1;
+Bth = 1;
 
 tmp_PlayersMask = zeros(rows,columns);
 
@@ -265,9 +265,9 @@ for compress=1:1
         %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                I(iii,jjj,1) = 234;
-                I(iii,jjj,2) = 34;
-                I(iii,jjj,3) = 234;
+                I(iii,jjj,1) = 34;
+                I(iii,jjj,2) = 234;
+                I(iii,jjj,3) = 34;
             end
         end    
     end
