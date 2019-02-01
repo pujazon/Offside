@@ -1,6 +1,6 @@
-%% FRONT Camera
+%% TOP Camera
 %  Get the image and show it. Set number of thread
-addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\bottom\testcases'
+addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
 %Profiling
 % format shortg
@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_004.jpg');
-Ori = imread('m_004.jpg');
+I = imread('m_005.jpg');
+Ori = imread('m_005.jpg');
 
 figure, imshow(Ori);
 
@@ -53,26 +53,57 @@ N = 30;
 % 
  end
 
-%% RGB Shirt color:
-% Must be passed as an input before STR system run.
+%% RGB Peks Grass:
+%  Get R,G,B Peaks of each components
+%  and then you will get Grass mean color
+
 for compress=1:1
     
-%pe: Red     
-max_RLevels = 141;
-max_GLevels = 23;
-max_BLevels = 47;
+[pixelidsG, GLevels] = imhist(I(:,:,2));
+[pixelidsB, BLevels] = imhist(I(:,:,3));
+[pixelidsR, RLevels] = imhist(I(:,:,1));
+
+max_RLevels = 1;
+RPeak = pixelidsR(1);
+max_GLevels = 1;
+GPeak = pixelidsG(1);
+max_BLevels = 1;
+BPeak = pixelidsB(1);
+
+%Loop fusion
+
+for i = 2:255
+    if(pixelidsR(i) > RPeak)
+        max_RLevels = i;
+        RPeak = pixelidsR(i);
+    end
+    if(pixelidsG(i) > GPeak)
+        max_GLevels = i;
+        GPeak = pixelidsG(i);
+    end
+    if(pixelidsB(i) > BPeak)
+        max_BLevels = i;
+        BPeak = pixelidsB(i);
+    end
+end
 
 end
-%%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
 %% Preprocessing
-%  Shirt color mask
-% Here the segmentation will be using shirt color
+%  FieldMask:
+%  Apply thresholding with Grass mean color and offset
+%  FieldBoundaries:
+%  Image is bigger than field and we only want to process the blobs inside field 
+%  so must be found field boundaries
 
 for compress=1:1
     
 global rows;
 global columns;
+global top_field; 
+global bottom_field;  
+global FieldMask;
 rows = size(I,1);
 columns = size(I,2);
 
@@ -81,11 +112,11 @@ GChannel = I(:,:,2);
 BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
-%Difference from field segmentation this must be very restrictive
-Rth = 50;
-Gth = 50;
-Bth = 50;
+Rth = 80;
+Gth = 80;
+Bth = 80;
 
+FieldMask = zeros(rows,columns);
 tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
@@ -95,19 +126,67 @@ for i = 1: rows
 %        fprintf("Diff RGB Grass %d,%d,%d\n",mabs(RChannel(i,j),max_RLevels),mabs(GChannel(i,j),max_GLevels),mabs(BChannel(i,j),max_BLevels));        
         if (mabs(RChannel(i,j),max_RLevels) < Rth &&...
             mabs(GChannel(i,j),max_GLevels) < Gth &&...
-            mabs(BChannel(i,j),max_BLevels) < Bth )            
-            tmp_PlayersMask(i,j) = 0;
-        else
+            mabs(BChannel(i,j),max_BLevels) < Bth )   
+        
+            %It's grass
             tmp_PlayersMask(i,j) = 255;
+        else
+            FieldMask(i,j) = 255;
         end        
     end
 end
+
  PlayersMask = tmp_PlayersMask;
- %PlayersMask = imgaussfilt(tmp_PlayersMask, 4);
- figure, imshow(PlayersMask);
-    
+ figure, imshow(FieldMask);
+ 
+ %Field Boundaries
+ find_top();
+ find_bottom();
+ 
+ %fprintf('find_top: %d\n',top_field);
+ %fprintf('find_top: %d\n',bottom_field);
+ 
 end
 
+%% Edge detection
+%Not needed. Adds more problems than solutions
+ for compress=1:1
+% 
+%     IGray = rgb2gray(I);
+%     IGray2 = imgaussfilt(IGray,10);
+%     Edges = edge(IGray2,'sobel');
+%     %figure, imshow(BW1);
+% 
+% end
+% 
+% Merge filters
+% 
+% for compress=1:1
+% 
+%     MergeMap = ones(rows,columns);
+% 
+%     for i = 1: rows
+%         for j = 1: columns  
+%             if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
+%                 MergeMap(i,j) = 0;
+%             end
+%         end
+%     end
+%     
+%     
+%     PlayersMask = imgaussfilt(MergeMap,10);    
+%     %figure, imshow(PlayersMask);
+%     
+%     Debug
+%     for i = 1: rows
+%         for j = 1: columns  
+%             if (PlayersMask(i,j) == 0)               
+%                 %fprintf("%i == d; j == %d\n",i,j);
+%             end
+%         end
+%     end
+%     
+ end
 
 %% Blob detection:
 %  Detect all Blobs, filtered by size (not too much pixels means is no a
@@ -165,9 +244,8 @@ for i = 1: rows
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    %fprintf('PreBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
-                    %figure, imshow(Processed); 
                 end 
 
         end       
@@ -194,7 +272,7 @@ for compress=1:1
     %too lees for a Player).
     
     FinalBlobs = Player.empty(NBlobs,0);
-    maxWeight = 10000;
+    maxWeight = 1000;
     
     %Ini calculus varaibles    
     SWeight = 0; 
@@ -245,16 +323,14 @@ for compress=1:1
         %also, mean_weight can be processed befeore on Blob, loop fusion
        
         std_i= abs(Blobs(k).weight - mean_weight);
-        %fprintf('weight_i = %d\n',Blobs(k).weight);
+        fprintf('std_i = %d\n',std_i);
         
         %Processed output shows the curve of camera.
         %this origins that center players will have less pixels
         %than the others, so probablly std_i won't be correct.
         %So there is other filter. maxWeight
         
-         if (Blobs(k).weight > maxWeight )
-             % NOT WORKS|| std_i < std_weight)
-            fprintf('Blob has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Blobs(k).weight,Blobs(k).top,Blobs(k).bottom,Blobs(k).right,Blobs(k).left);                                    
+         if (Blobs(k).weight > maxWeight || std_i < std_weight)            
             FinalBlobs(fid) = Blobs(k);                        
             fid = fid+1;
         end
@@ -267,9 +343,9 @@ for compress=1:1
         %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                I(iii,jjj,1) = 34;
-                I(iii,jjj,2) = 234;
-                I(iii,jjj,3) = 34;
+                I(iii,jjj,1) = 234;
+                I(iii,jjj,2) = 34;
+                I(iii,jjj,3) = 234;
             end
         end    
     end
@@ -334,6 +410,70 @@ function Blob(ii,jj)
         %%%%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_top()
+
+    global rows;
+    global columns;
+    global top_field;      
+    global FieldMask; 
+    
+    ii = 1;
+    trobat = 0;
+    
+    while(trobat == 0 && ii < rows)
+        jj = 1;
+        field_row = 1;
+        fprintf("(%d,%d)\n",ii,jj);
+        
+        while (field_row == 1 && jj < columns-1)
+            if (FieldMask(ii,jj) ~= 0)
+                field_row = 0;
+            end            
+            jj = jj+1;
+            fprintf("(%d,%d)\n",ii,jj);
+        end
+        
+        if (field_row == 1)
+            trobat = 1;
+            top_field = ii;
+        end
+        ii=ii+1;
+    end
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_bottom()
+
+    global rows;
+    global columns;
+    global bottom_field;      
+    global FieldMask; 
+    
+    ii = rows;
+    trobat = 0;
+    
+    while(trobat == 0 && ii > 1)
+        jj = 1;
+        field_row = 1;
+        fprintf("(%d,%d)\n",ii,jj);
+        
+        while (field_row == 1 && jj < columns-1)
+            if (FieldMask(ii,jj) ~= 0)
+                field_row = 0;
+            end            
+            jj = jj+1;
+            fprintf("(%d,%d)\n",ii,jj);
+        end
+        
+        if (field_row == 1)
+            trobat = 1;
+            bottom_field = ii;
+        end
+        ii=ii-1;
+    end
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_001.jpg');
-Ori = imread('m_001.jpg');
+I = imread('m_005.jpg');
+Ori = imread('m_005.jpg');
 
 figure, imshow(Ori);
 
@@ -93,11 +93,17 @@ end
 %% Preprocessing
 %  FieldMask:
 %  Apply thresholding with Grass mean color and offset
+%  FieldBoundaries:
+%  Image is bigger than field and we only want to process the blobs inside field 
+%  so must be found field boundaries
 
 for compress=1:1
     
 global rows;
 global columns;
+global top_field; 
+global bottom_field;  
+global FieldMask;
 rows = size(I,1);
 columns = size(I,2);
 
@@ -132,8 +138,14 @@ end
 
  PlayersMask = tmp_PlayersMask;
  figure, imshow(FieldMask);
-
-
+ 
+ %Field Boundaries
+ find_top();
+ find_bottom();
+ 
+ %fprintf('find_top: %d\n',top_field);
+ %fprintf('find_top: %d\n',bottom_field);
+ 
 end
 
 %% Edge detection
@@ -207,7 +219,7 @@ id = 1;
 BlobTotalWeight = 0;
 
 %Blob Detection
-for i = 1: rows
+for i = top_field: bottom_field
     for j = 1: columns                    
         
         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
@@ -398,6 +410,70 @@ function Blob(ii,jj)
         %%%%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_top()
+
+    global rows;
+    global columns;
+    global top_field;      
+    global FieldMask; 
+    
+    ii = 1;
+    trobat = 0;
+    
+    while(trobat == 0 && ii < rows)
+        jj = 1;
+        field_row = 1;
+        fprintf("(%d,%d)\n",ii,jj);
+        
+        while (field_row == 1 && jj < columns-1)
+            if (FieldMask(ii,jj) ~= 0)
+                field_row = 0;
+            end            
+            jj = jj+1;
+            fprintf("(%d,%d)\n",ii,jj);
+        end
+        
+        if (field_row == 1)
+            trobat = 1;
+            top_field = ii;
+        end
+        ii=ii+1;
+    end
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_bottom()
+
+    global rows;
+    global columns;
+    global bottom_field;      
+    global FieldMask; 
+    
+    ii = rows;
+    trobat = 0;
+    
+    while(trobat == 0 && ii > 1)
+        jj = 1;
+        field_row = 1;
+        fprintf("(%d,%d)\n",ii,jj);
+        
+        while (field_row == 1 && jj < columns-1)
+            if (FieldMask(ii,jj) ~= 0)
+                field_row = 0;
+            end            
+            jj = jj+1;
+            fprintf("(%d,%d)\n",ii,jj);
+        end
+        
+        if (field_row == 1)
+            trobat = 1;
+            bottom_field = ii;
+        end
+        ii=ii-1;
+    end
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
