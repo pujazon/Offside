@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_005.jpg');
-Ori = imread('m_005.jpg');
+I = imread('m_006_01.jpg');
+Ori = imread('m_006_01.jpg');
 
 %figure, imshow(Ori);
 
@@ -25,6 +25,25 @@ global PlayersMask;
 global Blobs;
 global N;    
 global NBlobs;   
+
+global rows;
+global columns;
+global top_field; 
+global bottom_field;  
+global FieldMask;
+
+global top;
+global bottom;
+global left;
+global right;
+global weight;
+
+%Camera units in cm
+camera_width = 50;
+camera_height = 50;
+
+global x_cm_per_pixel;
+global y_cm_per_pixel;
 
 N = 30;
 
@@ -99,11 +118,6 @@ end
 
 for compress=1:1
     
-global rows;
-global columns;
-global top_field; 
-global bottom_field;  
-global FieldMask;
 rows = size(I,1);
 columns = size(I,2);
 
@@ -137,14 +151,14 @@ for i = 1: rows
 end
 
  PlayersMask = tmp_PlayersMask;
- %figure, imshow(FieldMask);
+ figure, imshow(FieldMask);
  
  %Field Boundaries
  find_top();
  find_bottom();
  
- %%fprintf('find_top: %d\n',top_field);
- %%fprintf('find_top: %d\n',bottom_field);
+ fprintf('find_top: %d\n',top_field);
+ fprintf('find_top: %d\n',bottom_field);
  
 end
 
@@ -202,12 +216,6 @@ Processed = zeros(rows,columns);
 
 %Initial set. Each position stores 0 (== no player)
 TmpBlobMap = zeros(rows,columns,'uint8');
-
-global top;
-global bottom;
-global left;
-global right;
-global weight;
 
 %Weight threshold. or put it after too many examples or do it dinamically
 %Difficult to do it dinamically. It will be hardcoded but must be good
@@ -325,6 +333,9 @@ for compress=1:1
         %also, mean_weight can be processed befeore on Blob, loop fusion
         std_width_i = diff_abs(Blobs(k).width,mean_width);
         std_height_i= diff_abs(Blobs(k).height,mean_height);
+        
+        blob_box_weight = floor(Blobs(k).width*Blobs(k).height);
+        
         %fprintf('std_height_i = %d\n',std_height_i);
         %fprintf('std_width_i = %d\n',std_width_i);
         
@@ -333,9 +344,10 @@ for compress=1:1
         %than the others, so probablly std_i won't be correct.
 
          %if ((std_height_i < std_height || std_width_i < std_width))            
-         if(Blobs(k).width < 2*Blobs(k).height && ...
-                 Blobs(k).height < 2*Blobs(k).width)
-             
+         if((Blobs(k).width < 2*Blobs(k).height && ...
+                 Blobs(k).height < 2*Blobs(k).width)&&...
+             (Blobs(k).weight > floor(blob_box_weight/2))...
+             )             
             FinalBlobs(fid) = Blobs(k);                        
             fid = fid+1;
         end
@@ -357,8 +369,39 @@ for compress=1:1
     
     %fprintf('Really, there are %d Blobs!\n',fid);
     NBlobs = fid;
-    %imshow(I);
+    imshow(I);
 end
+
+%% Coordinates
+% Get each player's coordinates assuming orthogonal camera (unreal)
+
+x_cm_per_pixel = (camera_width/rows);
+y_cm_per_pixel = (camera_height/rows);
+
+% fprintf("camera_width = %d\n",camera_width);
+% fprintf("camera_height = %d\n",camera_height);
+% 
+% fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
+% fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
+
+for id=1:NBlobs
+    
+top = y_coords_from_camera_to_real(FinalBlobs(id).top);
+bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
+left = x_coords_from_camera_to_real(FinalBlobs(id).left);
+right = x_coords_from_camera_to_real(FinalBlobs(id).right);
+    
+FinalBlobs(id).top = top;
+FinalBlobs(id).bottom = bottom;
+FinalBlobs(id).left = left;
+FinalBlobs(id).right = right;
+
+FinalBlobs(id).width = right-left;   
+FinalBlobs(id).height = bottom-top;                 
+fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(id).top,FinalBlobs(id).bottom,FinalBlobs(id).right,FinalBlobs(id).left);                                    
+
+end
+
 
 %% Profiling
 format shortg
@@ -477,6 +520,30 @@ function find_bottom()
         end
         ii=ii-1;
     end
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = x_coords_from_camera_to_real(x_camera_coord)
+
+    global x_cm_per_pixel;
+
+    x_real_coord = x_camera_coord*x_cm_per_pixel;
+    %fprintf("x_real_coord: %d\n",x_real_coord);
+
+    %TODO: Precision level (?)
+    ret = round(x_real_coord);
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = y_coords_from_camera_to_real(y_camera_coord)
+
+    global y_cm_per_pixel;
+
+    y_real_coord = y_camera_coord*y_cm_per_pixel;
+    %fprintf("y_real_coord: %d\n",y_real_coord);
+
+    %TODO: Precision level (?)
+    ret = round(y_real_coord);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
