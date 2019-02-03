@@ -3,18 +3,18 @@
 addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
 %Profiling
-% format shortg
-% c = clock
+format shortg
+c = clock
 
 for compress=1:1
     
 maxNumCompThreads(16);
-%%%fprintf('Hilos: %d\n',maxNumCompThreads);
+%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
 I = imread('m_005.jpg');
 Ori = imread('m_005.jpg');
 
-figure, imshow(Ori);
+%figure, imshow(Ori);
 
 end
 
@@ -88,7 +88,7 @@ for i = 2:255
 end
 
 end
-%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
 %% Preprocessing
 %  FieldMask:
@@ -121,12 +121,12 @@ tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
     for j = 1: columns                        
-%        fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-%        fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
-%        fprintf("Diff RGB Grass %d,%d,%d\n",mabs(RChannel(i,j),max_RLevels),mabs(GChannel(i,j),max_GLevels),mabs(BChannel(i,j),max_BLevels));        
-        if (mabs(RChannel(i,j),max_RLevels) < Rth &&...
-            mabs(GChannel(i,j),max_GLevels) < Gth &&...
-            mabs(BChannel(i,j),max_BLevels) < Bth )   
+%        %fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
+%        %fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%        %fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
+        if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
+            diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
+            diff_abs(BChannel(i,j),max_BLevels) < Bth )   
         
             %It's grass
             tmp_PlayersMask(i,j) = 255;
@@ -137,14 +137,14 @@ for i = 1: rows
 end
 
  PlayersMask = tmp_PlayersMask;
- figure, imshow(FieldMask);
+ %figure, imshow(FieldMask);
  
  %Field Boundaries
  find_top();
  find_bottom();
  
- %fprintf('find_top: %d\n',top_field);
- %fprintf('find_top: %d\n',bottom_field);
+ %%fprintf('find_top: %d\n',top_field);
+ %%fprintf('find_top: %d\n',bottom_field);
  
 end
 
@@ -181,7 +181,7 @@ end
 %     for i = 1: rows
 %         for j = 1: columns  
 %             if (PlayersMask(i,j) == 0)               
-%                 %fprintf("%i == d; j == %d\n",i,j);
+%                 %%fprintf("%i == d; j == %d\n",i,j);
 %             end
 %         end
 %     end
@@ -213,7 +213,7 @@ global weight;
 %Difficult to do it dinamically. It will be hardcoded but must be good
 %justifyed
 
-minWeight = 400;
+minWeight = 1000;
 
 id = 1;   
 BlobTotalWeight = 0;
@@ -243,8 +243,10 @@ for i = top_field: bottom_field
                     Blobs(id).bottom = bottom;
                     Blobs(id).left = left;
                     Blobs(id).right = right;
-                    Blobs(id).weight = weight;                 
-                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    Blobs(id).weight = weight;   
+                    Blobs(id).width = right-left;   
+                    Blobs(id).height = bottom-top;                 
+                    %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
                 end 
 
@@ -259,45 +261,43 @@ NBlobs = id-1;
 end
 
 %% Postprocessing
-%  Calculate weight std and only will be blobs the ones that 
-%  have less deviation than std. otherwise will be discarted
+%  Filter noise-blobs and
+%  Merge overlapped blobs.
 
 for compress=1:1   
 
-    %Problem is that there are too many noise and then that noise 
-    %affects too much on STDi values and then on STD
-    %and smal fake blobs pass STD filter because there were 
-    %noise pixels blobs too small.
-    %SOLVED-> Add pixel weight filter, enmpiristic (Knowing that 10 px is
-    %too lees for a Player).
+    %Filter1: width > 3*height || height > 3*width
+    % Blobs are top-head view so they are similar to a circle.
+    % then the blob box is similar to square. (width similar to height)
     
+    %Filter2: weight << box_weght
+    % If condition above is not satisfied means that there is a lot of
+    % dispersation of pixels on the blob and players head fit inside blob
+    % box so there is no dispersation
+
     FinalBlobs = Player.empty(NBlobs,0);
-    maxWeight = 1000;
+    %maxWeight = 1000;
     
-    %Ini calculus varaibles    
-    SWeight = 0; 
-    Sheight = 0;    
+    %Ini calculus varaibles     
     sum = 0;
     sum2 = 0;
     
     %Weight Mean calculus
     for k=1:NBlobs               
-        SWeight = SWeight + Blobs(k).weight;
-        height = Blobs(k).bottom - Blobs(k).top;    
-        Sheight = Sheight + height;
+        sum = sum + Blobs(k).width;   
+        sum2 = sum2 + Blobs(k).height;
     end
     
-    mean_weight = floor(SWeight/NBlobs);
-    mean_height = floor(Sheight/NBlobs);
+    mean_width = floor(sum/NBlobs);
+    mean_height = floor(sum2/NBlobs);
 
-    %Weight STD Calculus
+    %Width and height STD Calculus
     for k=1:NBlobs  
-        tmp=(Blobs(k).weight-mean_weight);
+        tmp  = diff_abs(Blobs(k).width,mean_width);
         tmp2 = tmp*tmp;
-        sum = sum+tmp2;
-        
-        height = Blobs(k).bottom - Blobs(k).top;    
-        aux=(height-mean_height);
+        sum  = sum+tmp2;
+           
+        aux  = diff_abs(Blobs(k).height,mean_height);
         aux2 = aux*aux;
         sum2 = sum2+aux2;        
         
@@ -306,14 +306,16 @@ for compress=1:1
     %Finish Weight STD Calculus
     tmp = floor(sum/(NBlobs-1));
     tmp2= sqrt(tmp);
-    std_weight = floor(tmp2);
+    std_width = floor(tmp2);
     
     aux = floor(sum2/(NBlobs-1));
     aux2= sqrt(aux);
     std_height = floor(aux2);  
 
-    fprintf('std_weight = %d\n',std_weight);
-    fprintf('mean_weight = %d\n',mean_weight);
+    %fprintf('std_width = %d\n',std_width);
+    %fprintf('mean_width = %d\n',mean_width);
+    %fprintf('std_height = %d\n',std_height);
+    %fprintf('mean_height = %d\n',mean_height);
 
     fid = 1;
    
@@ -321,16 +323,19 @@ for compress=1:1
         
         %reorder conditional statements in order to impreove performance.
         %also, mean_weight can be processed befeore on Blob, loop fusion
-       
-        std_i= abs(Blobs(k).weight - mean_weight);
-        fprintf('std_i = %d\n',std_i);
+        std_width_i = diff_abs(Blobs(k).width,mean_width);
+        std_height_i= diff_abs(Blobs(k).height,mean_height);
+        %fprintf('std_height_i = %d\n',std_height_i);
+        %fprintf('std_width_i = %d\n',std_width_i);
         
         %Processed output shows the curve of camera.
         %this origins that center players will have less pixels
         %than the others, so probablly std_i won't be correct.
-        %So there is other filter. maxWeight
-        
-         if (Blobs(k).weight > maxWeight || std_i < std_weight)            
+
+         %if ((std_height_i < std_height || std_width_i < std_width))            
+         if(Blobs(k).width < 2*Blobs(k).height && ...
+                 Blobs(k).height < 2*Blobs(k).width)
+             
             FinalBlobs(fid) = Blobs(k);                        
             fid = fid+1;
         end
@@ -340,7 +345,7 @@ for compress=1:1
     
     %Debug
     for w=1:fid
-        %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
+        %%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
                 I(iii,jjj,1) = 234;
@@ -350,14 +355,14 @@ for compress=1:1
         end    
     end
     
-    fprintf('Really, there are %d Blobs!\n',fid);
+    %fprintf('Really, there are %d Blobs!\n',fid);
     NBlobs = fid;
-    imshow(I);
+    %imshow(I);
 end
 
 %% Profiling
-% format shortg
-% c = clock
+format shortg
+c = clock
 
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -369,7 +374,7 @@ function ret = in_of_bounds(i,j)
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function ret = mabs(a,b)    
+function ret = diff_abs(a,b)    
     if (a > b) ret = a-b;
     else ret = b-a;
     end
@@ -385,29 +390,29 @@ function Blob(ii,jj)
     global weight;
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
-        %%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
+        %%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
         bottom = max(ii+1,bottom);
-        %%%%fprintf('bottom = %d\n',bottom);
+        %%%%%fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj);
     end  
             
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
-        %%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
+        %%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
         left = min(jj-1,left);
-        %%%%fprintf('left = %d\n',left);
+        %%%%%fprintf('left = %d\n',left);
         Blob(ii,jj-1);
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        %%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
+        %%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
         right = max(jj+1,right);
-        %%%%fprintf('right = %d\n',right);
+        %%%%%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
 
@@ -426,14 +431,13 @@ function find_top()
     while(trobat == 0 && ii < rows)
         jj = 1;
         field_row = 1;
-        fprintf("(%d,%d)\n",ii,jj);
         
         while (field_row == 1 && jj < columns-1)
             if (FieldMask(ii,jj) ~= 0)
                 field_row = 0;
             end            
             jj = jj+1;
-            fprintf("(%d,%d)\n",ii,jj);
+            %%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if (field_row == 1)
@@ -458,14 +462,13 @@ function find_bottom()
     while(trobat == 0 && ii > 1)
         jj = 1;
         field_row = 1;
-        fprintf("(%d,%d)\n",ii,jj);
         
         while (field_row == 1 && jj < columns-1)
             if (FieldMask(ii,jj) ~= 0)
                 field_row = 0;
             end            
             jj = jj+1;
-            fprintf("(%d,%d)\n",ii,jj);
+            %%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if (field_row == 1)
