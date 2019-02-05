@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_006_01.jpg');
-Ori = imread('m_006_01.jpg');
+I = imread('m_006_02.jpg');
+Ori = imread('m_006_02.jpg');
 
 %figure, imshow(Ori);
 
@@ -39,7 +39,7 @@ global right;
 global weight;
 
 %Camera units in cm
-camera_width = 50;
+camera_width = 63;
 camera_height = 50;
 
 global x_cm_per_pixel;
@@ -376,7 +376,7 @@ end
 % Get each player's coordinates assuming orthogonal camera (unreal)
 
 x_cm_per_pixel = (camera_width/rows);
-y_cm_per_pixel = (camera_height/rows);
+y_cm_per_pixel = (camera_height/columns);
 
 % fprintf("camera_width = %d\n",camera_width);
 % fprintf("camera_height = %d\n",camera_height);
