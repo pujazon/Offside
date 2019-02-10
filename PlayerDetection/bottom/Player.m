@@ -5,6 +5,8 @@ classdef Player
       left
       right
       weight 
+      width
+      height
       processed = 0    
       team = -1;
    end

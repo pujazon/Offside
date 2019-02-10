@@ -11,10 +11,10 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_006_02.jpg');
-Ori = imread('m_006_02.jpg');
+I = imread('m09.jpg');
+Ori = imread('m09.jpg');
 
-%figure, imshow(Ori);
+figure, imshow(Ori);
 
 end
 
@@ -375,6 +375,8 @@ end
 %% Coordinates
 % Get each player's coordinates assuming orthogonal camera (unreal)
 
+for compress=1:1
+
 x_cm_per_pixel = (camera_width/rows);
 y_cm_per_pixel = (camera_height/columns);
 
@@ -402,6 +404,7 @@ fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(i
 
 end
 
+end
 
 %% Profiling
 format shortg

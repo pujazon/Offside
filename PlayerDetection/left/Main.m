@@ -1,20 +1,20 @@
-%% TOP Camera
+%% LEFT Camera
 %  Get the image and show it. Set number of thread
-addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
+addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\left\testcases'
 
 %Profiling
-format shortg
-c = clock
+% format shortg
+% c = clock
 
 for compress=1:1
     
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('001.jpg');
-Ori = imread('001.jpg');
+I = imread('m_007.jpg');
+Ori = imread('m_007.jpg');
 
-%%figure, imshow(Ori);
+figure, imshow(Ori);
 
 end
 
@@ -27,6 +27,13 @@ global N;
 global NBlobs;   
 
 N = 30;
+
+%Camera units in cm
+camera_width = 63;
+camera_height = 50;
+
+global x_cm_per_pixel;
+global y_cm_per_pixel;
 
 %% Plotting Image Histogram:
 %  Plot image histogram in order to get an image
@@ -53,46 +60,21 @@ N = 30;
 % 
  end
 
-%% RGB Peks Grass:
-%  Get R,G,B Peaks of each components
-%  and then you will get Grass mean color
-
+%% RGB Shirt color:
+% Must be passed as an input before STR system run.
 for compress=1:1
     
-[pixelidsG, GLevels] = imhist(I(:,:,2));
-[pixelidsB, BLevels] = imhist(I(:,:,3));
-[pixelidsR, RLevels] = imhist(I(:,:,1));
-
-max_RLevels = 1;
-RPeak = pixelidsR(1);
-max_GLevels = 1;
-GPeak = pixelidsG(1);
-max_BLevels = 1;
-BPeak = pixelidsB(1);
-
-%Loop fusion
-
-for i = 2:255
-    if(pixelidsR(i) > RPeak)
-        max_RLevels = i;
-        RPeak = pixelidsR(i);
-    end
-    if(pixelidsG(i) > GPeak)
-        max_GLevels = i;
-        GPeak = pixelidsG(i);
-    end
-    if(pixelidsB(i) > BPeak)
-        max_BLevels = i;
-        BPeak = pixelidsB(i);
-    end
-end
+%pe: Red     
+max_RLevels = 203;
+max_GLevels = 44;
+max_BLevels = 85;
 
 end
-%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
 %% Preprocessing
-%  FieldMask:
-%  Apply thresholding with Grass mean color and offset
+%  Shirt color mask
+% Here the segmentation will be using shirt color
 
 for compress=1:1
     
@@ -106,74 +88,33 @@ GChannel = I(:,:,2);
 BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
+%Difference from field segmentation this must be very restrictive
 Rth = 50;
 Gth = 50;
 Bth = 50;
 
-FieldMask = zeros(rows,columns);
 tmp_PlayersMask = zeros(rows,columns);
 
 for i = 1: rows
     for j = 1: columns                        
-        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-        if (abs(RChannel(i,j)- max_RLevels) < Rth &&...
-            abs(GChannel(i,j)- max_GLevels) < Gth &&...
-            abs(BChannel(i,j)- max_BLevels) < Bth )    
-        
-            %It's grass
-            tmp_PlayersMask(i,j) = 255;
-            FieldMask(i,j) = 0;
+%        fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
+%        fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%        fprintf("Diff RGB Grass %d,%d,%d\n",mabs(RChannel(i,j),max_RLevels),mabs(GChannel(i,j),max_GLevels),mabs(BChannel(i,j),max_BLevels));        
+        if (mabs(RChannel(i,j),max_RLevels) < Rth &&...
+            mabs(GChannel(i,j),max_GLevels) < Gth &&...
+            mabs(BChannel(i,j),max_BLevels) < Bth )            
+            tmp_PlayersMask(i,j) = 0;
         else
-            FieldMask(i,j) = 255;
+            tmp_PlayersMask(i,j) = 255;
         end        
     end
 end
-
  PlayersMask = tmp_PlayersMask;
- %%figure, imshow(PlayersMask);
-
-
+ %PlayersMask = imgaussfilt(tmp_PlayersMask, 4);
+ figure, imshow(PlayersMask);
+    
 end
 
-%% Edge detection
-%Not needed. Adds more problems than solutions
- for compress=1:1
-% 
-%     IGray = rgb2gray(I);
-%     IGray2 = imgaussfilt(IGray,10);
-%     Edges = edge(IGray2,'sobel');
-%     %figure, imshow(BW1);
-% 
-% end
-% 
-% Merge filters
-% 
-% for compress=1:1
-% 
-%     MergeMap = ones(rows,columns);
-% 
-%     for i = 1: rows
-%         for j = 1: columns  
-%             if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
-%                 MergeMap(i,j) = 0;
-%             end
-%         end
-%     end
-%     
-%     
-%     PlayersMask = imgaussfilt(MergeMap,10);    
-%     %figure, imshow(PlayersMask);
-%     
-%     Debug
-%     for i = 1: rows
-%         for j = 1: columns  
-%             if (PlayersMask(i,j) == 0)               
-%                 %fprintf("%i == d; j == %d\n",i,j);
-%             end
-%         end
-%     end
-%     
- end
 
 %% Blob detection:
 %  Detect all Blobs, filtered by size (not too much pixels means is no a
@@ -200,7 +141,7 @@ global weight;
 %Difficult to do it dinamically. It will be hardcoded but must be good
 %justifyed
 
-thWeight = 400;
+minWeight = 400;
 
 id = 1;   
 BlobTotalWeight = 0;
@@ -224,15 +165,16 @@ for i = 1: rows
             %noise. Else STD calcus won't be realistic because there were
             %too fake values           
             
-                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > thWeight))
+                if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
 
                     Blobs(id).top = top;
                     Blobs(id).bottom = bottom;
                     Blobs(id).left = left;
                     Blobs(id).right = right;
                     Blobs(id).weight = weight;                 
-                    %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    %fprintf('PreBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
+                    %figure, imshow(Processed); 
                 end 
 
         end       
@@ -241,7 +183,7 @@ for i = 1: rows
 end
 
 NBlobs = id-1;
-%%figure, imshow(Processed); 
+%figure, imshow(Processed); 
     
 end
 
@@ -259,6 +201,7 @@ for compress=1:1
     %too lees for a Player).
     
     FinalBlobs = Player.empty(NBlobs,0);
+    maxWeight = 10000;
     
     %Ini calculus varaibles    
     SWeight = 0; 
@@ -298,14 +241,27 @@ for compress=1:1
     aux2= sqrt(aux);
     std_height = floor(aux2);  
 
-    %fprintf('std_weight = %d\n',std_weight);
-    %fprintf('mean_weight = %d\n',mean_weight);
-    %fprintf('std_height = %d\n',std_height);
+    fprintf('std_weight = %d\n',std_weight);
+    fprintf('mean_weight = %d\n',mean_weight);
 
     fid = 1;
    
     for k=1:NBlobs
-         if (Blobs(k).weight > mean_weight || Blobs(k).weight == mean_weight)            
+        
+        %reorder conditional statements in order to impreove performance.
+        %also, mean_weight can be processed befeore on Blob, loop fusion
+       
+        std_i= abs(Blobs(k).weight - mean_weight);
+        %fprintf('weight_i = %d\n',Blobs(k).weight);
+        
+        %Processed output shows the curve of camera.
+        %this origins that center players will have less pixels
+        %than the others, so probablly std_i won't be correct.
+        %So there is other filter. maxWeight
+        
+         if (Blobs(k).weight > maxWeight )
+             % NOT WORKS|| std_i < std_weight)
+            fprintf('Blob has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Blobs(k).weight,Blobs(k).top,Blobs(k).bottom,Blobs(k).right,Blobs(k).left);                                    
             FinalBlobs(fid) = Blobs(k);                        
             fid = fid+1;
         end
@@ -318,21 +274,54 @@ for compress=1:1
         %%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
         for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
             for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                I(iii,jjj,1) = 133;
-                I(iii,jjj,2) = 90;
-                I(iii,jjj,3) = 133;
+                I(iii,jjj,1) = 34;
+                I(iii,jjj,2) = 234;
+                I(iii,jjj,3) = 34;
             end
         end    
     end
     
-    %fprintf('Really, there are %d Blobs!\n',fid);
+    fprintf('Really, there are %d Blobs!\n',fid);
     NBlobs = fid;
-    %imshow(I);
+    imshow(I);
 end
 
+%% Coordinates
+% Get each player's coordinates assuming orthogonal camera (unreal)
+
+for compress=1:1
+
+x_cm_per_pixel = (camera_width/rows);
+y_cm_per_pixel = (camera_height/columns);
+
+% fprintf("camera_width = %d\n",camera_width);
+% fprintf("camera_height = %d\n",camera_height);
+% 
+% fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
+% fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
+
+for id=1:NBlobs
+    
+top = y_coords_from_camera_to_real(FinalBlobs(id).top);
+bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
+left = x_coords_from_camera_to_real(FinalBlobs(id).left);
+right = x_coords_from_camera_to_real(FinalBlobs(id).right);
+    
+FinalBlobs(id).top = top;
+FinalBlobs(id).bottom = bottom;
+FinalBlobs(id).left = left;
+FinalBlobs(id).right = right;
+
+FinalBlobs(id).width = right-left;   
+FinalBlobs(id).height = bottom-top;                 
+fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(id).top,FinalBlobs(id).bottom,FinalBlobs(id).right,FinalBlobs(id).left);                                    
+
+end
+
+end
 %% Profiling
-format shortg
-c = clock
+% format shortg
+% c = clock
 
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -344,7 +333,11 @@ function ret = in_of_bounds(i,j)
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+function ret = mabs(a,b)    
+    if (a > b) ret = a-b;
+    else ret = b-a;
+    end
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Blob(ii,jj)
 
@@ -381,6 +374,31 @@ function Blob(ii,jj)
         %%%%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = x_coords_from_camera_to_real(x_camera_coord)
+
+    global x_cm_per_pixel;
+
+    x_real_coord = x_camera_coord*x_cm_per_pixel;
+    %fprintf("x_real_coord: %d\n",x_real_coord);
+
+    %TODO: Precision level (?)
+    ret = round(x_real_coord);
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = y_coords_from_camera_to_real(y_camera_coord)
+
+    global y_cm_per_pixel;
+
+    y_real_coord = y_camera_coord*y_cm_per_pixel;
+    %fprintf("y_real_coord: %d\n",y_real_coord);
+
+    %TODO: Precision level (?)
+    ret = round(y_real_coord);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
