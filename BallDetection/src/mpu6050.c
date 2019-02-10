@@ -10,6 +10,8 @@ double acclX, acclY, acclZ;
 double gyroX_scaled, gyroY_scaled, gyroZ_scaled;
 char ini;
 double acc[3];
+double thX, thY, thZ;
+unsigned int internal_trigger;
 
 int read_word_2c(int addr)
 {
@@ -41,9 +43,21 @@ double radians;
 radians = atan2(y, dist(x, z));
 return (radians * (180.0 / M_PI));
 }
+
+//(1) Double abs
+double dabs(double a, double b){
+	if (a > b) return a-b;
+	else return b-a;
+}
  
 int main()
 {
+
+thX = 0.6;	
+thY = 0.6;
+thZ = 0.6;
+
+internal_trigger = 10;
 
 unsigned int iter = 0;
 
@@ -58,6 +72,12 @@ tacclX = read_word_2c(0x3B);
 tacclY = read_word_2c(0x3D);
 tacclZ = read_word_2c(0x3F);
 
+
+//(2) Take care that each 100 ms is triggered the MPU6050 values.
+//This menas that could be the situation of a player passing the ball
+//So this is 1 system trigger but on the action there are 10 mpu6050.c 
+//triggers and could be 0 0 1 0 0 1 0 (1 means real trigger)
+//and only should be one
 if (ini){
  
 	acc[0] = tacclX / 16384.0;
@@ -72,12 +92,20 @@ else{
 	acclY = tacclY / 16384.0;
 	acclZ = tacclZ / 16384.0;
 
-	//if (accl
+        //(1)REcive pass could mean: or deacresing acceleration threshold (if you stop the bal when it has high speed). So absoulte difference value must be checked
+	//TODO: If reception is get when ball is stopping there is no accelearation trigger so we won't detect it
+       if (internal_trigger > 10 &&
+		       (dabs(acc[0],acclX) >= thX ||
+		       dabs(acc[1],acclY) >= thY ||
+		       dabs(acc[2],acclZ) >= thZ)){
+	
+       		internal_trigger = 0;	       
 
-	printf("My acclX_scaled: %f\n", acclX);
-	printf("My acclY_scaled: %f\n", acclY);
-	printf("My acclZ_scaled: %f\n", acclZ);
- 
+		printf("My acclX_scaled: %f\n", acclX);
+		printf("My acclY_scaled: %f\n", acclY);
+		printf("My acclZ_scaled: %f\n", acclZ);
+ 	}
+
 	acc[0] = tacclX / 16384.0;
 	acc[1] = tacclY / 16384.0;
 	acc[2] = tacclZ / 16384.0;
@@ -85,8 +113,11 @@ else{
 }
 
 printf("Inter %d\n", iter);
+
 iter++;
-delay(5000);
+internal_trigger++;
+
+delay(100);
 }
 return 0;
 }
