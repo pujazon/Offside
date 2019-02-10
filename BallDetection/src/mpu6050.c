@@ -4,11 +4,13 @@
 #include <math.h>
  
 int fd;
-int acclX, acclY, acclZ;
+int tacclX, tacclY, tacclZ;
 int gyroX, gyroY, gyroZ;
-double acclX_scaled, acclY_scaled, acclZ_scaled;
+double acclX, acclY, acclZ;
 double gyroX_scaled, gyroY_scaled, gyroZ_scaled;
- 
+char ini;
+double acc[3];
+
 int read_word_2c(int addr)
 {
 int val;
@@ -42,29 +44,49 @@ return (radians * (180.0 / M_PI));
  
 int main()
 {
+
+unsigned int iter = 0;
+
 fd = wiringPiI2CSetup (0x68);
 wiringPiI2CWriteReg8 (fd,0x6B,0x00);//disable sleep mode
 printf("set 0x6B=%X\n",wiringPiI2CReadReg8 (fd,0x6B));
- 
+ini = 1;
+
 while(1) {
+	
+tacclX = read_word_2c(0x3B);
+tacclY = read_word_2c(0x3D);
+tacclZ = read_word_2c(0x3F);
+
+if (ini){
  
-acclX = read_word_2c(0x3B);
-acclY = read_word_2c(0x3D);
-acclZ = read_word_2c(0x3F);
+	acc[0] = tacclX / 16384.0;
+	acc[1] = tacclY / 16384.0;
+	acc[2] = tacclZ / 16384.0;
+
+	ini = 0;
+}
+
+else{
+	acclX = tacclX / 16384.0;
+	acclY = tacclY / 16384.0;
+	acclZ = tacclZ / 16384.0;
+
+	//if (accl
+
+	printf("My acclX_scaled: %f\n", acclX);
+	printf("My acclY_scaled: %f\n", acclY);
+	printf("My acclZ_scaled: %f\n", acclZ);
  
-acclX_scaled = acclX / 16384.0;
-acclY_scaled = acclY / 16384.0;
-acclZ_scaled = acclZ / 16384.0;
- 
-printf("My acclX_scaled: %f\n", acclX_scaled);
-printf("My acclY_scaled: %f\n", acclY_scaled);
-printf("My acclZ_scaled: %f\n", acclZ_scaled);
- 
-printf("My X rotation: %f\n", get_x_rotation(acclX_scaled, acclY_scaled, acclZ_scaled));
-printf("My Y rotation: %f\n", get_y_rotation(acclX_scaled, acclY_scaled, acclZ_scaled));
- 
- 
-delay(100);
+	acc[0] = tacclX / 16384.0;
+	acc[1] = tacclY / 16384.0;
+	acc[2] = tacclZ / 16384.0;
+
+}
+
+printf("Inter %d\n", iter);
+iter++;
+delay(5000);
 }
 return 0;
 }

@@ -16,7 +16,7 @@ make:$(SRC)mpu6050.c
 	mkdir $(OBJS)
 	mv $(PROG).o $(OBJS)	
 	mkdir $(BIN)
-	$(CC) -o $(BIN)$(PROG) $(SRC)$(PROG).c $(CFLAGS)
+	$(CC) -o $(BIN)$(PROG) $(SRC)$(PROG).c $(CFLAGS) -lm
 	
 clean:
 	rm -r $(OBJS)
