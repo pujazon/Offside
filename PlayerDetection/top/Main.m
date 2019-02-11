@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m09.jpg');
-Ori = imread('m09.jpg');
+I = imread('m_008.jpg');
+Ori = imread('m_008.jpg');
 
 figure, imshow(Ori);
 
@@ -30,6 +30,8 @@ global rows;
 global columns;
 global top_field; 
 global bottom_field;  
+global right_field;  
+global left_field; 
 global FieldMask;
 
 global top;
@@ -39,7 +41,7 @@ global right;
 global weight;
 
 %Camera units in cm
-camera_width = 63;
+camera_width = 50;
 camera_height = 50;
 
 global x_cm_per_pixel;
@@ -151,19 +153,30 @@ for i = 1: rows
 end
 
  PlayersMask = tmp_PlayersMask;
- figure, imshow(FieldMask);
+ figure, imshow(PlayersMask);
  
  %Field Boundaries
- find_top();
- find_bottom();
+%  find_top();
+%  find_bottom();
+%  find_right();
+%  find_left();
+%  TODO:  They don't work because now there is no axis with all pixels being field
+
+top_field = 774; 
+bottom_field = 2422;
+left_field = 1024;
+right_field = 2655;
  
  fprintf('find_top: %d\n',top_field);
- fprintf('find_top: %d\n',bottom_field);
+ fprintf('bottom_field: %d\n',bottom_field);
+ fprintf('left_field: %d\n',left_field);
+ fprintf('right_field: %d\n',right_field);
  
 end
 
 %% Edge detection
 %Not needed. Adds more problems than solutions
+
  for compress=1:1
 % 
 %     IGray = rgb2gray(I);
@@ -227,8 +240,8 @@ id = 1;
 BlobTotalWeight = 0;
 
 %Blob Detection
-for i = top_field: bottom_field
-    for j = 1: columns                    
+for i = top_field+1: bottom_field
+    for j = left_field+1: right_field                    
         
         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
             %Ini setup before Blob detection function
@@ -407,16 +420,19 @@ end
 end
 
 %% Profiling
+
 format shortg
 c = clock
 
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ret = in_of_bounds(i,j)    
-    global rows;
-    global columns;
+    global top_field; 
+    global bottom_field;  
+    global right_field;  
+    global left_field; 
 
-    ret = (i > 0 && j > 0 && i < rows && j < columns );
+    ret = (i > top_field && j > left_field && i < bottom_field && j < right_field);
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -440,7 +456,7 @@ function Blob(ii,jj)
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
         bottom = max(ii+1,bottom);
-        %%%%%fprintf('bottom = %d\n',bottom);
+        %fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj);
     end  
             
@@ -449,7 +465,7 @@ function Blob(ii,jj)
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
         left = min(jj-1,left);
-        %%%%%fprintf('left = %d\n',left);
+        %fprintf('left = %d\n',left);
         Blob(ii,jj-1);
     end
     
@@ -458,7 +474,7 @@ function Blob(ii,jj)
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
         right = max(jj+1,right);
-        %%%%%fprintf('right = %d\n',right);
+        %fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
 
@@ -522,6 +538,72 @@ function find_bottom()
             bottom_field = ii;
         end
         ii=ii-1;
+    end
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_right()
+
+    global columns;
+    global top_field; 
+    global bottom_field; 
+    global right_field;      
+    global FieldMask; 
+    
+    jj = columns-1;
+    trobat = 0;
+    
+    while(trobat == 0 && jj > 1)
+        ii = top_field;
+        field_row = 1;
+        
+        while (field_row == 1 && (ii < bottom_field-1))
+            if (FieldMask(ii,jj) ~= 0)
+                field_row = 0;
+            end            
+            ii = ii+1;
+            %%fprintf("(%d,%d)\n",ii,jj);
+        end
+        
+        if (field_row == 1)
+            trobat = 1;
+            right_field = jj;
+        end
+        
+        jj=jj-1;
+    end
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function find_left()
+
+    global columns;
+    global top_field; 
+    global bottom_field; 
+    global left_field;      
+    global FieldMask; 
+    
+    jj = 1;
+    trobat = 0;
+    
+    while(trobat == 0 && jj < columns)
+        ii = top_field;
+        field_row = 1;
+        
+        while (field_row == 1 && ii < bottom_field)
+            if (FieldMask(ii,jj) ~= 0)
+                field_row = 0;
+            end            
+            ii = ii+1;
+            %%fprintf("(%d,%d)\n",ii,jj);
+        end
+        
+        if (field_row == 1)
+            trobat = 1;
+            left_field = jj;
+        end
+        
+        jj=jj+1;
     end
 
 end
