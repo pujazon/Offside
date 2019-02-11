@@ -11,8 +11,8 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_007.jpg');
-Ori = imread('m_007.jpg');
+I = imread('m_008.jpg');
+Ori = imread('m_008.jpg');
 
 figure, imshow(Ori);
 
@@ -29,7 +29,7 @@ global NBlobs;
 N = 30;
 
 %Camera units in cm
-camera_width = 63;
+camera_width = 50;
 camera_height = 50;
 
 global x_cm_per_pixel;
@@ -65,9 +65,9 @@ global y_cm_per_pixel;
 for compress=1:1
     
 %pe: Red     
-max_RLevels = 203;
-max_GLevels = 44;
-max_BLevels = 85;
+max_RLevels = 134;
+max_GLevels = 28;
+max_BLevels = 74;
 
 end
 %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
@@ -89,9 +89,9 @@ BChannel = I(:,:,3);
 
 %Are hardcoded but must be set dinamically
 %Difference from field segmentation this must be very restrictive
-Rth = 50;
-Gth = 50;
-Bth = 50;
+Rth = 20;
+Gth = 20;
+Bth = 20;
 
 tmp_PlayersMask = zeros(rows,columns);
 
@@ -291,8 +291,8 @@ end
 
 for compress=1:1
 
-x_cm_per_pixel = (camera_width/rows);
-y_cm_per_pixel = (camera_height/columns);
+x_cm_per_pixel = (camera_width/columns);
+y_cm_per_pixel = (camera_height/rows);
 
 % fprintf("camera_width = %d\n",camera_width);
 % fprintf("camera_height = %d\n",camera_height);
@@ -381,8 +381,11 @@ end
 function ret = x_coords_from_camera_to_real(x_camera_coord)
 
     global x_cm_per_pixel;
-
+    %fprintf("x_camera_coord: %d\n",x_camera_coord);      
+    %fprintf("x_cm_per_pixel: %d\n",x_cm_per_pixel);
+    
     x_real_coord = x_camera_coord*x_cm_per_pixel;
+    
     %fprintf("x_real_coord: %d\n",x_real_coord);
 
     %TODO: Precision level (?)

@@ -260,14 +260,14 @@ for i = top_field+1: bottom_field
             
                 if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
 
-                    Blobs(id).top = top;
-                    Blobs(id).bottom = bottom;
-                    Blobs(id).left = left;
-                    Blobs(id).right = right;
+                    Blobs(id).top = top-top_field;
+                    Blobs(id).bottom = bottom-top_field;
+                    Blobs(id).left = left-left_field;
+                    Blobs(id).right = right-left_field;
                     Blobs(id).weight = weight;   
                     Blobs(id).width = right-left;   
                     Blobs(id).height = bottom-top;                 
-                    %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     id = id+1; 
                 end 
 
@@ -389,9 +389,12 @@ end
 % Get each player's coordinates assuming orthogonal camera (unreal)
 
 for compress=1:1
-
-x_cm_per_pixel = (camera_width/rows);
-y_cm_per_pixel = (camera_height/columns);
+%TODO: Player Pixels must be passed to field coordinates;
+field_width = right_field - left_field;
+field_height = bottom_field - top_field;
+    
+x_cm_per_pixel = (camera_width/field_width);
+y_cm_per_pixel = (camera_height/field_height);
 
 % fprintf("camera_width = %d\n",camera_width);
 % fprintf("camera_height = %d\n",camera_height);
