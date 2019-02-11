@@ -1,17 +1,22 @@
-/* UDP client in the internet domain */
+#include <netdb.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <sys/socket.h> 
+
+#define PORT 8080 
+
+extern int BallTrigger;
 
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-
-void error(char *);
+void error(char *msg){
+	perror(msg);
+	exit(0);
+}
 
 int main(int argc, char *argv[]){
 	
-	int sock, length, n;
+	int sid, length, n, status;
 	struct sockaddr_in server, from;
 	struct hostent *hp;
 	char buffer[256];
@@ -21,33 +26,55 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	sock= socket(AF_INET, SOCK_DGRAM, 0);
+	//socket:
+	//0 Family (int) pe: PF_INET
+	//1 Tyep (datagram UDP or scoket TCP)
+	//2 Protocol (0 default, can be set. Why 0 ? )
+	// ret socket descriptor
 
-	if (sock h_addr, (char *)&server.sin_addr,hp->h_length);
-	server.sin_port = htons(atoi(argv[2]));
-	length=sizeof(struct sockaddr_in);
+	sid= socket(AF_INET, SOCK_STREAM, 0);
 
-	printf("Please enter the message: ");
+	if (sid == -1) { 
+        printf("Socket creation failed...\n"); 
+        exit(0); 
+    } 
 
-	bzero(buffer,256);
-	fgets(buffer,255,stdin);
-	n=sendto(sock,buffer,strlen(buffer),0,&server,length);
-	
-	if (n < 0){
-		error("Sendto");
+    // We need to set Server sockaddr_in 
+
+    server.sin_family = AF_INET; 	 
+    //IP address. TODO: Hardcoded, parameter ? 
+    server.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+    //TODO: Same;
+    server.sin_port = htons(PORT); 
+
+	//Now after Server have initialized we must connect to them
+	status = connect(sid,(sockaddr *) server, )
+
+    // connect the client socket to server socket 
+    // size ?
+    if (connect(sid, (servaddr*)&server, sizeof(servaddr)) != 0) { 
+        printf("Connection with the server failed...\n"); 
+        exit(0); 
+    } 
+    else {
+        printf("connected to the server..\n");     
 	}
-	
-	n = recvfrom(sock,buffer,256,0,&from, &length);
-	
-	if (n < 0){
-		error("recvfrom");
-	}
-	
-	write(1,"Got an ack: ",12);
-	write(1,buffer,n);
-}
 
-void error(char *msg){
-	perror(msg);
-	exit(0);
+	//We are Camera so we want to send IMG == FILE
+	//To server as Byte Array.
+	//https://stackoverflow.com/questions/13097375/sending-images-over-sockets-in-c
+
+	//TODO: When send, how send, loop... must be done
+    for (;;) { 
+
+        write(sockfd, BallTrigger, sizeof(BallTrigger)); 
+      	
+      	//We don't need to recive answer, only if we want to know if message have been lost and must be resend
+      	//in TCP happens? 
+        //read(sockfd, buff, sizeof(buff)); if(contains retry) (...)
+    } 
+
+	//If comunication is sent i should close socket
+	// Good: Security, Bad: time (?)
+	    close(sockfd); 
 }

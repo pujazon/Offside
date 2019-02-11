@@ -1,59 +1,87 @@
-/* Creates a datagram server. The port number is passed as an argument. This server runs forever */
+#include <netdb.h> 
+#include <netinet/in.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <sys/socket.h> 
+#include <sys/types.h> 
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-
-void error(char *msg){
-	perror(msg);
-	exit(0);
-}
-
-int main(int argc, char *argv[]){
-	int sock, length, fromlen, n;
-	struct sockaddr_in server;
-	struct sockaddr_in from;
-	char buf[1024];
-
-	if (argc < 2){
-		fprintf(stderr, "ERROR, no port provided\n");
-		exit(0);
-		}
-
-	sock=socket(AF_INET, SOCK_DGRAM, 0);
+#define N 256
+#define PORT 8080 
+  
+  
+// Driver function 
+int main() 
+{ 
+    int sid, connfd, len; 
+    struct sockaddr_in servaddr, cli;  
+    char buff[N]; 
 	
-	if (sock < 0){
-		error("Opening socket");
-	}
+	//socket:
+	//0 Family (int) pe: PF_INET
+	//1 Tyep (datagram UDP or scoket TCP)
+	//2 Protocol (0 default, can be set. Why 0 ? )
+	// ret socket descriptor
+
+    sid = socket(AF_INET, SOCK_STREAM, 0); 
+    if (sockfd == -1) { 
+        printf("socket creation failed...\n"); 
+        exit(0); 
+    } 
+    else
+        printf("Socket successfully created..\n"); 
+  
+    // assign IP, PORT 
+    servaddr.sin_family = AF_INET; 
 	
-	length = sizeof(server);
-	bzero(&server,length);
-	server.sin_family=AF_INET;
-	server.sin_addr.s_addr=INADDR_ANY;
-	server.sin_port=htons(atoi(argv[1]));
+	//Assign IP. INADDR_ANY It binds the socket to all available interfaces.
+	//interfaces means eth0, wh0 ... ?
 	
-	if (bind(sock,(struct sockaddr *)&server,length)<0){
-		error("binding");
-	}
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY); 
+    servaddr.sin_port = htons(PORT); 
+  
+    // Binding newly created socket to given IP and verification 
+    if ((bind(sid, (sockaddr*)&servaddr, sizeof(servaddr))) != 0) { 
+        printf("Socket bind failed...\n"); 
+        exit(0); 
+    } 
+    else
+        printf("Socket successfully binded..\n"); 
+  
+    // Now server is ready to listen and verification 
+	//sockid: integer, socket descriptor
+	// queuelen: integer, # of active participants that can “wait” for a connection
+	// status: 0 if listening, -1 if error 
 	
-	fromlen = sizeof(struct sockaddr_in);
-	
-	while (1){
-		n = recvfrom(sock,buf,1024,0,(struct sockaddr *)&from,&fromlen);
+	//Not blocking, cannot recive and write. ONly used on connection establishment
+    if ((listen(sid, 2)) != 0) { 
+        printf("Listen failed...\n"); 
+        exit(0); 
+    } 
+    else
+        printf("Server listening..\n"); 
+    len = sizeof(cli); 
+  
+    // Accept the data packet from client and verification 
+    connfd = accept(sockfd, (sockaddr*)&cli, &len); 
+    if (connfd < 0) { 
+        printf("Server acccept failed...\n"); 
+        exit(0); 
+    } 
+    else
+        printf("Server acccept the client...\n"); 
+  
+	// TODO:
+	//Here we have to:
+	// 1. Check where the data packet come from:
+	// 1.1 If comes from BallDetection -> BalTrigger (if == 1 then do)
+	// 1.2 If comes from Camera ->
+		//1.2.1 Save img on Server
+		// 		write on a file to trigger PlayerDetection.m run
+		// 		(Or something more efficient. Search C and MATLAB communication; Or open socket in Matlab.m)
 		
-		if (n < 0){
-		error("recvfrom");
-		}
-		
-		write(1,"Received a datagram: ",21);
-		write(1,buf,n);
-		
-		n = sendto(sock,"Got your message\n",17,0,(struct sockaddr *)&from,fromlen);
-		if (n < 0){
-			error("sendto");
-		}
-	}
-}
+		//read(sockfd, buff, sizeof(buff)); 
 
+  
+    // After chatting close the socket 
+    close(sockfd); 
+} 
