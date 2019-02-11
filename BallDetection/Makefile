@@ -3,20 +3,31 @@
 
 
 CC=gcc
-CFLAGS=-lwiringPi
+CFLAGS=
+RBPI_CFLAGS=-lwiringPi
 OBJS=./objs/
 HEADERS=./include/
 BIN=./bin/
 SRC=./src/
-PROG=mpu6050
 
-make:$(SRC)mpu6050.c
+all: mpu6050 c_socket
 
-	$(CC) -c $(CFLAGS) ./src/$(PROG).c
+mpu6050:
+
+	$(CC) -c $(RBPI_CFLAGS) ./src/mpu6050.c
 	mkdir $(OBJS)
-	mv $(PROG).o $(OBJS)	
+	mv mpu6050.o $(OBJS)	
 	mkdir $(BIN)
-	$(CC) -o $(BIN)$(PROG) $(SRC)$(PROG).c $(CFLAGS) -lm
+	$(CC) -o $(BIN)mpu6050 $(SRC)mpu6050.c $(RBPI_CFLAGS) -lm
+	
+c_socket:
+
+	$(CC) -c $(CFLAGS) ./src/c_socket.c
+	mkdir $(OBJS)
+	mv c_socket.o $(OBJS)	
+	mkdir $(BIN)
+	$(CC) -o $(BIN)c_socket $(SRC)c_socket.c $(CFLAGS) -lm
+	
 	
 clean:
 	rm -r $(OBJS)

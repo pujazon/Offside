@@ -9,16 +9,16 @@ HEADERS=./include/
 BIN=./bin/
 SRC=./src/
 
-all: c_socket
+all: s_socket
 
 	
-c_socket:
+s_socket:
 
-	$(CC) -c $(CFLAGS) ./src/c_socket.c
+	$(CC) -c $(CFLAGS) ./src/s_socket.c
 	mkdir $(OBJS)
-	mv c_socket.o $(OBJS)	
+	mv s_socket.o $(OBJS)	
 	mkdir $(BIN)
-	$(CC) -o $(BIN)c_socket $(SRC)c_socket.c $(CFLAGS) -lm
+	$(CC) -o $(BIN)s_socket $(SRC)s_socket.c $(CFLAGS) -lm
 	
 	
 clean:
