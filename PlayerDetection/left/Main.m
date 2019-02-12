@@ -13,8 +13,12 @@ maxNumCompThreads(16);
 
 I = imread('m_008.jpg');
 Ori = imread('m_008.jpg');
+A = imread('A.jpg');
+B = imread('B.jpg');
 
 figure, imshow(Ori);
+figure, imshow(A);
+figure, imshow(B);
 
 end
 

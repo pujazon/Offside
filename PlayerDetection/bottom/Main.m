@@ -11,10 +11,14 @@ for compress=1:1
 maxNumCompThreads(16);
 %%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-I = imread('m_008.jpg');
-Ori = imread('m_008.jpg');
+I = imread('m_009.jpg');
+Ori = imread('m_009.jpg');
+A = imread('0A.jpg');
+B = imread('0B.jpg');
 
 figure, imshow(Ori);
+figure, imshow(A);
+figure, imshow(B);
 
 end
 
@@ -65,9 +69,9 @@ global y_cm_per_pixel;
 for compress=1:1
     
 %pe: Red     
-max_RLevels = 194;
-max_GLevels = 4;
-max_BLevels = 80;
+max_RLevels = 152;
+max_GLevels = 32;
+max_BLevels = 26;
 
 end
 %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
