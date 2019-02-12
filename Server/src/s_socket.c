@@ -4,7 +4,8 @@
 #include <string.h> 
 #include <sys/socket.h> 
 #include <sys/types.h> 
-
+#include <stdio.h>
+#include <unistd.h>
 #define N 256
 #define PORT 8080 
   
@@ -23,7 +24,7 @@ int main()
 	// ret socket descriptor
 
     sid = socket(AF_INET, SOCK_STREAM, 0); 
-    if (sockfd == -1) { 
+    if (sid == -1) { 
         printf("socket creation failed...\n"); 
         exit(0); 
     } 
@@ -40,7 +41,7 @@ int main()
     servaddr.sin_port = htons(PORT); 
   
     // Binding newly created socket to given IP and verification 
-    if ((bind(sid, (sockaddr*)&servaddr, sizeof(servaddr))) != 0) { 
+    if ((bind(sid, (struct sockaddr*)&servaddr, sizeof(servaddr))) != 0) { 
         printf("Socket bind failed...\n"); 
         exit(0); 
     } 
@@ -62,7 +63,7 @@ int main()
     len = sizeof(cli); 
   
     // Accept the data packet from client and verification 
-    connfd = accept(sockfd, (sockaddr*)&cli, &len); 
+    connfd = accept(sid, (struct sockaddr*)&cli, &len); 
     if (connfd < 0) { 
         printf("Server acccept failed...\n"); 
         exit(0); 
@@ -83,5 +84,5 @@ int main()
 
   
     // After chatting close the socket 
-    close(sockfd); 
+    close(sid); 
 } 

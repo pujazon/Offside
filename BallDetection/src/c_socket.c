@@ -1,12 +1,16 @@
 #include <netdb.h> 
 #include <stdio.h> 
 #include <stdlib.h> 
-#include <string.h> 
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h> 
 #include <sys/socket.h> 
-
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #define PORT 8080 
 
-extern int BallTrigger;
+int BallTrigger;
 
 
 void error(char *msg){
@@ -20,6 +24,8 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in server, from;
 	struct hostent *hp;
 	char buffer[256];
+
+	BallTrigger = 1;
 
 	if (argc != 3){
 		printf("Usage: server port\n");
@@ -48,11 +54,11 @@ int main(int argc, char *argv[]){
     server.sin_port = htons(PORT); 
 
 	//Now after Server have initialized we must connect to them
-	status = connect(sid,(sockaddr *) server, )
+	status = connect(sid,(struct sockaddr *) &server, sizeof(server)!= 0);
 
     // connect the client socket to server socket 
     // size ?
-    if (connect(sid, (servaddr*)&server, sizeof(servaddr)) != 0) { 
+    if (connect(sid, (struct sockaddr*)&server, sizeof(server)) != 0) { 
         printf("Connection with the server failed...\n"); 
         exit(0); 
     } 
@@ -67,7 +73,7 @@ int main(int argc, char *argv[]){
 	//TODO: When send, how send, loop... must be done
     for (;;) { 
 
-        write(sockfd, BallTrigger, sizeof(BallTrigger)); 
+        write(sid,&BallTrigger, sizeof(BallTrigger)); 
       	
       	//We don't need to recive answer, only if we want to know if message have been lost and must be resend
       	//in TCP happens? 
@@ -76,5 +82,5 @@ int main(int argc, char *argv[]){
 
 	//If comunication is sent i should close socket
 	// Good: Security, Bad: time (?)
-	    close(sockfd); 
+	    close(sid); 
 }
