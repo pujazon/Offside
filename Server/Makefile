@@ -1,6 +1,6 @@
 #Object files shouldn't be on the repository. 
 #They must be compilated on time
-
+.PHONY: all
 
 CC=gcc
 CFLAGS=
@@ -9,18 +9,29 @@ HEADERS=./include/
 BIN=./bin/
 SRC=./src/
 
-all: s_socket
+#all: Server
 
+Server: main.o s_socket.o
 	
-s_socket:
+	mkdir $(BIN)
+	$(CC) -o $(BIN)Server $(OBJS)main.o $(OBJS)s_socket.o $(CFLAGS) -lm
+	
+s_socket.o:
 
 	$(CC) -c $(CFLAGS) ./src/s_socket.c
+	# if not exist mkdir $(OBJS)
+	mv s_socket.o $(OBJS)		
+	
+main.o:
+
+	$(CC) -c $(CFLAGS) ./src/main.c
 	mkdir $(OBJS)
-	mv s_socket.o $(OBJS)	
-	mkdir $(BIN)
-	$(CC) -o $(BIN)s_socket $(SRC)s_socket.c $(CFLAGS) -lm
+	mv main.o $(OBJS)	
 	
 	
 clean:
-	rm -r $(OBJS)
-	rm -r $(BIN)	
+
+	if [ -d "$(OBJS)" ]; then rm -r $(OBJS); fi
+	if [ -d "$(BIN)" ]; then rm -r $(BIN); fi
+
+	

@@ -1,24 +1,11 @@
-#include <netdb.h> 
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h> 
-#include <sys/socket.h> 
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#define PORT 8080 
-
-int BallTrigger;
-
+#include "c_socket.h"
 
 void error(char *msg){
 	perror(msg);
 	exit(0);
 }
 
-int main(int argc, char *argv[]){
+int c_connect(){
 	
 	int sid, length, n, status;
 	struct sockaddr_in server, from;
@@ -26,11 +13,6 @@ int main(int argc, char *argv[]){
 	char buffer[256];
 
 	BallTrigger = 1;
-
-	if (argc != 3){
-		printf("Usage: server port\n");
-		exit(1);
-	}
 
 	//socket:
 	//0 Family (int) pe: PF_INET
