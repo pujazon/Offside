@@ -1,7 +1,9 @@
 #include "speaker.h"
 
 int speaker(){
-	
+
+  BallTrigger[0] = '1';
+  char in[1];
   int sock = 0;
   int port = 0;
   sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -20,7 +22,7 @@ int speaker(){
   if (status == 0)
     printf("connection completed\n");
   else
-    printf("problem is encountered\n");
+    printf("problem is encountered %d \n",status);
 
   status = listen(sock, 5);
   if (status == 0)
@@ -31,8 +33,9 @@ int speaker(){
     return 0;
   }
 
-  while (1)
-  {
+  
+  while (1){
+    //printf("Input value %d\n",in);
     struct sockaddr_in client = { 0 };
     int sclient = 0;
     int len = sizeof(client);
@@ -44,11 +47,12 @@ int speaker(){
       break;
     }
 
-    write(childSocket, BallTrigger, strlen(BallTrigger));
-
-    close(childSocket);
+    write(childSocket, BallTrigger, sizeof(BallTrigger));
+   // sleep(5000);
+    //close(childSocket);
   }
-
+  
+  close(sock);
   return 0;
   
 }
