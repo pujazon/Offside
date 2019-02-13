@@ -4,30 +4,23 @@
 
 CC=gcc
 CFLAGS=
-RBPI_CFLAGS=-lwiringPi
 OBJS=./objs/
 HEADERS=./include/
 BIN=./bin/
 SRC=./src/
 
-#all: BallDetection
+#all: Server
 
-BallDetection: main.o speaker.o mpu6050.o
+Server: main.o listener.o
 	
 	mkdir $(BIN)
-	$(CC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(CFLAGS) -lm
-
-mpu6050.o:
-
-	$(CC) -c $(RBPI_CFLAGS) ./src/mpu6050.c
-	# if not exist mkdir $(OBJS)
-	mv mpu6050.o $(OBJS)	
+	$(CC) -o $(BIN)Server $(OBJS)main.o $(OBJS)listener.o $(CFLAGS) -lm
 	
-speaker.o:
+listener.o:
 
-	$(CC) -c $(CFLAGS) ./src/speaker.c
+	$(CC) -c $(CFLAGS) ./src/listener.c
 	# if not exist mkdir $(OBJS)
-	mv speaker.o $(OBJS)		
+	mv listener.o $(OBJS)		
 	
 main.o:
 

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "speaker.h"
-#include "mpu6050.h"
+#include "listener.h"
 
 int main(int argc, char *argv[]) {
 
+	//Testing.
 	
 	int cas = atoi(argv[1]);
 	
@@ -14,16 +14,11 @@ int main(int argc, char *argv[]) {
 	switch(cas){
 
 		case 0:
-			speaker();
+			listener();
 			break;
-		
-		case 1:
-			mpu6050();
-			break;
-			
 		default:
-			printf("Usage: Must pass one argument and must be 0 or 1;");
-			printf("if 0 := ( run c_connect() );");
+			printf("Usage: Must pass one argument and must be 0;");
+			printf("if 0 := ( run s_connect() );");
 			exit(1);
 	}
 
