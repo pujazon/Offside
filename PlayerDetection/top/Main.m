@@ -2,6 +2,11 @@
 %  Get the image and show it. Set number of thread
 addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
+%TODO: Cannot load all .h files that are on ubuntu /usr/libs
+% pe: 'sys/socket.h'
+%So Matlab should be run in Ubuntu
+
+loadlibrary('lib_Server','listener.h');
 %Profiling
 format shortg
 c = clock
