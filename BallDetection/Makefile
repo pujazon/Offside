@@ -15,7 +15,7 @@ SRC=./src/
 BallDetection: main.o speaker.o mpu6050.o
 	
 	mkdir $(BIN)
-	$(CC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(CFLAGS) -lm
+	$(CC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
 
 mpu6050.o:
 
