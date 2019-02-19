@@ -2,6 +2,7 @@
 #They must be compilated on time
 .PHONY: all
 
+CCC=g++
 CC=gcc
 CFLAGS=
 RBPI_CFLAGS=-lwiringPi
@@ -15,24 +16,28 @@ SRC=./src/
 BallDetection: main.o speaker.o mpu6050.o
 	
 	mkdir $(BIN)
-	$(CC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
+	$(CCC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
 
+dir: 
+	mkdir $(OBJS)
+	mkdir $(BIN)
+	
 mpu6050.o:
 
-	$(CC) -c $(RBPI_CFLAGS) ./src/mpu6050.c
+	$(CCC) -c $(RBPI_CFLAGS) ./src/mpu6050.cpp
 	# if not exist mkdir $(OBJS)
 	mv mpu6050.o $(OBJS)	
 	
 speaker.o:
 
-	$(CC) -c $(CFLAGS) ./src/speaker.c
+	$(CCC) -c $(CFLAGS) ./src/speaker.cpp
 	# if not exist mkdir $(OBJS)
 	mv speaker.o $(OBJS)		
 	
 main.o:
 
-	$(CC) -c $(CFLAGS) ./src/main.c
-	mkdir $(OBJS)
+	$(CCC) -c $(CFLAGS) ./src/main.cpp
+	# if not exist mkdir $(OBJS)
 	mv main.o $(OBJS)	
 	
 	

@@ -11,3 +11,4 @@
   
 // Driver function 
 int listener();
+void callgetVars();

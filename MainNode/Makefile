@@ -3,6 +3,7 @@
 .PHONY: all
 
 CC=gcc
+CCC=g++
 CFLAGS=
 LIBFLAGS= -fPIC
 OBJS=./objs/
@@ -14,36 +15,53 @@ SRC=./src/
 #all: Server
 
 #Workarround
-dir:
-	mkdir $(OBJS)
-	mkdir $(BIN)
 
-lib: l_listener.o
-
-	#mkdir $(BIN)
-	$(CC) $(OBJS)l_listener.o -shared -o $(BIN)lib_Server.so
 
 Server: main.o listener.o
 	
 	#mkdir $(BIN)
-	$(CC) -o $(BIN)Server $(OBJS)main.o $(OBJS)listener.o $(CFLAGS) -lm
+	$(CCC) -o $(BIN)Server $(OBJS)main.o $(OBJS)listener.o $(CFLAGS) -lm
+
+dir: 
+	mkdir $(OBJS)
+	mkdir $(BIN)
+
+lib: l_listener.o l_interlanguage.o
+
+	#mkdir $(BIN)
+	$(CCC) $(OBJS)l_listener.o $(OBJS)l_interlanguage.o -shared -o $(BIN)lib_Server.so
+
 	
 listener.o:
 
-	$(CC) -c $(CFLAGS) ./src/listener.c
+	$(CCC) -c $(CFLAGS) ./src/listener.cpp
 	# if not exist mkdir $(OBJS)
 	mv listener.o $(OBJS)		
 	
 l_listener.o:
 
-	$(CC) -c $(LIBFLAGS) ./src/listener.c
+	$(CCC) -c $(LIBFLAGS) ./src/listener.cpp
 	# if not exist mkdir $(OBJS)
 	mv listener.o l_listener.o
 	mv l_listener.o $(OBJS)		
 	
+l_interlanguage.o:
+
+	$(CCC) -c $(LIBFLAGS) ./src/interlanguage.cpp
+	# if not exist mkdir $(OBJS)
+	mv interlanguage.o l_interlanguage.o
+	mv l_interlanguage.o $(OBJS)	
+
+interlanguage.o:
+
+	$(CCC) -c $(CFLAGS) ./src/interlanguage.cpp
+	# if not exist mkdir $(OBJS)
+	mv listener.o $(OBJS)	
+	
+	
 main.o:
 
-	$(CC) -c $(CFLAGS) ./src/main.c
+	$(CCC) -c $(CFLAGS) ./src/main.cpp
 	#mkdir $(OBJS)
 	mv main.o $(OBJS)	
 	

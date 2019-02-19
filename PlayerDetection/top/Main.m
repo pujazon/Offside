@@ -6,10 +6,13 @@ addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 % pe: 'sys/socket.h'
 %So Matlab should be run in Ubuntu
 
-loadlibrary('lib_Server','listener.h');
+%loadlibrary('lib_Server','listener.h');
 %Profiling
 format shortg
 c = clock
+codegen -config:lib listener -report
+
+
 
 for compress=1:1
     
