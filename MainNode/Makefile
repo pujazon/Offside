@@ -4,12 +4,14 @@
 
 CC=gcc
 CCC=g++
-CFLAGS=
+CFLAGS= -std=c++11 -pthread
 LIBFLAGS= -fPIC
 OBJS=./objs/
 HEADERS=./include/
 BIN=./bin/
 SRC=./src/
+MATLAB_ROOT=/mnt/c/Program\ Files/MATLAB/R2017b/
+MATLAB_CC_API_LIB=-lMatlabDataArray -lMatlabEngine
 
 #TODO:if not exist mkdir $(OBJS)
 #all: MainNode
@@ -17,14 +19,17 @@ SRC=./src/
 #Workarround
 
 
-MainNode: main.o listener.o
+MainNode: main.o listener.o interlanguage.o
 	
 	#mkdir $(BIN)
-	$(CCC) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(CFLAGS) -lm
+	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/win64/ -o $(BIN)MainNode $(OBJS)interlanguage.o -lm
+	#$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/glnxa64/ $(MATLAB_CC_API_LIB) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(OBJS)interlanguage.o -lm
 
-dir: 
-	mkdir $(OBJS)
+setup: 
+	mkdir $(OBJS) 
 	mkdir $(BIN)
+	#cp /mnt/c/Program\ Files/MATLAB/R2017b/extern/include/MatlabDataArray.hpp ./src/
+	#cp /mnt/c/Program\ Files/MATLAB/R2017b/extern/include/MatlabEngine.hpp ./src/
 
 lib: l_listener.o l_interlanguage.o
 
@@ -46,17 +51,18 @@ l_listener.o:
 	mv l_listener.o $(OBJS)		
 	
 l_interlanguage.o:
-
+	
 	$(CCC) -c $(LIBFLAGS) ./src/interlanguage.cpp
 	# if not exist mkdir $(OBJS)
 	mv interlanguage.o l_interlanguage.o
 	mv l_interlanguage.o $(OBJS)	
 
 interlanguage.o:
-
-	$(CCC) -c $(CFLAGS) ./src/interlanguage.cpp
+	
+	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/win64/ ./src/interlanguage.cpp 
+	#$(MATLAB_CC_API_LIB)
 	# if not exist mkdir $(OBJS)
-	mv listener.o $(OBJS)	
+	mv interlanguage.o $(OBJS)	
 	
 	
 main.o:

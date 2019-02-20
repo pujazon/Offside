@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define N 256
 #define PORT 3500 
   
 // Driver function 
