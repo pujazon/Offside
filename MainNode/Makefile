@@ -10,7 +10,7 @@ OBJS=./objs/
 HEADERS=./include/
 BIN=./bin/
 SRC=./src/
-MATLAB_ROOT=/mnt/c/Program\ Files/MATLAB/R2017b/
+MATLAB_ROOT=../Tools/MATLAB_libs/extern/
 MATLAB_CC_API_LIB=-lMatlabDataArray -lMatlabEngine
 
 #TODO:if not exist mkdir $(OBJS)
@@ -22,12 +22,16 @@ MATLAB_CC_API_LIB=-lMatlabDataArray -lMatlabEngine
 MainNode: main.o listener.o interlanguage.o
 	
 	#mkdir $(BIN)
-	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/win64/ -o $(BIN)MainNode $(OBJS)interlanguage.o -lm
+	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) -o $(BIN)MainNode $(OBJS)interlanguage.o $(OBJS)main.o $(OBJS)listener.o -lm 
 	#$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/glnxa64/ $(MATLAB_CC_API_LIB) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(OBJS)interlanguage.o -lm
 
 setup: 
 	mkdir $(OBJS) 
 	mkdir $(BIN)
+	mkdir MATLAB_libs
+	mv  MATLAB_libs ../Tools/
+	cp -r /mnt/c/Program\ Files/MATLAB/glib/extern/ $(MATLAB_ROOT)
+	#cp $(MATLAB_ROOT)bin/glnxa64/* /usr/lib/
 	#cp /mnt/c/Program\ Files/MATLAB/R2017b/extern/include/MatlabDataArray.hpp ./src/
 	#cp /mnt/c/Program\ Files/MATLAB/R2017b/extern/include/MatlabEngine.hpp ./src/
 
@@ -35,7 +39,6 @@ lib: l_listener.o l_interlanguage.o
 
 	#mkdir $(BIN)
 	$(CCC) $(OBJS)l_listener.o $(OBJS)l_interlanguage.o -shared -o $(BIN)lib_Server.so
-
 	
 listener.o:
 
@@ -59,22 +62,23 @@ l_interlanguage.o:
 
 interlanguage.o:
 	
-	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/win64/ ./src/interlanguage.cpp 
-	#$(MATLAB_CC_API_LIB)
+	#g++ -std=c++11 -I '../../Tools/MATLAB_libs/extern/include/' -L '../../Tools/MATLAB_libs/extern/bin/glnxa64/' -pthread interlanguage.cpp -lMatlabDataArray -lMatlabEngine
+
+	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) ./src/interlanguage.cpp 
+	#$(MATLAB_CC_API_LIB) glnxa64 win64
 	# if not exist mkdir $(OBJS)
-	mv interlanguage.o $(OBJS)	
-	
+	mv interlanguage.o $(OBJS)		
 	
 main.o:
 
-	$(CCC) -c $(CFLAGS) ./src/main.cpp
+	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) ./src/main.cpp 
 	#mkdir $(OBJS)
-	mv main.o $(OBJS)	
-	
+	mv main.o $(OBJS)		
 	
 clean:
 
 	if [ -d "$(OBJS)" ]; then rm -r $(OBJS); fi
 	if [ -d "$(BIN)" ]; then rm -r $(BIN); fi
+	if [ -d "$(MATLAB_ROOT)" ]; then rm -r $(MATLAB_ROOT); fi
 
 	
