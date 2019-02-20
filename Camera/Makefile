@@ -11,22 +11,16 @@ HEADERS=./include/
 BIN=./bin/
 SRC=./src/
 
-#all: BallDetection
+#all: Camera
 
-BallDetection: main.o speaker.o mpu6050.o
+Camera: main.o speaker.o
 	
-	mkdir $(BIN)
-	$(CCC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
+	#mkdir $(BIN)
+	$(CCC) -o $(BIN)Camera $(OBJS)main.o $(OBJS)speaker.o -lm
 
 dir: 
 	mkdir $(OBJS)
-	mkdir $(BIN)
-	
-mpu6050.o:
-
-	$(CCC) -c $(RBPI_CFLAGS) ./src/mpu6050.cpp
-	# if not exist mkdir $(OBJS)
-	mv mpu6050.o $(OBJS)	
+	mkdir $(BIN)	
 	
 speaker.o:
 

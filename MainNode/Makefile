@@ -12,15 +12,15 @@ BIN=./bin/
 SRC=./src/
 
 #TODO:if not exist mkdir $(OBJS)
-#all: Server
+#all: MainNode
 
 #Workarround
 
 
-Server: main.o listener.o
+MainNode: main.o listener.o
 	
 	#mkdir $(BIN)
-	$(CCC) -o $(BIN)Server $(OBJS)main.o $(OBJS)listener.o $(CFLAGS) -lm
+	$(CCC) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(CFLAGS) -lm
 
 dir: 
 	mkdir $(OBJS)

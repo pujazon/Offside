@@ -9,8 +9,7 @@
 
 #define PORT 3500 
 
-char BallTrigger[256];
-
+extern char OUTPUT[256];
 
 void error(char *msg);
 

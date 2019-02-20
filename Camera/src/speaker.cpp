@@ -1,8 +1,10 @@
 #include "speaker.h"
 
+char OUTPUT[256];
+
 int speaker(){
 
-  BallTrigger[0] = '1';
+  OUTPUT[0] = '1';
   char in[1];
   int sock = 0;
   int port = 0;
@@ -38,7 +40,7 @@ int speaker(){
     //printf("Input value %d\n",in);
     struct sockaddr_in client = { 0 };
     int sclient = 0;
-    int len = sizeof(client);
+    unsigned int len = sizeof(client);
     int childSocket = accept(sock, (struct sockaddr*) &client, &len);
     if (childSocket == -1)
     {
@@ -47,7 +49,7 @@ int speaker(){
       break;
     }
 
-    write(childSocket, BallTrigger, sizeof(BallTrigger));
+    write(childSocket, OUTPUT, sizeof(OUTPUT));
    // sleep(5000);
     //close(childSocket);
   }
