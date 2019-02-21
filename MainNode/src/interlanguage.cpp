@@ -1,16 +1,22 @@
-#include "MatlabDataArray.hpp"
-#include "MatlabEngine.hpp"
+#include "interlanguage.h"
 #include <iostream>
 
-using namespace matlab::engine; 
+
 
 void callgetVars() {     
-	     													 // Start MATLAB engine synchronously     
-	
-	std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB();     							// Evaluate MATLAB statement     
-	matlabPtr->eval(convertUTF8StringToUTF16String("[az,el,r] = cart2sph(5,7,3);"));       // Get the result from MATLAB     
-	matlab::data::TypedArray<double> result1 = matlabPtr->getVariable(convertUTF8StringToUTF16String("az"));
-	matlab::data::TypedArray<double> result2 = matlabPtr->getVariable(convertUTF8StringToUTF16String("el"));     
-	matlab::data::TypedArray<double> result3 = matlabPtr->getVariable(convertUTF8StringToUTF16String("r"));      // Display results     
-	std::cout << "az: " << result1[0] << std::endl;     std::cout << "el: " << result2[0] << std::endl;     std::cout << "r: " << result3[0] << std::endl; 
+	using namespace matlab::engine;
+	// Start MATLAB engine synchronously
+	std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB();
+	// Create MATLAB data array factory
+	matlab::data::ArrayFactory factory;
+	// Pass vector containing 2 scalar args in vector 
+	double result = matlabPtr->feval<double>(u"sqrt", double(2));   
+	//std::vector<matlab::data::Array> args({
+		//factory.createScalar<int16_t>(30),
+		//factory.createScalar<int16_t>(56) });
+	// Call MATLAB function and return result
+	//matlab::data::TypedArray<int16_t> result = matlabPtr->feval(u"gcd", args);
+	std::cout << "Result: " << result << std::endl;
+	sleep(10);
+
 }
