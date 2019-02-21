@@ -1,6 +1,7 @@
 %% TOP Camera
 %  Get the image and show it. Set number of thread
-addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
+addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
+%addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
 %TODO: Cannot load all .h files that are on ubuntu /usr/libs
 % pe: 'sys/socket.h'
@@ -10,7 +11,7 @@ addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 %Profiling
 format shortg
 c = clock
-codegen -config:lib listener -report
+%codegen -config:lib listener -report
 
 
 
@@ -18,7 +19,6 @@ for compress=1:1
     
 maxNumCompThreads(16);
 %%%%fprintf('Hilos: %d\n',maxNumCompThreads);
-
 I = imread('m_009.jpg');
 Ori = imread('m_009.jpg');
 

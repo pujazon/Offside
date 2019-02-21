@@ -43,23 +43,23 @@ lib: l_listener.o l_interlanguage.o
 	
 listener.o:
 
-	$(CCC) -c $(CFLAGS) ./src/listener.cpp
+	$(CCC) -c $(CFLAGS) $(SRC)listener.cpp
 	# if not exist mkdir $(OBJS)
 	mv listener.o $(OBJS)		
 	
 l_listener.o:
 
-	$(CCC) -c $(LIBFLAGS) ./src/listener.cpp
+	$(CCC) -c $(LIBFLAGS) $(SRC)listener.cpp
 	# if not exist mkdir $(OBJS)
 	mv listener.o l_listener.o
 	mv l_listener.o $(OBJS)		
 	
 l_interlanguage.o:
 	
-	$(CCC) -c $(LIBFLAGS) ./src/interlanguage.cpp
+	$(CCC) -c $(LIBFLAGS) $(SRC)interlanguage.cpp
 	# if not exist mkdir $(OBJS)
 	mv interlanguage.o l_interlanguage.o
-	mv l_interlanguage.o $(OBJS)	
+	mv l_interlanguage.o $(OBJS)
 
 interlanguage.o:
 	
@@ -68,7 +68,10 @@ interlanguage.o:
 	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) ./src/interlanguage.cpp 
 	#$(MATLAB_CC_API_LIB) glnxa64 win64
 	# if not exist mkdir $(OBJS)
-	mv interlanguage.o $(OBJS)		
+	mv interlanguage.o $(OBJS)	
+	
+	#.m file must be on bin folder
+	cp $(SRC)*.m $(BIN)	
 	
 main.o:
 

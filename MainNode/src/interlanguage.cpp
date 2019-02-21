@@ -10,7 +10,9 @@ void callgetVars() {
 	// Create MATLAB data array factory
 	matlab::data::ArrayFactory factory;
 	// Pass vector containing 2 scalar args in vector 
-	double result = matlabPtr->feval<double>(u"sqrt", double(2));   
+	double result = matlabPtr->feval<double>(u"test");   	
+
+//double result = matlabPtr->feval<double>(u"sqrt", double(2));   
 	//std::vector<matlab::data::Array> args({
 		//factory.createScalar<int16_t>(30),
 		//factory.createScalar<int16_t>(56) });

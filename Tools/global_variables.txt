@@ -1,0 +1,1 @@
+$LD_LIBRARY_PATH=/usr/local/MATLAB/R2018b/extern/bin:/usr/local/MATLAB/R2018b/extern/bin/glnxa64:/usr/lib/x86_64-linux-gnu
