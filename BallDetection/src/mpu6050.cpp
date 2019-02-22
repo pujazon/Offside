@@ -1,5 +1,17 @@
 #include "mpu6050.h"
 
+
+int fd;
+int tacclX, tacclY, tacclZ;
+int gyroX, gyroY, gyroZ;
+double acclX, acclY, acclZ;
+double gyroX_scaled, gyroY_scaled, gyroZ_scaled;
+char ini;
+double acc[3];
+double thX, thY, thZ;
+unsigned int internal_trigger;
+
+
 int read_word_2c(int addr)	{
 	int val;
 	val = wiringPiI2CReadReg8(fd, addr);

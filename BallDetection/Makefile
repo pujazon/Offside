@@ -15,29 +15,25 @@ SRC=./src/
 
 BallDetection: main.o speaker.o mpu6050.o
 	
-	mkdir $(BIN)
 	$(CCC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
 
-dir: 
+setup: 
 	mkdir $(OBJS)
 	mkdir $(BIN)
 	
 mpu6050.o:
 
 	$(CCC) -c $(RBPI_CFLAGS) ./src/mpu6050.cpp
-	# if not exist mkdir $(OBJS)
 	mv mpu6050.o $(OBJS)	
 	
 speaker.o:
 
 	$(CCC) -c $(CFLAGS) ./src/speaker.cpp
-	# if not exist mkdir $(OBJS)
 	mv speaker.o $(OBJS)		
 	
 main.o:
 
 	$(CCC) -c $(CFLAGS) ./src/main.cpp
-	# if not exist mkdir $(OBJS)
 	mv main.o $(OBJS)	
 	
 	

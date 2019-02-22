@@ -8,12 +8,14 @@ int speaker(){
   char in[1];
   int sock = 0;
   int port = 0;
+  int count = 0;
+
   sock = socket(AF_INET, SOCK_STREAM, 0);
 
   if (sock == -1)
     fprintf(stderr, "failed\n");
   else
-    printf("connection is establisshed\n");
+    printf("Sock %d connection is establisshed\n",sock);
 
   struct sockaddr_in server;
   server.sin_family = AF_INET;
@@ -36,8 +38,8 @@ int speaker(){
   }
 
   
-  while (1){
-    //printf("Input value %d\n",in);
+  while (cin >> in){
+    printf("Input value %d\n",in);
     struct sockaddr_in client = { 0 };
     int sclient = 0;
     unsigned int len = sizeof(client);
@@ -50,7 +52,13 @@ int speaker(){
     }
 
     write(childSocket, OUTPUT, sizeof(OUTPUT));
-   // sleep(5000);
+    count++;
+    OUTPUT[0] = 0;
+    if (count == 10){
+	    OUTPUT[0] = 1;
+    	    count = 0; 
+    }
+     // sleep(5000);
     //close(childSocket);
   }
   
