@@ -4,28 +4,29 @@
 #include "listener.h"
 #include "interlanguage.h"
 
+//TODO: Each call must have error handling
+
 int main(int argc, char *argv[]) {
 
-	//Testing.
-	
-	int cas = atoi(argv[1]);
-	
-	printf("argv[1] = %d\n",cas);
-	
-	switch(cas){
+	int status;
+	int trigger;
 
-		case 0:
-			listener();
-			break;
-			
-		case 1:
-			callgetVars();
-			break;
-			
-		default:
-			printf("Usage: Must pass one argument and must be 0;");
-			printf("if 0 := ( run s_connect() );");
-			exit(1);
+	status = start_listening();
+
+	if(status == 0){
+
+		while(1){
+			trigger = getTrigger();
+			printf("Trigger is: %d\n",trigger);
+		}
 	}
+	else{
+		stop_listening();
+		exit(1);
+	}
+
+	stop_listening();
+
+	return 0;
 
 }

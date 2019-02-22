@@ -25,7 +25,10 @@ MainNode: main.o listener.o interlanguage.o
 	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ -o $(BIN)MainNode $(OBJS)interlanguage.o $(OBJS)main.o  $(OBJS)listener.o  $(MATLAB_CC_API_LIB) -lm 
 	#$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/glnxa64/ $(MATLAB_CC_API_LIB) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(OBJS)interlanguage.o -lm
 
-setup: 
+setup:	
+	cp ../Tools/setup_var.sh .
+	./setup_var.sh
+	rm setup_var.sh
 	mkdir $(OBJS) 
 	mkdir $(BIN)
 	mkdir MATLAB_libs

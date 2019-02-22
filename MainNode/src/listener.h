@@ -8,6 +8,6 @@
 
 #define PORT 3500 
   
-// Driver function 
-int listener();
-void callgetVars();
+int start_listening();
+int stop_listening();
+int getTrigger();
