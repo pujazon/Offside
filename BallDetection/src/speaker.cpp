@@ -8,7 +8,6 @@ int speaker(){
   char in[1];
   int sock = 0;
   int port = 0;
-  int count = 0;
 
   sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -28,7 +27,7 @@ int speaker(){
   else
     printf("problem is encountered %d \n",status);
 
-  status = listen(sock, 5);
+  status = listen(sock, 1);
   if (status == 0)
     printf("app is ready to work\n");
   else
@@ -38,27 +37,32 @@ int speaker(){
   }
 
   
-  while (cin >> in){
-    printf("Input value %d\n",in);
+   
     struct sockaddr_in client = { 0 };
     int sclient = 0;
     unsigned int len = sizeof(client);
+
+
+
     int childSocket = accept(sock, (struct sockaddr*) &client, &len);
     if (childSocket == -1)
     {
       printf("cannot accept connection\n");
       close(sock);
-      break;
+      exit(1); 
     }
 
-    write(childSocket, OUTPUT, sizeof(OUTPUT));
-    count++;
-    OUTPUT[0] = 0;
-    if (count == 10){
-	    OUTPUT[0] = 1;
-    	    count = 0; 
-    }
-     // sleep(5000);
+while(1){
+    OUTPUT[0] = '7';
+    //rand()%2;
+    printf("Trigger is %c\n",OUTPUT[0]);
+
+    send(childSocket,&OUTPUT[0],1,0);
+    //write(childSocket, OUTPUT, sizeof(OUTPUT));
+
+    sleep(10);
+    //send(childSocket,&OUTPUT[0],1,0);
+
     //close(childSocket);
   }
   
