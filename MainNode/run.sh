@@ -1,3 +1,2 @@
-sudo make clean
-make setup
-make MainNode
+cd ./bin/
+./MainNode 0

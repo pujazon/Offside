@@ -3,8 +3,9 @@
 
 //Globals
 
-char buffer[256] = "";
-const char *ADDR = "192.168.1.43"; 
+char buffer[256];
+
+const char *ADDR = "192.168.1.40"; 
  
 int sock;
 int port;
@@ -38,6 +39,8 @@ int start_listening(){
     return 2;
   }
 
+//  buffer[0] = '0';
+
   return 0;
 }
 
@@ -47,7 +50,8 @@ int getTrigger(){
   int result = -1;
 
   //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
-  status = read(sock,&buffer[0],1);
+  //status = read(sock,&buffer[0],1);
+  status = recv(sock,&buffer[0],1,0);
   
   if (status > 0){
 	result = atoi(&buffer[0]);

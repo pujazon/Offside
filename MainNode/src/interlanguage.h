@@ -6,4 +6,11 @@
 #include <iostream>
 #include <unistd.h>
 
-void callgetVars();
+#define NPlayers 22
+#define Fields 4
+
+using namespace matlab::engine;
+
+int iniMATLAB();
+int endMATLAB();
+uint32_t* getPlayersMatrix();

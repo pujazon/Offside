@@ -1,29 +1,33 @@
 #include "interlanguage.h"
 #include <iostream>
 
+std::unique_ptr<MATLABEngine> matlabPtr;
+matlab::data::ArrayFactory Factory;
+  
+uint32_t C_PlayersMatrix[NPlayers*Fields];
+
+int i;
 
 
-void callgetVars() {     
-	using namespace matlab::engine;
-	int i;
+int iniMATLAB(){
+		matlabPtr = startMATLAB();
+		return 0;
+}
 
-	// Start MATLAB engine synchronously
-	std::unique_ptr<MATLABEngine> matlabPtr = startMATLAB();
-	// Create MATLAB data array factory
-	//matlab::data::ArrayFactory factory;
-	for(i=0;i<100;i++){
-		// Pass vector containing 2 scalar args in vector 
-		double result = matlabPtr->feval<double>(u"test");   	
+int endMATLAB(){
+	matlab::engine::terminateEngineClient();
+	return 0;
+}
 
-		//double result = matlabPtr->feval<double>(u"sqrt", double(2));   
-		//std::vector<matlab::data::Array> args({
-		//factory.createScalar<int16_t>(30),
-		//factory.createScalar<int16_t>(56) });
-		// Call MATLAB function and return result
-		//matlab::data::TypedArray<int16_t> result = matlabPtr->feval(u"gcd", args);
-		std::cout << "Result: " << result << std::endl;
-	}
-	
-	sleep(10);
+uint32_t *getPlayersMatrix() {     
+
+	//matlab::data::Array X = Factory.createArray<uint8_t>({ 2,2 }); //,         { 1.0, 3.0, 2.0, 4.0 });
+
+	std::vector<matlab::data::Array> PlayersMatrix = matlabPtr->feval(("test"),1,{});
+
+	auto tmp = PlayersMatrix[0]; 
+	for (i=0; i<2; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
+
+	return C_PlayersMatrix;
 
 }
