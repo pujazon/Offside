@@ -9,5 +9,5 @@
 #define PORT 3500 
   
 int start_listening();
-int stop_listening();
-int getTrigger();
+int stop_listening(int rsocket);
+int listen(int rsocket);

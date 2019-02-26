@@ -16,4 +16,8 @@ extern char OUTPUT[256];
 
 void error(char *msg);
 
-int speaker();
+int start_speaking();
+int meeting();
+int stop_speaking();
+int speak();
+

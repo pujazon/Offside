@@ -13,4 +13,6 @@ double get_x_rotation(double x, double y, double z);
 
 double dabs(double a, double b);
 
-int mpu6050();
+int setupMPU6050();
+
+unsigned int isTrigger();

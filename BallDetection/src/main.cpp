@@ -6,25 +6,34 @@
 
 int main(int argc, char *argv[]) {
 
-	
-	int cas = atoi(argv[1]);
-	
-	printf("argv[1] = %d\n",cas);
-	
-	switch(cas){
+	int Bstatus;
+	int connection, ssocket;
+	unsigned int trigger = 0;
 
-		case 0:
-			speaker();
-			break;
-		
-		case 1:
-			mpu6050();
-			break;
-			
-		default:
-			printf("Usage: Must pass one argument and must be 0 or 1;");
-			printf("if 0 := ( run c_connect() );");
-			exit(1);
+	Bstatus = setupMPU6050();
+	ssocket = start_speaking();
+
+	if(Bstatus != 0 || ssocket <= 0){
+		printf("Bstatus != 0 || ssocket <= 0\n");
+		exit(1);
 	}
+
+	conection = meeting();
+
+	if(conection <= 0){
+		printf("conection <= 0\n");
+		exit(1);
+	}
+
+	printf("Setup OK;\n");
+
+	while(1){
+
+		trigger = isTrigger();
+		if(trigger == 1)
+			speak(connection);
+	}
+
+	stop_speaking(ssocket);
 
 }

@@ -2,69 +2,69 @@
 
 char OUTPUT[256];
 
-int speaker(){
+int start_speaking(){
 
-  OUTPUT[0] = '1';
-  char in[1];
-  int sock = 0;
-  int port = 0;
+	struct sockaddr_in server;
+	char in[1];
+	int sock = 0;
+	int port = 0;
 
-  sock = socket(AF_INET, SOCK_STREAM, 0);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (sock == -1)
-    fprintf(stderr, "failed\n");
-  else
-    printf("Sock %d connection is establisshed\n",sock);
+	if (sock == -1) fprintf(stderr, "failed\n");
+	else printf("Sock %d connection is establisshed\n",sock);
 
-  struct sockaddr_in server;
-  server.sin_family = AF_INET;
-  server.sin_addr.s_addr = htonl(INADDR_ANY );
-  server.sin_port = htons(PORT);
+	server.sin_family = AF_INET;
+	server.sin_addr.s_addr = htonl(INADDR_ANY );
+	server.sin_port = htons(PORT);
 
-  int status = bind(sock, (struct sockaddr*) &server, sizeof(server));
-  if (status == 0)
-    printf("connection completed\n");
-  else
-    printf("problem is encountered %d \n",status);
+	int status = bind(sock, (struct sockaddr*) &server, sizeof(server));
 
-  status = listen(sock, 1);
-  if (status == 0)
-    printf("app is ready to work\n");
-  else
-  {
-    printf("connection is failed\n");
-    return 0;
-  }
+	if (status == 0) printf("Connection completed\n");
+	else printf("Problem is encountered %d \n",status);
 
-  
-   
-    struct sockaddr_in client = { 0 };
-    int sclient = 0;
-    unsigned int len = sizeof(client);
+	return sock;
 
+}
+
+int meeting(int sock){
+
+	status = listen(sock, 1);
+	if (status == 0) printf("App is ready to work\n");
+	else
+	{
+		printf("Connection is failed\n");
+		return -1;
+	}
+
+	struct sockaddr_in client = { 0 };
+	int sclient = 0;
+	unsigned int len = sizeof(client);
 
 
     int childSocket = accept(sock, (struct sockaddr*) &client, &len);
     if (childSocket == -1)
     {
-      printf("cannot accept connection\n");
-      close(sock);
-      exit(1); 
+		printf("cannot accept connection\n");
+		close(sock);
+		return -1; 
     }
 
-while(1){
-    OUTPUT[0] = '7';
-    //rand()%2;
-    printf("Trigger is %c\n",OUTPUT[0]);
+    return childSocket;
+}
 
-    send(childSocket,&OUTPUT[0],1,0);
-    //write(childSocket, OUTPUT, sizeof(OUTPUT));
+int speak(int ssocket){
 
-    sleep(10);
-    //send(childSocket,&OUTPUT[0],1,0);
+	OUTPUT[0] = '1';
+	printf("speak() == %c\n",OUTPUT[0]);
 
-    //close(childSocket);
-  }
+	send(ssocket,&OUTPUT[0],1,0);
+	//write(childSocket, OUTPUT, sizeof(OUTPUT));
+
+	return 0;
+}
+
+int stop_speaking(int sock){
   
   close(sock);
   return 0;
