@@ -17,7 +17,7 @@ extern char OUTPUT[256];
 void error(char *msg);
 
 int start_speaking();
-int meeting();
-int stop_speaking();
-int speak();
+int meeting(int sock);
+int stop_speaking(int sock);
+int speak(int ssocket);
 

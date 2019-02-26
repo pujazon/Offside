@@ -49,19 +49,20 @@ int setupMPU6050(){
 	thY = 0.6;
 	thZ = 0.6;
 
-	internal_trigger = 10;
-
-	unsigned int iter = 0;
+	internal_trigger = 10;	
 
 	fd = wiringPiI2CSetup (0x68);
 	wiringPiI2CWriteReg8 (fd,0x6B,0x00);//disable sleep mode
 	printf("set 0x6B=%X\n",wiringPiI2CReadReg8 (fd,0x6B));
 	ini = 1;
+
+	return 0;
 }
  
 unsigned int isTrigger(){
 
 	unsigned int trigger = 0;
+	unsigned int iter = 0;
 
 	tacclX = read_word_2c(0x3B);
 	tacclY = read_word_2c(0x3D);

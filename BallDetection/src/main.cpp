@@ -7,7 +7,7 @@
 int main(int argc, char *argv[]) {
 
 	int Bstatus;
-	int connection, ssocket;
+	int conection, ssocket;
 	unsigned int trigger = 0;
 
 	Bstatus = setupMPU6050();
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	conection = meeting();
+	conection = meeting(ssocket);
 
 	if(conection <= 0){
 		printf("conection <= 0\n");
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
 		trigger = isTrigger();
 		if(trigger == 1)
-			speak(connection);
+			speak(conection);
 	}
 
 	stop_speaking(ssocket);

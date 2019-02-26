@@ -25,13 +25,12 @@ int main(int argc, char *argv[]) {
 	if(rsocket > 0 && MATLAB_status == 0){
 		while(1){
 
-			//TODO: Too slow recv()
             trigger = listen(rsocket);
 			printf(".");
 			printf("Trigger is: %d\n",trigger);
 
 
-			if(trigger == 7){
+			if(trigger == 1){
 				pOut = getPlayersMatrix();
 
 				for (i=0; i<44*1; i++) {std::cout << "En el Main[i]: " << pOut[i] << std::endl;}				

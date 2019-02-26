@@ -29,7 +29,7 @@ int start_speaking(){
 
 int meeting(int sock){
 
-	status = listen(sock, 1);
+	int status = listen(sock, 1);
 	if (status == 0) printf("App is ready to work\n");
 	else
 	{
