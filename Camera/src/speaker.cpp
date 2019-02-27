@@ -2,57 +2,69 @@
 
 char OUTPUT[256];
 
-int speaker(){
+int start_speaking(){
 
-  OUTPUT[0] = '1';
-  char in[1];
-  int sock = 0;
-  int port = 0;
-  sock = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in server;
+	char in[1];
+	int sock = 0;
+	int port = 0;
 
-  if (sock == -1)
-    fprintf(stderr, "failed\n");
-  else
-    printf("connection is establisshed\n");
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 
-  struct sockaddr_in server;
-  server.sin_family = AF_INET;
-  server.sin_addr.s_addr = htonl(INADDR_ANY );
-  server.sin_port = htons(PORT);
+	if (sock == -1) fprintf(stderr, "failed\n");
+	else printf("Sock %d connection is establisshed\n",sock);
 
-  int status = bind(sock, (struct sockaddr*) &server, sizeof(server));
-  if (status == 0)
-    printf("connection completed\n");
-  else
-    printf("problem is encountered %d \n",status);
+	server.sin_family = AF_INET;
+	server.sin_addr.s_addr = htonl(INADDR_ANY );
+	server.sin_port = htons(PORT);
 
-  status = listen(sock, 5);
-  if (status == 0)
-    printf("app is ready to work\n");
-  else
-  {
-    printf("connection is failed\n");
-    return 0;
-  }
+	int status = bind(sock, (struct sockaddr*) &server, sizeof(server));
 
-  
-  while (1){
-    //printf("Input value %d\n",in);
-    struct sockaddr_in client = { 0 };
-    int sclient = 0;
-    unsigned int len = sizeof(client);
+	if (status == 0) printf("Connection completed\n");
+	else printf("Problem is encountered %d \n",status);
+
+	return sock;
+
+}
+
+int meeting(int sock){
+
+	int status = listen(sock, 1);
+	if (status == 0) printf("App is ready to work\n");
+	else
+	{
+		printf("Connection is failed\n");
+		return -1;
+	}
+
+	struct sockaddr_in client = { 0 };
+	int sclient = 0;
+	unsigned int len = sizeof(client);
+
+
     int childSocket = accept(sock, (struct sockaddr*) &client, &len);
     if (childSocket == -1)
     {
-      printf("cannot accept connection\n");
-      close(sock);
-      break;
+		printf("cannot accept connection\n");
+		close(sock);
+		return -1; 
     }
 
-    write(childSocket, OUTPUT, sizeof(OUTPUT));
-   // sleep(5000);
-    //close(childSocket);
-  }
+    return childSocket;
+}
+
+int speak(int ssocket){
+
+	OUTPUT[0] = '1';
+	printf("speak() == %c\n",OUTPUT[0]);
+
+	send(ssocket,&OUTPUT[0],1,0);
+	//write(childSocket, OUTPUT, sizeof(OUTPUT));
+
+	return 0;
+}
+
+int stop_speaking(int sock){
   
   close(sock);
   return 0;
