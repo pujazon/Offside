@@ -26,7 +26,7 @@ uint32_t *getPlayersMatrix() {
 	std::vector<matlab::data::Array> PlayersMatrix = matlabPtr->feval(("test"),1,{});
 
 	auto tmp = PlayersMatrix[0]; 
-	for (i=0; i<44*1; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
+	for (i=0; i<88; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
 
 	return C_PlayersMatrix;
 
