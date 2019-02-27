@@ -33,7 +33,10 @@ setup:
 	mkdir $(BIN)
 	mkdir MATLAB_libs
 	mv  MATLAB_libs ../Tools/
-	cp -r /usr/local/MATLAB/R2018b/extern/ $(MATLAB_ROOT)	
+	cp -r /usr/local/MATLAB/R2018b/extern/ $(MATLAB_ROOT)
+	cp -r ../PlayerDetection/top/ $(BIN)	
+	mv $(BIN)top/* $(BIN)
+	rm -r $(BIN)top/
 	#cp -r /mnt/c/Program\ Files/MATLAB/glib/extern/ $(MATLAB_ROOT)
 	#cp $(MATLAB_ROOT)bin/glnxa64/* /usr/lib/
 	#cp /mnt/c/Program\ Files/MATLAB/R2017b/extern/include/MatlabDataArray.hpp ./src/

@@ -1,29 +1,31 @@
 %% TOP Camera
 %  Get the image and show it. Set number of thread
-addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
+
+
+classdef Main
+   properties
+      top = 1;
+   end
+   methods(Static)
+
+function res=getPlayersMatrix()
+%addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
+addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
 %addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
 
-%TODO: Cannot load all .h files that are on ubuntu /usr/libs
-% pe: 'sys/socket.h'
-%So Matlab should be run in Ubuntu
-
-%loadlibrary('lib_Server','listener.h');
 %Profiling
 format shortg
 c = clock
-%codegen -config:lib listener -report
-
-
 
 for compress=1:1
     
 maxNumCompThreads(16);
 %%%%fprintf('Hilos: %d\n',maxNumCompThreads);
-I = imread('m_009.jpg');
-Ori = imread('m_009.jpg');
+
+I = imread('m_002.jpg');
+Ori = imread('m_002.jpg');
 
 figure, imshow(Ori);
-
 
 end
 
@@ -31,10 +33,6 @@ end
 global Processed;
 global TmpBlobMap;
 global PlayersMask;
-global MergeMap;
-global R_MergeMap;
-global G_MergeMap;
-global B_MergeMap;
 global Blobs;
 global N;    
 global NBlobs;   
@@ -59,8 +57,6 @@ camera_height = 50;
 
 global x_cm_per_pixel;
 global y_cm_per_pixel;
-rows = size(I,1);
-columns = size(I,2);
 
 N = 30;
 
@@ -134,107 +130,100 @@ end
 %  so must be found field boundaries
 
 for compress=1:1
-%     
-% rows = size(I,1);
-% columns = size(I,2);
-% 
-% RChannel = I(:,:,1);
-% GChannel = I(:,:,2);
-% BChannel = I(:,:,3);
-% 
-% %Are hardcoded but must be set dinamically
-% Rth = 50;
-% Gth = 50;
-% Bth = 50;
-% 
-% FieldMask = zeros(rows,columns);
-% tmp_PlayersMask = zeros(rows,columns);
-% 
-% for i = 1: rows
-%     for j = 1: columns                        
-% %        %fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-% %        %fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
-% %        %fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
-%         if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
-%             diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
-%             diff_abs(BChannel(i,j),max_BLevels) < Bth )   
-%         
-%             %It's grass
-%             tmp_PlayersMask(i,j) = 255;
-%         else
-%             FieldMask(i,j) = 255;
-%         end        
-%     end
-% end
-% 
-%  PlayersMask = tmp_PlayersMask;
-%  figure, imshow(PlayersMask);
-%  
-%  %Field Boundaries
-% %  find_top();
-% %  find_bottom();
-% %  find_right();
-% %  find_left();
-% %  TODO:  They don't work because now there is no axis with all pixels being field
-% 
-% top_field = 357; 
-% bottom_field = 2100;
-% left_field = 1024;
-% right_field = 2400;
-%  
-%  fprintf('find_top: %d\n',top_field);
-%  fprintf('bottom_field: %d\n',bottom_field);
-%  fprintf('left_field: %d\n',left_field);
-%  fprintf('right_field: %d\n',right_field);
-%  
+    
+rows = size(I,1);
+columns = size(I,2);
+
+RChannel = I(:,:,1);
+GChannel = I(:,:,2);
+BChannel = I(:,:,3);
+
+%Are hardcoded but must be set dinamically
+Rth = 80;
+Gth = 80;
+Bth = 80;
+
+FieldMask = zeros(rows,columns);
+tmp_PlayersMask = zeros(rows,columns);
+
+for i = 1: rows
+    for j = 1: columns                        
+%        %fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
+%        %fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+%        %fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
+        if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
+            diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
+            diff_abs(BChannel(i,j),max_BLevels) < Bth )   
+        
+            %It's grass
+            tmp_PlayersMask(i,j) = 255;
+        else
+            FieldMask(i,j) = 255;
+        end        
+    end
+end
+
+ PlayersMask = tmp_PlayersMask;
+ figure, imshow(PlayersMask);
+ 
+ %Field Boundaries
+%  find_top();
+%  find_bottom();
+%  find_right();
+%  find_left();
+%  TODO:  They don't work because now there is no axis with all pixels being field
+
+top_field = 0; 
+bottom_field = columns;
+left_field = 0;
+right_field = rows;
+ 
+ fprintf('find_top: %d\n',top_field);
+ fprintf('bottom_field: %d\n',bottom_field);
+ fprintf('left_field: %d\n',left_field);
+ fprintf('right_field: %d\n',right_field);
+ 
 end
 
 %% Edge detection
 %Not needed. Adds more problems than solutions
 
  for compress=1:1
-
-    IGray = rgb2gray(I);
-    Gray2 = imgaussfilt(IGray,10);
-    Edges = edge(IGray,'sobel');
-    figure, imshow(Edges);
-
-end
-
-%Merge filters
-
-for compress=1:1
-
-    auxField = ones(rows,columns);
-    Processed = zeros(rows,columns);
-
-    
-    for i = 1: rows
-        for j = 1: columns  
-            if (Edges(i,j) == 1)
-                auxField(i,j) = 0;
-            end
-        end
-    end
-    
-    %%PlayersMask = MergeMap;
-    auxField2 = imgaussfilt(auxField,30);
-    MergeMap = convertBinImage2RGB(auxField2);
-    figure, imshow(MergeMap);
-    
-    R_MergeMap = MergeMap(:,:,1); 
-    G_MergeMap = MergeMap(:,:,2);
-    B_MergeMap = MergeMap(:,:,3);
-    mii = floor(rows/2);
-    mjj = floor(columns/2);
-    
-    find_boundary(mii,mjj);
-     
-     fprintf('find_top: %d\n',top_field);
-     fprintf('bottom_field: %d\n',bottom_field);
-     fprintf('left_field: %d\n',left_field);
-     fprintf('right_field: %d\n',right_field);
-    
+% 
+%     IGray = rgb2gray(I);
+%     IGray2 = imgaussfilt(IGray,10);
+%     Edges = edge(IGray2,'sobel');
+%     %figure, imshow(BW1);
+% 
+% end
+% 
+% Merge filters
+% 
+% for compress=1:1
+% 
+%     MergeMap = ones(rows,columns);
+% 
+%     for i = 1: rows
+%         for j = 1: columns  
+%             if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
+%                 MergeMap(i,j) = 0;
+%             end
+%         end
+%     end
+%     
+%     
+%     PlayersMask = imgaussfilt(MergeMap,10);    
+%     %figure, imshow(PlayersMask);
+%     
+%     Debug
+%     for i = 1: rows
+%         for j = 1: columns  
+%             if (PlayersMask(i,j) == 0)               
+%                 %%fprintf("%i == d; j == %d\n",i,j);
+%             end
+%         end
+%     end
+%     
  end
 
 %% Blob detection:
@@ -444,10 +433,20 @@ end
 
 end
 
+res = randi(9,88,1);
+
 %% Profiling
 
 format shortg
 c = clock
+
+
+end
+
+
+   end
+end
+
 
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -475,29 +474,29 @@ function Blob(ii,jj)
     global weight;
         
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
-        %%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
+        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
         bottom = max(ii+1,bottom);
-        %fprintf('bottom = %d\n',bottom);
+        %%fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj);
     end  
             
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
-        %%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
+        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
         left = min(jj-1,left);
-        %fprintf('left = %d\n',left);
+        %%fprintf('left = %d\n',left);
         Blob(ii,jj-1);
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        %%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
+        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
         right = max(jj+1,right);
-        %fprintf('right = %d\n',right);
+        %%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
 
@@ -522,7 +521,7 @@ function find_top()
                 field_row = 0;
             end            
             jj = jj+1;
-            %%fprintf("(%d,%d)\n",ii,jj);
+            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if (field_row == 1)
@@ -553,7 +552,7 @@ function find_bottom()
                 field_row = 0;
             end            
             jj = jj+1;
-            %%fprintf("(%d,%d)\n",ii,jj);
+            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if (field_row == 1)
@@ -585,7 +584,7 @@ function find_right()
                 field_row = 0;
             end            
             ii = ii+1;
-            %%fprintf("(%d,%d)\n",ii,jj);
+            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if (field_row == 1)
@@ -618,7 +617,7 @@ function find_left()
                 field_row = 0;
             end            
             ii = ii+1;
-            %%fprintf("(%d,%d)\n",ii,jj);
+            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if (field_row == 1)
@@ -636,7 +635,7 @@ function ret = x_coords_from_camera_to_real(x_camera_coord)
     global x_cm_per_pixel;
 
     x_real_coord = x_camera_coord*x_cm_per_pixel;
-    %fprintf("x_real_coord: %d\n",x_real_coord);
+    %%fprintf("x_real_coord: %d\n",x_real_coord);
 
     %TODO: Precision level (?)
     ret = round(x_real_coord);
@@ -648,7 +647,7 @@ function ret = y_coords_from_camera_to_real(y_camera_coord)
     global y_cm_per_pixel;
 
     y_real_coord = y_camera_coord*y_cm_per_pixel;
-    %fprintf("y_real_coord: %d\n",y_real_coord);
+    %%fprintf("y_real_coord: %d\n",y_real_coord);
 
     %TODO: Precision level (?)
     ret = round(y_real_coord);
@@ -676,40 +675,40 @@ function find_boundary(ii,jj)
     global field_bottom;
     global field_left;
     
-    fprintf('ii = %d; jj = %d; V == %d\n',ii,jj,MergeMap(ii,jj));
+    %fprintf('ii = %d; jj = %d; V == %d\n',ii,jj,MergeMap(ii,jj));
     
     if(in_of_bounds(ii,jj-1)==1 && isField(ii,jj-1) == 1 && Processed(ii,jj-1) == 0) 
         
-        fprintf('MergeMap() = %d\n',MergeMap(ii,jj-1));
+        %fprintf('MergeMap() = %d\n',MergeMap(ii,jj-1));
         Processed(ii+1,jj) = 1;       
         field_left = min(jj-1,field_left);
-        %fprintf('bottom = %d\n',bottom);
+        %%fprintf('bottom = %d\n',bottom);
         find_boundary(ii,jj-1);        
     end  
         
     if(in_of_bounds(ii+1,jj)==1 && isField(ii+1,jj) ==  1 && Processed(ii+1,jj) == 0) 
-        fprintf('MergeMap() = %d\n',MergeMap(ii+1,jj));
+        %fprintf('MergeMap() = %d\n',MergeMap(ii+1,jj));
         Processed(ii+1,jj) = 1;       
         field_top = min(ii+1,field_top);
-        %fprintf('bottom = %d\n',bottom);
+        %%fprintf('bottom = %d\n',bottom);
 
         find_boundary(ii+1,jj);
 
     end  
                     
     if(in_of_bounds(ii-1,jj)==1 && isField(ii-1,jj) ==  1 && Processed(ii-1,jj) == 0) 
-        fprintf('MergeMap() = %d\n',MergeMap(ii+1,jj));
+        %fprintf('MergeMap() = %d\n',MergeMap(ii+1,jj));
         Processed(ii-1,jj) = 1;       
         field_bottom = max(ii-1,field_bottom);
-        %fprintf('bottom = %d\n',bottom);        
+        %%fprintf('bottom = %d\n',bottom);        
 
         find_boundary(ii-1,jj);
     end  
     
-    fprintf("end\n");
+    %fprintf("end\n");
             
 end
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [RGB_Image] = convertBinImage2RGB(BinImage)
   RGB_Image = uint8( BinImage(:,:,[1 1 1]) * 255 );
 end

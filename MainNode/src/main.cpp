@@ -4,6 +4,8 @@
 #include <string.h>
 #include "listener.h"
 #include "interlanguage.h"
+#include <chrono>
+#include <ctime>    
 
 using namespace std;
 
@@ -192,6 +194,10 @@ int main(int argc, char *argv[]) {
 
 			//Process if there is Offside
 			if(trigger == 1){
+
+				//Profiling
+				auto start = std::chrono::system_clock::now();
+
 				pOut = getPlayersMatrix();
 
 				for (i=0; i<88; i++) {
@@ -204,6 +210,16 @@ int main(int argc, char *argv[]) {
 				Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
 				if(Offside) printf("Rafa, no me jodas. Fuera de juego!\n");
 				else printf("Sigan!\n");
+
+				// Profiling
+			    auto end = std::chrono::system_clock::now();
+
+			    std::chrono::duration<double> elapsed_seconds = end-start;
+			    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+			    std::cout << "Finished computation at " << std::ctime(&end_time)
+			              << "Elapsed time: " << elapsed_seconds.count() << "s\n";
+
 			}	
 		}
 	}

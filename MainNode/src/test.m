@@ -11,7 +11,8 @@ function res=test()
     % Team B in 1+4*11-1(*) = 22 (*)-1 porque empezamos des del 0
     %[22-26] TeamB player 0: top,bottom,left,right;
 
-    res = randi(9,88,1);
+    Program = Main.empty(1,0);
+    res = Program.getPlayersMatrix();
     fprintf("OUT\n");
     
     %res = tmp;
