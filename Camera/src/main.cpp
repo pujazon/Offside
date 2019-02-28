@@ -3,27 +3,41 @@
 #include <string.h>
 #include "speaker.h"
 
+
 int main(int argc, char *argv[]) {
 
-	
-	int cas = atoi(argv[1]);
-	
-	printf("argv[1] = %d\n",cas);
-	
-	switch(cas){
+	int Bstatus;
+	int conection, ssocket;
+	unsigned int trigger = 0;
 
-		case 0:
-			speaker();
-			break;
-		
-		case 1:
-		//Must go getImg()
-			break;
-			
-		default:
-			printf("Usage: Must pass one argument and must be 0 or 1;");
-			printf("if 0 := ( run c_connect() );");
-			exit(1);
+	ssocket = start_speaking();
+
+	if(ssocket <= 0){
+		printf("ssocket <= 0\n");
+		exit(1);
 	}
+
+	conection = meeting(ssocket);
+
+	if(conection <= 0){
+		printf("conection <= 0\n");
+		exit(1);
+	}
+
+	printf("Setup OK;\n");
+
+	trigger = 1;
+	while(1){
+
+		sleep(10);
+		
+		if(trigger == 1){
+			printf("Send Image... \n");
+			//Send image
+			speak(conection);
+		}
+	}
+
+	stop_speaking(ssocket);
 
 }

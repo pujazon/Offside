@@ -11,27 +11,25 @@ HEADERS=./include/
 BIN=./bin/
 SRC=./src/
 
-#all: Camera
+#all: BallDetection
 
-Camera: main.o speaker.o
+Camera: main.o speaker.o 
 	
-	#mkdir $(BIN)
-	$(CCC) -o $(BIN)Camera $(OBJS)main.o $(OBJS)speaker.o -lm
+	$(CCC) -o $(BIN)Camera $(OBJS)main.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
 
-dir: 
+setup: 
 	mkdir $(OBJS)
-	mkdir $(BIN)	
+	mkdir $(BIN)
 	
+
 speaker.o:
 
 	$(CCC) -c $(CFLAGS) ./src/speaker.cpp
-	# if not exist mkdir $(OBJS)
 	mv speaker.o $(OBJS)		
 	
 main.o:
 
 	$(CCC) -c $(CFLAGS) ./src/main.cpp
-	# if not exist mkdir $(OBJS)
 	mv main.o $(OBJS)	
 	
 	
