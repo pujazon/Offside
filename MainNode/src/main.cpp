@@ -57,7 +57,7 @@ uint32_t max_top(uint32_t* old, uint32_t team){
 	        break;
 	}
 
-	result = *max_element(old , &old[(NPlayers/2)-1]);	
+	result = *max_element(&top[0],&top[NPlayers/2]);	
 	return result;
 }
 
@@ -80,7 +80,7 @@ uint32_t min_bottom(uint32_t* old, uint32_t team){
 	        break;
 	}
 
-	result = *min_element(old , &old[(NPlayers/2)-1]);	
+	result = *min_element(&bottom[0],&bottom[NPlayers/2]);	
 	return result;
 }
 
