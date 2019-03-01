@@ -13,3 +13,4 @@ using namespace std;
 int start_listening();
 int stop_listening(int rsocket);
 int listen(int rsocket);
+int listen_img(int rsocket);

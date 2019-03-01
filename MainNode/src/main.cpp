@@ -187,8 +187,11 @@ int main(int argc, char *argv[]) {
 
 	if(rsocket > 0 && MATLAB_status == 0){
 		while(1){
+			trigger = 0;
+            //trigger = listen(rsocket);
+			
+			listen_img(rsocket);
 
-            trigger = listen(rsocket);
 			printf(".");
 			printf("Trigger is: %d\n",trigger);
 
