@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 		if(trigger == 1){
 			printf("Send Image... \n");
 			//Send image
-			speak(conection);
+			speak_img(conection);
 		}
 	}
 

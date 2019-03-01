@@ -6,8 +6,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <string.h>
-#include  <iostream>
- 
+#include <iostream>
+#include <fstream>
+
 #define PORT 3500 
 
 using namespace std;
@@ -20,4 +21,4 @@ int start_speaking();
 int meeting(int sock);
 int stop_speaking(int sock);
 int speak(int ssocket);
-
+int speak_img(int ssock);
