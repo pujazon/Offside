@@ -16,10 +16,9 @@ struct sockaddr_in servaddr;
 
 //TODO: Each function must have error handling
   
-int start_listening(){
+int start_listening(int port){
 
   sock = 0;
-  port = 0;
   sock = socket(AF_INET, SOCK_STREAM, 0);
   status = 0;  
 
@@ -30,7 +29,8 @@ int start_listening(){
 
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = inet_addr(ADDR);
-  servaddr.sin_port = htons(PORT);
+  printf("port %d -- %d\n",port,htons(port));
+  servaddr.sin_port = htons(port);
   status = connect(sock, (struct sockaddr*) &servaddr, sizeof(servaddr));
 
   if (status == 0) printf("connection is established successfully\n");

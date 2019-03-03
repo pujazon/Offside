@@ -170,7 +170,8 @@ int main(int argc, char *argv[]) {
 
 	int i;
 	int MATLAB_status;
-	int rsocket;
+	int Camera_socket;
+	int Ball_socket;
 	int trigger;
 
 	unsigned int Offside = 0;
@@ -180,22 +181,23 @@ int main(int argc, char *argv[]) {
 
 	//Important the order
 	MATLAB_status = iniMATLAB();
-	rsocket = start_listening();
+	Camera_socket = start_listening(PORTA);
+	Ball_socket = start_listening(PORTB);
 
 
-	printf("read_socket == %d and Mstatus == %d\n",rsocket,MATLAB_status);
+	printf("Camera Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Ball_socket,MATLAB_status);
 
-	if(rsocket > 0 && MATLAB_status == 0){
+	if(Ball_socket > 0 && Camera_socket > 0 && MATLAB_status == 0){
 		while(1){
-			trigger = 0;
-            //trigger = listen(rsocket);
-			
-			listen_img(rsocket);
+						
+			listen_img(Camera_socket);
+            trigger = listen(Ball_socket);
 
 			printf(".");
 			printf("Trigger is: %d\n",trigger);
 
 			//Process if there is Offside
+			
 			if(trigger == 1){
 
 				//Profiling
@@ -223,14 +225,16 @@ int main(int argc, char *argv[]) {
 			    std::cout << "Finished computation at " << std::ctime(&end_time)
 			              << "Elapsed time: " << elapsed_seconds.count() << "s\n";
 
-			}	
+			}
+				
 		}
 	}
 	
 	printf("End\n");
-	stop_listening(rsocket);
-
+	
 	//TODO: Problems when closing MATLAB session. Maybe kill with sigkill
+	stop_listening(Ball_socket);
+	stop_listening(Camera_socket);
 	endMATLAB();
 	exit(0);
 

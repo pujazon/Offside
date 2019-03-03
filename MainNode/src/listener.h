@@ -6,11 +6,12 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 3500 
+#define PORTA 3500 
+#define PORTB 3600 
 
 using namespace std;  
 
-int start_listening();
+int start_listening(int port);
 int stop_listening(int rsocket);
 int listen(int rsocket);
 int listen_img(int rsocket);
