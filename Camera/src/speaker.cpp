@@ -2,12 +2,11 @@
 
 char OUTPUT[256];
 
-int start_speaking(){
+int start_speaking(int port){
 
 	struct sockaddr_in server;
 	char in[1];
 	int sock = 0;
-	int port = 0;
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -15,8 +14,8 @@ int start_speaking(){
 	else printf("Sock %d connection is establisshed\n",sock);
 
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = htonl(INADDR_ANY );
-	server.sin_port = htons(PORT);
+	server.sin_addr.s_addr = htonl(INADDR_ANY);
+	server.sin_port = htons(port);
 
 	int status = bind(sock, (struct sockaddr*) &server, sizeof(server));
 
