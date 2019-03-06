@@ -10,8 +10,8 @@ classdef Main
 
         function res=getPlayersMatrix()
             
-            %addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
-            addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
+            addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
+            %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
             %addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
             
             %Profiling
@@ -428,7 +428,7 @@ classdef Main
 
             FinalBlobs(id).width = right-left;   
             FinalBlobs(id).height = bottom-top;                 
-            %fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(id).top,FinalBlobs(id).bottom,FinalBlobs(id).right,FinalBlobs(id).left);                                    
+            fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(id).top,FinalBlobs(id).bottom,FinalBlobs(id).right,FinalBlobs(id).left);                                    
 
             end
 
@@ -438,7 +438,7 @@ classdef Main
             format shortg
             c = clock
             
-            res = randi(9,88,1);
+            %res = randi(9,88,1);
             
         end
    end
