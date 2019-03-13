@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "speaker.h"
-
+#include "camera.h"
 
 int main(int argc, char *argv[]) {
 

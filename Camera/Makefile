@@ -6,6 +6,9 @@ CCC=g++
 CC=gcc
 CFLAGS=
 RBPI_CFLAGS=-lwiringPi
+RBPI_CAM_CFLAGS= -lraspicam 
+#-lmmal -lmmal_core -lmmal_util
+
 OBJS=./objs/
 HEADERS=./include/
 BIN=./bin/
@@ -13,21 +16,26 @@ SRC=./src/
 
 #all: BallDetection
 
-Camera: main.o speaker.o 
+Camera: main.o speaker.o camera.o 
 	
-	$(CCC) -o $(BIN)Camera $(OBJS)main.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
+	$(CCC) -I '/usr/local/include/raspicam' -o $(BIN)Camera  $(OBJS)main.o $(OBJS)camera.o $(OBJS)speaker.o $(RBPI_CFLAGS) $(RBPI_CAM_CFLAGS) -lm
+
 
 setup: 
 	mkdir $(OBJS)
 	mkdir $(BIN)
 	cp ./img/*.* ./bin/
-	cd ../Tools
-	git clone https://github.com/pujazon/libs.git
 
 speaker.o:
 
 	$(CCC) -c $(CFLAGS) ./src/speaker.cpp
 	mv speaker.o $(OBJS)		
+	
+
+camera.o:
+
+	$(CCC) -c $(CFLAGS) ./src/camera.cpp
+	mv camera.o $(OBJS)		
 	
 main.o:
 
