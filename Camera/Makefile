@@ -21,6 +21,8 @@ setup:
 	mkdir $(OBJS)
 	mkdir $(BIN)
 	cp ./img/*.* ./bin/
+	cd ../Tools
+	git clone https://github.com/pujazon/libs.git
 
 speaker.o:
 

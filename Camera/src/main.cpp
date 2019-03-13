@@ -24,26 +24,17 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	printf("Camera Setup OK;\n");
+	int res_camera = setup_camera();
+	if(res_camera == 0) printf("Camera Setup OK;\n");
 
-
-	bsocket = start_speaking(3600);
-
-	if(bsocket <= 0){
-		printf("ssocket <= 0\n");
-		exit(1);
-	}
-
-	bconection = meeting(bsocket);
-
-	if(bconection <= 0){
-		printf("conection <= 0\n");
-		exit(1);
-	}
-
-	printf("ball Setup OK;\n");
-
-	trigger = 1;
+	//TODO: trigger must be a button
+	//trigger = 1;
+	
+	//First take photo
+	int res_photo = photo();	
+	if(res_photo == 0) printf("Photo was taken OK;\n");
+	
+/*	//Send img to MainNode
 	while(1){
 
 		sleep(10);
@@ -54,8 +45,9 @@ int main(int argc, char *argv[]) {
 			speak_img(cconection);
 			speak(bconection);
 		}
+		
 	}
-
+*/
 	stop_speaking(bsocket);
 	stop_speaking(csocket);
 
