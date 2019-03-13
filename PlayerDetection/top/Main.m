@@ -10,9 +10,9 @@ classdef Main
 
         function res=getPlayersMatrix()
             
-            addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
+            %addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
             %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-            %addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
+            addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
             
             %Profiling
             format shortg
@@ -23,8 +23,8 @@ classdef Main
             maxNumCompThreads(16);
             %%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-            I = imread('m_008.jpg');
-            Ori = imread('m_008.jpg');
+            I = imread('m_011.jpg');
+            Ori = imread('m_011.jpg');
 
             %figure, imshow(Ori);
 
@@ -174,10 +174,10 @@ classdef Main
             %  find_left();
             %  TODO:  They don't work because now there is no axis with all pixels being field
 
-            top_field = 774; 
-            bottom_field = 2422;
-            left_field = 1024;
-            right_field = 2655;
+            top_field = 1; 
+            bottom_field = rows-1;
+            left_field = 1;
+            right_field = columns-1;
 
              %fprintf('find_top: %d\n',top_field);
              %fprintf('bottom_field: %d\n',bottom_field);
