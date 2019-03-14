@@ -182,8 +182,8 @@ int main(int argc, char *argv[]) {
 	//Important the order
 	MATLAB_status = iniMATLAB();
 	Camera_socket = start_listening(PORTA);
-	Ball_socket = start_listening(PORTB);
-
+//	Ball_socket = start_listening(PORTB);
+	Ball_socket = 7;
 
 	printf("Camera Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Ball_socket,MATLAB_status);
 
@@ -197,6 +197,8 @@ int main(int argc, char *argv[]) {
 			printf("Trigger is: %d\n",trigger);
 
 			//Process if there is Offside
+
+			trigger = 1;
 			
 			if(trigger == 1){
 

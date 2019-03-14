@@ -93,7 +93,7 @@ int listen_img(int socket){
   printf("Reply sent\n");
   printf(" \n");
 
-  image = fopen("field.jpg", "w");
+  image = fopen("top.ppm", "w");
 
   if( image == NULL) {
   printf("Error has occurred. Image file could not be opened\n");
