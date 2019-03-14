@@ -78,7 +78,7 @@ int speak_img(int socket){
    char send_buffer[10240], read_buffer[256];
    packet_index = 1;
 
-   picture = fopen("field.jpg", "r");
+   picture = fopen("top.ppm", "r");
    printf("Getting Picture Size\n");   
 
    if(picture == NULL) {
