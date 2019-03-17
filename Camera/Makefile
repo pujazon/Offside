@@ -24,7 +24,6 @@ Camera: main.o speaker.o camera.o
 setup: 
 	mkdir $(OBJS)
 	mkdir $(BIN)
-	cp ./img/*.* ./bin/
 
 speaker.o:
 
