@@ -26,7 +26,7 @@ classdef Main
             I = imread('m_011.jpg');
             Ori = imread('m_011.jpg');
 
-            %figure, imshow(Ori);
+            figure, imshow(Ori);
 
             end
 
@@ -51,6 +51,9 @@ classdef Main
             global left;
             global right;
             global weight;
+            
+            global row_avg;
+            global col_avg;
 
             %Camera units in cm
             camera_width = 50;
@@ -134,6 +137,9 @@ classdef Main
 
             rows = size(I,1);
             columns = size(I,2);
+                        
+            row_avg = floor(rows*0.5)
+            col_avg = floor(columns*0.5)
 
             RChannel = I(:,:,1);
             GChannel = I(:,:,2);
@@ -166,23 +172,17 @@ classdef Main
 
              PlayersMask = tmp_PlayersMask;
              %figure, imshow(PlayersMask);
+             figure, imshow(FieldMask);
 
              %Field Boundaries
-            %  find_top();
-            %  find_bottom();
-            %  find_right();
-            %  find_left();
-            %  TODO:  They don't work because now there is no axis with all pixels being field
-
-            top_field = 1; 
-            bottom_field = rows-1;
-            left_field = 1;
-            right_field = columns-1;
-
-             %fprintf('find_top: %d\n',top_field);
-             %fprintf('bottom_field: %d\n',bottom_field);
-             %fprintf('left_field: %d\n',left_field);
-             %fprintf('right_field: %d\n',right_field);
+              find_top();
+              fprintf('find_top: %d\n',top_field);
+              find_bottom();
+              fprintf('bottom_field: %d\n',bottom_field);
+              find_right();
+              fprintf('right_field: %d\n',right_field);
+              find_left();
+              fprintf('left_field: %d\n',left_field);                                             
 
             end
 
@@ -249,11 +249,10 @@ classdef Main
             minWeight = 1000;
 
             id = 1;   
-            BlobTotalWeight = 0;
 
             %Blob Detection
-            for i = top_field+1: bottom_field
-                for j = left_field+1: right_field                    
+            for i = top_field+2: bottom_field-2
+                for j = left_field+2: right_field-2                    
 
                     if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
                         %Ini setup before Blob detection function
@@ -471,6 +470,7 @@ function Blob(ii,jj)
     global left;
     global weight;
         
+    %fprintf("Pos [%d,%d]\n",ii,jj);
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
         %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
@@ -506,26 +506,35 @@ function find_top()
     global columns;
     global top_field;      
     global FieldMask; 
+    global col_avg;
     
     ii = 1;
     trobat = 0;
     
     while(trobat == 0 && ii < rows)
         jj = 1;
-        field_row = 1;
+        counter = 0;
         
-        while (field_row == 1 && jj < columns-1)
-            if (FieldMask(ii,jj) ~= 0)
-                field_row = 0;
-            end            
+        while (trobat == 0 && jj < columns-1)
+            %if != 0 -> Is not grass
+            %fprintf("Grass is %d\n",FieldMask(ii,jj));
+            if (FieldMask(ii,jj) == 0)
+                
+                %if is grass we must count and check if we know
+                %already that is row grass one
+                counter = counter +1;
+                if(counter > col_avg)
+                    trobat = 1; 
+                end
+            end
             jj = jj+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (field_row == 1)
-            trobat = 1;
+        if (trobat == 1)
             top_field = ii;
         end
+        
         ii=ii+1;
     end
 
@@ -536,27 +545,35 @@ function find_bottom()
     global rows;
     global columns;
     global bottom_field;      
-    global FieldMask; 
+    global FieldMask;
+    global col_avg;
     
     ii = rows;
     trobat = 0;
     
     while(trobat == 0 && ii > 1)
         jj = 1;
-        field_row = 1;
+        counter = 0;
         
-        while (field_row == 1 && jj < columns-1)
-            if (FieldMask(ii,jj) ~= 0)
-                field_row = 0;
-            end            
+        while (trobat == 0 && jj < columns-1)
+            %if != 0 -> Is not grass
+            %fprintf("Grass is %d\n",FieldMask(ii,jj));
+            if (FieldMask(ii,jj) == 0)
+                %if is grass we must count and check if we know
+                %already that is row grass one
+                counter = counter +1;
+                if(counter > col_avg)
+                    trobat = 1; 
+                end
+            end
             jj = jj+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (field_row == 1)
-            trobat = 1;
+        if (trobat == 1)
             bottom_field = ii;
         end
+        
         ii=ii-1;
     end
 
@@ -565,28 +582,34 @@ end
 function find_right()
 
     global columns;
-    global top_field; 
-    global bottom_field; 
     global right_field;      
     global FieldMask; 
+    global row_avg;
+    global rows;
     
     jj = columns-1;
     trobat = 0;
     
     while(trobat == 0 && jj > 1)
-        ii = top_field;
-        field_row = 1;
+        ii = 1;
+        counter = 0;
         
-        while (field_row == 1 && (ii < bottom_field-1))
-            if (FieldMask(ii,jj) ~= 0)
-                field_row = 0;
-            end            
+        while (trobat == 0 && (ii < rows-1))
+            %if != 0 -> Is not grass
+            %fprintf("Grass is %d\n",FieldMask(ii,jj));
+            if (FieldMask(ii,jj) == 0)
+                %if is grass we must count and check if we know
+                %already that is row grass one
+                counter = counter +1;
+                if(counter > row_avg)
+                    trobat = 1; 
+                end
+            end      
             ii = ii+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (field_row == 1)
-            trobat = 1;
+        if (trobat == 1)
             right_field = jj;
         end
         
@@ -598,28 +621,33 @@ end
 function find_left()
 
     global columns;
-    global top_field; 
-    global bottom_field; 
+    global rows;
     global left_field;      
     global FieldMask; 
+    global row_avg;
     
     jj = 1;
     trobat = 0;
     
     while(trobat == 0 && jj < columns)
-        ii = top_field;
-        field_row = 1;
+        ii = 1;
+        counter = 0;
         
-        while (field_row == 1 && ii < bottom_field)
-            if (FieldMask(ii,jj) ~= 0)
-                field_row = 0;
-            end            
+        while (trobat == 0 && ii < rows-1)
+            %if != 0 -> Is not grass
+            %fprintf("Grass [%d,%d] is %d\n",ii,jj,FieldMask(ii,jj));
+            if (FieldMask(ii,jj) == 0)
+                %if is grass we must count and check if we know
+                %already that is row grass one
+                counter = counter +1;
+                if(counter > row_avg)
+                    trobat = 1; 
+                end
+            end      
             ii = ii+1;
-            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (field_row == 1)
-            trobat = 1;
+        if (trobat == 1)            
             left_field = jj;
         end
         
