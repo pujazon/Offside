@@ -11,7 +11,7 @@
 
 using namespace std;  
 
-int start_listening(int port);
+int start_listening(int port,char *ADDR);
 int stop_listening(int rsocket);
 int listen(int rsocket);
 int listen_img(int rsocket);

@@ -4,8 +4,6 @@
 //Globals
 
 char buffer[256];
-
-const char *ADDR = "192.168.1.40"; 
  
 int sock;
 int port;
@@ -16,7 +14,7 @@ struct sockaddr_in servaddr;
 
 //TODO: Each function must have error handling
   
-int start_listening(int port){
+int start_listening(int port, char *ADDR){
 
   sock = 0;
   sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -29,7 +27,7 @@ int start_listening(int port){
 
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = inet_addr(ADDR);
-  printf("port %d -- %d\n",port,htons(port));
+  printf("ip %d && port %d -- %d\n",ADDR,port,htons(port));
   servaddr.sin_port = htons(port);
   status = connect(sock, (struct sockaddr*) &servaddr, sizeof(servaddr));
 
@@ -78,10 +76,10 @@ int listen_img(int socket){
   stat = read(socket, &size, sizeof(int));
   }while(stat<0);
 
-  printf("Packet received.\n");
-  printf("Packet size: %i\n",stat);
-  printf("Image size: %i\n",size);
-  printf(" \n");
+//  printf("Packet received.\n");
+ // printf("Packet size: %i\n",stat);
+ // printf("Image size: %i\n",size);
+  //printf(" \n");
 
   char buffer[] = "Got it";
 
@@ -90,8 +88,8 @@ int listen_img(int socket){
   stat = write(socket, &buffer, sizeof(int));
   }while(stat<0);
 
-  printf("Reply sent\n");
-  printf(" \n");
+ // printf("Reply sent\n");
+  //printf(" \n");
 
   image = fopen("top.ppm", "w");
 
@@ -127,13 +125,13 @@ int listen_img(int socket){
                  read_size = read(socket,imagearray, 10241);
               }while(read_size <0);
 
-              printf("Packet number received: %i\n",packet_index);
-          printf("Packet size: %i\n",read_size);
+    //          printf("Packet number received: %i\n",packet_index);
+  //        printf("Packet size: %i\n",read_size);
 
 
           //Write the currently read data into our image file
            write_size = fwrite(imagearray,1,read_size, image);
-           printf("Written image size: %i\n",write_size); 
+    //       printf("Written image size: %i\n",write_size); 
 
                if(read_size !=write_size) {
                    printf("error in read write\n");    }
@@ -142,9 +140,9 @@ int listen_img(int socket){
                //Increment the total number of bytes read
                recv_size += read_size;
                packet_index++;
-               printf("Total received image size: %i\n",recv_size);
-               printf(" \n");
-               printf(" \n");
+      //         printf("Total received image size: %i\n",recv_size);
+        //       printf(" \n");
+          //     printf(" \n");
       }
 
   }
