@@ -10,11 +10,11 @@ int main(int argc, char *argv[]) {
 	int conection, ssocket;
 	unsigned int trigger = 0;
 
-	Bstatus = setupMPU6050();
-	ssocket = start_speaking();
 
-	if(Bstatus != 0 || ssocket <= 0){
-		printf("Bstatus != 0 || ssocket <= 0\n");
+	ssocket = start_speaking(3600);
+
+	if(ssocket <= 0){
+		printf("ssocket <= 0\n");
 		exit(1);
 	}
 
@@ -24,6 +24,14 @@ int main(int argc, char *argv[]) {
 		printf("conection <= 0\n");
 		exit(1);
 	}
+
+	Bstatus = setupMPU6050();
+
+	if(Bstatus != 0){
+		printf("Bstatus != 0\n");
+		exit(1);
+	}
+
 
 	printf("Setup OK;\n");
 
