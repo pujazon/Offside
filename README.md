@@ -5,12 +5,14 @@ It has 3 sub-systems:
 <hr>
 <h2>PlayerDetection:</h2>
 There are 3 Cameras: Top ,bottom and left camera.
+	
 With top camera image, our visual-computing software must take all players position.
 With team camera, which is moved repected to top one and then is able to get shirt's players information, we must be able to detect each player axis position (Y position with left and X position with bottom) and their team 
 Combinating all results it matches the left-bottom pairs position with their respective top position having then all players team and their positions.
 Also BallDetection algorithm is included on top software camera detecting ball's position and the nearest player will be the ball owner (passer or reciver). So return value related to the Ball will be the index of this player.
 
 PlayersMatrix C format
+
 There is: id_ball + TeamA + TeamB
 From [0] to [32] <-> 1 + 4*4 + 4*4 = 33 elments
 
@@ -40,11 +42,10 @@ Camera system and Ball system are the Speakers while MainNode is the Listener.
 
 <hr>
 
-isOffside TestCases:
-<br>
+<h2>isOffside TestCases:<h2>
 1. input-> All players positions are the same in i and i+1. Ball owners in each moment are of the same team. 
    output-> False;
-<br>
+   
 2. input -> A true Offside situation
    output -> True;
 

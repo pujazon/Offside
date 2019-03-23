@@ -97,9 +97,6 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 	uint32_t Receiver_top;
 	uint32_t Receiver_bottom;
 
-	uint32_t old_Receiver_top;
-	uint32_t old_Receiver_bottom;
-
 	uint32_t min_Defender_bottom;
 	uint32_t max_Defender_top;
 
@@ -119,9 +116,10 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 
 		//TODO: Capsule it on a function (?)
 		//First: We must know if passing goes forward or backward
+		//We work with Old positions always because they are the relevant ones
 
-		Receiver_top 		=	current[id_receiver+top_offset];
-		Receiver_bottom 	= 	current[id_receiver+bottom_offset];
+		Receiver_top 		=	old[id_receiver+top_offset];
+		Receiver_bottom 	= 	old[id_receiver+bottom_offset];
 		Passer_top			=	old[id_passer+top_offset];
 		Passer_bottom	 	= 	old[id_passer+bottom_offset];
 
@@ -148,13 +146,13 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 			    case TeamA:
 			    	//TeamA Offense is Offside if Receiver_top is bigger than max(Defense_top)
 			    	max_Defender_top = max_top(old,TeamB);
-			    	if (old_Receiver_top  > max_Defender_top) result = 1;
+			    	if (Receiver_top  > max_Defender_top) result = 1;
 			        break;
 
 			    case TeamB:
 			    	//TeamB Offense is Offside if Receiver_bottom is smaller than min(Defense_top)
 			    	min_Defender_bottom = min_bottom(old,TeamA);
-			    	if (old_Receiver_bottom  < min_Defender_bottom) result = 1;
+			    	if (Receiver_bottom  < min_Defender_bottom) result = 1;
 			        break;
 			}
 
