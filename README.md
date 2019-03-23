@@ -39,6 +39,15 @@ Speaker and Listener modules let a System speak with other System that is listen
 Camera system and Ball system are the Speakers while MainNode is the Listener. 
 
 <hr>
+
+isOffside TestCases:
+<br>
+1. input-> All players positions are the same in i and i+1. Ball owners in each moment are of the same team. 
+   output-> False;
+<br>
+2. input -> A true Offside situation
+   output -> True;
+
 <h2> TODOs </h2>
 Camera calibration
 Tracking algorithm

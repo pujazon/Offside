@@ -18,6 +18,10 @@ MATLAB_CC_API_LIB=-lMatlabDataArray -lMatlabEngine
 
 #Workarround
 
+Debug: main_debug.o 
+
+	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ -o $(BIN)Debug $(OBJS)main_debug.o  $(MATLAB_CC_API_LIB) -lm 
+	
 
 MainNode: main.o listener.o interlanguage.o
 	
@@ -85,6 +89,13 @@ main.o:
 	#mkdir $(OBJS)
 	mv main.o $(OBJS)		
 	
+main_debug.o:
+
+	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) ./src/main_debug.cpp 
+	#mkdir $(OBJS)
+	mv main_debug.o $(OBJS)		
+	
+
 clean:
 
 	if [ -d "$(OBJS)" ]; then rm -r $(OBJS); fi

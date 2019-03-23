@@ -6,7 +6,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#define NPlayers 22
+#define NPlayers 8
 #define Fields 4
 
 using namespace matlab::engine;
