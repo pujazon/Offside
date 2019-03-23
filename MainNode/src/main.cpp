@@ -18,8 +18,8 @@ uint32_t right_offset = 3;
 
 uint32_t* pOut;
 
-uint32_t old_PlayersMatrix[NPlayers*Fields];
-uint32_t current_PlayersMatrix[NPlayers*Fields];
+uint32_t old_PlayersMatrix[1+NPlayers*Fields];
+uint32_t current_PlayersMatrix[1+NPlayers*Fields];
 
 
 uint32_t top[NPlayers/2];
@@ -47,13 +47,13 @@ uint32_t max_top(uint32_t* old, uint32_t team){
 	switch (team){
 	    case TeamA:
 	    	//Prepare team A top array
-	    	for(i=0;i < (NPlayers/2); i++) top[i] = old[(i*Fields)+top_offset];
+	    	for(i=0;i < (NPlayers/2); i++) top[i] = old[1+(i*Fields)+top_offset];
 	        break;
 
 	    case TeamB:
 	    	//Prepare team B top array
 	    	Boffset = (NPlayers/2)*Fields;
-	    	for(i=0;i < (NPlayers/2); i++) top[i] = old[Boffset+((i*Fields)+top_offset)];
+	    	for(i=0;i < (NPlayers/2); i++) top[i] = old[1+Boffset+((i*Fields)+top_offset)];
 	        break;
 	}
 
@@ -70,13 +70,13 @@ uint32_t min_bottom(uint32_t* old, uint32_t team){
 	switch (team){
 	    case TeamA:
 	    	//Prepare team A top array
-	    	for(i=0;i < (NPlayers/2); i++) bottom[i] = old[(i*Fields)+bottom_offset];
+	    	for(i=0;i < (NPlayers/2); i++) bottom[i] = old[1+(i*Fields)+bottom_offset];
 	        break;
 
 	    case TeamB:
 	    	//Prepare team B top array
 	    	Boffset = (NPlayers/2)*Fields;
-	    	for(i=0;i < (NPlayers/2); i++) bottom[i] = old[Boffset+((i*Fields)+bottom_offset)];
+	    	for(i=0;i < (NPlayers/2); i++) bottom[i] = old[1+Boffset+((i*Fields)+bottom_offset)];
 	        break;
 	}
 
@@ -109,8 +109,8 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 	uint32_t id_passer = old[0];
 
 	//Get Passer and Receiver Teams. First Team A, Then Team B	
-	if(id_passer < 44) Passer_Team = TeamA; else Passer_Team = TeamB;
-	if(id_receiver < 44) Receiver_Team = TeamA; else Receiver_Team = TeamB; 
+	if(id_passer < 1+((NPlayers*Fields)/2)) Passer_Team = TeamA; else Passer_Team = TeamB;
+	if(id_receiver < 1+((NPlayers*Fields)/2)) Receiver_Team = TeamA; else Receiver_Team = TeamB; 
 
 	//Only a pass between two players of the same team must be checked
 	//If it's the same player means it is a autopass or simply he has run 
@@ -177,12 +177,12 @@ int main(int argc, char *argv[]) {
 	unsigned int Offside = 0;
 
 	//Initialize MatrixPlayers
-	for (i=0; i<88; i++) { old_PlayersMatrix[i] = 0; current_PlayersMatrix[i] = 0; }
+	for (i=0; i<(1+NPlayers*Fields); i++) { old_PlayersMatrix[i] = 0; current_PlayersMatrix[i] = 0; }
 
 	//Important the order
 	MATLAB_status = iniMATLAB();
-	Camera_socket = start_listening(PORTA,"192.168.1.40");
-	Ball_socket = start_listening(PORTB,"192.168.1.45");
+	Camera_socket = start_listening(PORTA,"192.168.1.43");
+	Ball_socket = start_listening(PORTB,"192.168.1.44");
 
 	printf("Camera Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Ball_socket,MATLAB_status);
 
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
 
 				pOut = getPlayersMatrix();
 
-				for (i=0; i<88; i++) {
+				for (i=0; i<(1+NPlayers*Fields); i++) {
 					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
 					//Keep las PlayersMatrix in Old and get new in Current 
 					old_PlayersMatrix[i] = current_PlayersMatrix[i];

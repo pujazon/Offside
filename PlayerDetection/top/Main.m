@@ -11,8 +11,8 @@ classdef Main
         function res=getPlayersMatrix()
             
             %addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/top/testcases'
-            addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-            %addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
+            %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
+            addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\top\testcases'
             
             %Profiling
             format shortg
@@ -23,8 +23,8 @@ classdef Main
             maxNumCompThreads(16);
             %%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-            I = imread('m_011.jpg');
-            Ori = imread('m_011.jpg');
+            I = imread('top.ppm');
+            Ori = imread('top.ppm');
 
             figure, imshow(Ori);
 

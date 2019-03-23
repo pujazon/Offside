@@ -4,7 +4,8 @@
 std::unique_ptr<MATLABEngine> matlabPtr;
 matlab::data::ArrayFactory Factory;
   
-uint32_t C_PlayersMatrix[NPlayers*Fields];
+//+1 because first element is id_ball
+uint32_t C_PlayersMatrix[1+NPlayers*Fields];
 
 int i;
 
@@ -26,7 +27,7 @@ uint32_t *getPlayersMatrix() {
 	std::vector<matlab::data::Array> PlayersMatrix = matlabPtr->feval(("test"),1,{});
 
 	auto tmp = PlayersMatrix[0]; 
-	for (i=0; i<88; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
+	for (i=0; i<1+NPlayers*Fields; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
 
 	return C_PlayersMatrix;
 
