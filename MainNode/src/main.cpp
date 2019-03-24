@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
 				//Profiling
 				auto start = std::chrono::system_clock::now();
 
-				pOut = getPlayersMatrix();
+				pOut = getPlayersMatrix(0);
 
 				for (i=0; i<(1+NPlayers*Fields); i++) {
 					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
