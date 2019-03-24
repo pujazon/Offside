@@ -1,0 +1,16 @@
+Top:
+
+Player(1); top: 8, bottom: 12, right: 13, left: 9
+Player(2); top: 24, bottom: 27, right: 27, left: 24
+Player(3); top: 40, bottom: 43, right: 42, left: 39
+
+Left:
+Player(1); top: 10, bottom: 13, right: 6, left: 3		KO
+Player(2); top: 13, bottom: 16, right: 39, left: 37		OK 	+/- (2,3) (4,6)% 
+Player(3); top: 14, bottom: 16, right: 26, left: 24		OK  +/- (0,1) (0,2)%
+
+Bottom
+
+Player(1); top: 10, bottom: 13, right: 13, left: 11		OK  +/- (2,0) (4,0)%
+Player(2); top: 11, bottom: 13, right: 26, left: 25		OK  +/- (1,1) (2,2)%
+Player(3); top: 11, bottom: 13, right: 35, left: 34		OK  +/- (5,7) (5,14)% (!; EL FONDO ES MENOS LARGO, NO ES DE "50 REALES") JUGAR TRAPEZIO?

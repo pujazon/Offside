@@ -185,6 +185,15 @@ int main(int argc, char *argv[]) {
 	printf("Camera Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Ball_socket,MATLAB_status);
 
 	if(Ball_socket > 0 && Camera_socket > 0 && MATLAB_status == 0){
+		
+		printf("First process: get first positions, Field color...\n");
+		listen_img(Camera_socket);
+		pOut = getPlayersMatrix(1);	
+		for (i=0; i<(1+NPlayers*Fields); i++) {
+			old_PlayersMatrix[i] = current_PlayersMatrix[i];
+			current_PlayersMatrix[i] = pOut[i];
+		}
+		
 		while(1){
 						
 			listen_img(Camera_socket);

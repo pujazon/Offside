@@ -20,11 +20,13 @@ int endMATLAB(){
 	return 0;
 }
 
-uint32_t *getPlayersMatrix() {     
+uint32_t *getPlayersMatrix(int isIni) {     
 
 	//matlab::data::Array X = Factory.createArray<uint8_t>({ 2,2 }); //,         { 1.0, 3.0, 2.0, 4.0 });
-
-	std::vector<matlab::data::Array> PlayersMatrix = matlabPtr->feval(("test"),1,{});
+	if(isIni)
+		std::vector<matlab::data::Array> PlayersMatrix = matlabPtr->feval(("handler_ini"),1,{});
+	else 
+		std::vector<matlab::data::Array> PlayersMatrix = matlabPtr->feval(("handler_tracking"),1,{});		
 
 	auto tmp = PlayersMatrix[0]; 
 	for (i=0; i<1+NPlayers*Fields; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
