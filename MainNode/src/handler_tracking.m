@@ -1,5 +1,5 @@
 
-function res=test()
+function res=handler_tracking()
     fprintf("Testing PlayersMatrix()\n");
     %2 equipos*(4 jugadores/equipo *4 atrr/jug)+1 = 33 posiciones (del 0 al 32)
 
@@ -10,10 +10,15 @@ function res=test()
     % Team B in 1+4*4 = 17 
     %[17-20] TeamB player 0: top,bottom,left,right; ...
 
-
-    Program = tracking.empty(1,0);
-    res = Program.track();
-    fprintf("OUT\n");
+    %Primer parametro NULLL
+    trash = 0;
+    
+    Program = tracker(trash,10,13,26,29,19,21,33,36,19,22,19,22,27,29,26,29,28,31,44,47,30,32,3,7,37,40,34,36,38,41,17,20,...
+        1,7,57);    
+    Program.echo();
+    res=Program.tracking();
+    
+    fprintf("end handler_tracking()\n");
     
     %res = tmp;
 end

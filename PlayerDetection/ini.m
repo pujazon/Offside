@@ -61,6 +61,9 @@ classdef ini
 
             global x_cm_per_pixel;
             global y_cm_per_pixel;
+            global y_pixel_per_cm;
+            global x_pixel_per_cm;  
+            
 
             N = 30;
 
@@ -278,7 +281,7 @@ classdef ini
                                 Blobs(id).weight = weight;   
                                 Blobs(id).width = right-left;   
                                 Blobs(id).height = bottom-top;                 
-                                %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                                fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                                 id = id+1; 
                             end 
 
@@ -406,6 +409,8 @@ classdef ini
 
             x_cm_per_pixel = (camera_width/field_width);
             y_cm_per_pixel = (camera_height/field_height);
+            x_pixel_per_cm = (field_width/camera_width);
+            y_pixel_per_cm = (field_height/camera_height);
 
             % %fprintf("camera_width = %d\n",camera_width);
             % %fprintf("camera_height = %d\n",camera_height);
@@ -415,15 +420,31 @@ classdef ini
 
             for id=1:NBlobs
 
+				fprintf("top = %d\n",top);
+				fprintf("bottom = %d\n",bottom);
+				fprintf("left  = %d\n",left);
+				fprintf("right  = %d\n",right);
+                
             top = y_coords_from_camera_to_real(FinalBlobs(id).top);
             bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
             left = x_coords_from_camera_to_real(FinalBlobs(id).left);
             right = x_coords_from_camera_to_real(FinalBlobs(id).right);
+            
+				fprintf("top = %d\n",top);
+				fprintf("bottom = %d\n",bottom);
+				fprintf("left  = %d\n",left);
+				fprintf("right  = %d\n",right);
 
             FinalBlobs(id).top = top;
             FinalBlobs(id).bottom = bottom;
             FinalBlobs(id).left = left;
             FinalBlobs(id).right = right;
+            
+            
+				fprintf("top = %d\n",top);
+				fprintf("bottom = %d\n",bottom);
+				fprintf("left  = %d\n",left);
+				fprintf("right  = %d\n",right);
 
             FinalBlobs(id).width = right-left;   
             FinalBlobs(id).height = bottom-top;                 
@@ -673,6 +694,31 @@ function ret = y_coords_from_camera_to_real(y_camera_coord)
     global y_cm_per_pixel;
 
     y_real_coord = y_camera_coord*y_cm_per_pixel;
+    %%fprintf("y_real_coord: %d\n",y_real_coord);
+
+    %TODO: Precision level (?)
+    ret = round(y_real_coord);
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = x_coords_from_real_to_camera(x_real_coord)
+
+    global x_pixel_per_cm;
+
+    x_real_coord = x_real_coord*x_pixel_per_cm;
+    %%fprintf("x_real_coord: %d\n",x_real_coord);
+
+    %TODO: Precision level (?)
+    ret = round(x_real_coord);
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = y_coords_from_real_to_camera(y_real_coord)
+
+    global y_pixel_per_cm;
+
+    y_real_coord = y_real_coord*y_pixel_per_cm;
     %%fprintf("y_real_coord: %d\n",y_real_coord);
 
     %TODO: Precision level (?)
