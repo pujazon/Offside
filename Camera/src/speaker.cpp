@@ -98,7 +98,7 @@ int speak_img(int socket){
 
    do { //Read while we get errors that are due to signals.
       stat=read(socket, &read_buffer , 255);
-      printf("Bytes read: %i\n",stat);
+      //printf("Bytes read: %i\n",stat);
    } while (stat < 0);
 
    printf("Received data in socket\n");
@@ -114,10 +114,10 @@ int speak_img(int socket){
         stat = write(socket, send_buffer, read_size);  
       }while (stat < 0);
 
-      printf("Packet Number: %i\n",packet_index);
-      printf("Packet Size Sent: %i\n",read_size);     
-      printf(" \n");
-      printf(" \n");
+     // printf("Packet Number: %i\n",packet_index);
+     // printf("Packet Size Sent: %i\n",read_size);     
+     // printf(" \n");
+     // printf(" \n");
 
 
       packet_index++;  

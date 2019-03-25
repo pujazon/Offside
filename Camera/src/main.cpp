@@ -32,12 +32,11 @@ int main(int argc, char *argv[]) {
 	
 	//Take photo and send img to MainNode
 	while(1){
-
+	
 		int res_photo = photo();	
 		if(res_photo == 0) printf("Photo was taken OK;\n");
 	
-		//sleep(10);
-		
+			
 		if(trigger == 1){
 			printf("Send Image... \n");
 			speak_img(cconection);
