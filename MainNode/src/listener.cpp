@@ -150,6 +150,5 @@ int listen_img(int socket){
     fclose(image);
     printf("Image successfully Received!\n");
     return 1;
-
 }
 

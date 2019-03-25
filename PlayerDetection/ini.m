@@ -458,7 +458,7 @@ classdef ini
             format shortg
             c = clock
             
-            %res = randi(9,88,1);
+            res = randi(9,33,1);
             
         end
    end

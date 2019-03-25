@@ -170,7 +170,8 @@ int main(int argc, char *argv[]) {
 	int MATLAB_status;
 	int Camera_socket;
 	int Ball_socket;
-	int trigger;
+	int pass_trigger;
+	int track_trigger;
 
 	unsigned int Offside = 0;
 
@@ -196,39 +197,42 @@ int main(int argc, char *argv[]) {
 		
 		while(1){
 						
+			printf("Playing...\n");
 			listen_img(Camera_socket);
-            trigger = listen(Ball_socket);
-
-			printf(".");
-			printf("Trigger is: %d\n",trigger);
-
-			//Process if there is Offside
-			if(trigger == 1){
-
+			printf("Listened;\n");
+			pass_trigger = listen(Ball_socket);
+			track_trigger = 0;
+					
+			if(track_trigger == 1){			
+				
+				printf("Tracking!\n");
 				//Profiling
 				auto start = std::chrono::system_clock::now();
-
+		
 				pOut = getPlayersMatrix(0);
-
+	
 				for (i=0; i<(1+NPlayers*Fields); i++) {
 					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
 					//Keep las PlayersMatrix in Old and get new in Current 
 					old_PlayersMatrix[i] = current_PlayersMatrix[i];
 					current_PlayersMatrix[i] = pOut[i];
 				}
+				// Profiling
+				auto end = std::chrono::system_clock::now();
 
+			    	std::chrono::duration<double> elapsed_seconds = end-start;
+			    	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+			    	std::cout << "Elapsed time: " << elapsed_seconds.count() << "s\n";
+
+
+			}
+				
+			if(pass_trigger == 1){				
+				
 				Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
 				if(Offside) printf("Rafa, no me jodas. Fuera de juego!\n");
 				else printf("Sigan!\n");
-
-				// Profiling
-			    auto end = std::chrono::system_clock::now();
-
-			    std::chrono::duration<double> elapsed_seconds = end-start;
-			    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-			    std::cout << "Finished computation at " << std::ctime(&end_time)
-			              << "Elapsed time: " << elapsed_seconds.count() << "s\n";
 
 			}
 				
