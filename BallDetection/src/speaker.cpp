@@ -1,4 +1,6 @@
 #include "speaker.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 char OUTPUT[256];
 
@@ -52,9 +54,9 @@ int meeting(int sock){
     return childSocket;
 }
 
-int speak(int ssocket){
+int speak(int ssocket, char value){
 
-	OUTPUT[0] = '1';
+	OUTPUT[0] =  value;
 	printf("speak() == %c\n",OUTPUT[0]);
 
 	send(ssocket,&OUTPUT[0],1,0);

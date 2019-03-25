@@ -21,5 +21,5 @@ void error(char *msg);
 int start_speaking(int port);
 int meeting(int sock);
 int stop_speaking(int sock);
-int speak(int ssocket);
+int speak(int ssocketnt,char value);
 int speak_img(int ssock);

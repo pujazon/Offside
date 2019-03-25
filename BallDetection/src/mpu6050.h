@@ -2,6 +2,7 @@
 #include <wiringPi.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h> 
 
 int read_word_2c(int addr);
 

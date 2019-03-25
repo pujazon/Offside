@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
 	while(1){
 
 		trigger = isTrigger();
-		if(trigger == 1)
-			speak(conection);
+		if(trigger == 1) speak(conection,'1');
+		else speak(conection,'0');
 	}
 
 	stop_speaking(ssocket);
