@@ -1,3 +1,5 @@
+
+#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -7,7 +9,7 @@
 using namespace std;
 
 #define NFRAMES 1000
-#define WIDTH   640
+#define WIDTH   640 
 #define HEIGHT  480
 
 extern raspicam::RaspiCam Camera;

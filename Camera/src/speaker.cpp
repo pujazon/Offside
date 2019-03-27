@@ -79,7 +79,7 @@ int speak_img(int socket){
    packet_index = 1;
    auto start = std::chrono::system_clock::now();			
 
-   //picture = fopen("top.ppm", "r");
+   picture = fopen("top.ppm", "r");
    //printf("Getting Picture Size\n");   
 
    if(picture == NULL) {

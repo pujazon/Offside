@@ -1,3 +1,5 @@
+
+#include <chrono>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -226,7 +228,7 @@ int main(int argc, char *argv[]) {
 				
 			if(pass_trigger == 1){				
 				// Profiling
-				auto end = std::chrono::system_clock::now();
+				auto start = std::chrono::system_clock::now();
 				
 				Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
 				
