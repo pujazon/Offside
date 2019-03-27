@@ -66,6 +66,8 @@ int stop_listening(int rsocket){
 
 int listen_img(int socket){
 
+  auto start = std::chrono::system_clock::now();			
+
   int buffersize = 0, recv_size = 0,size = 0, read_size, write_size, packet_index =1,stat;
 
   char imagearray[10241],verify = '1';
@@ -148,7 +150,11 @@ int listen_img(int socket){
   }
 
     fclose(image);
-    printf("Image successfully Received!\n");
+	
+	auto end = std::chrono::system_clock::now();				
+	std::chrono::duration<double> elapsed_seconds = end-start;
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	std::cout << "listen_img(): " << elapsed_seconds.count() << "s\n";
     return 1;
 }
 

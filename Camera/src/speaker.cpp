@@ -77,9 +77,10 @@ int speak_img(int socket){
    int size, read_size, stat, packet_index;
    char send_buffer[10240], read_buffer[256];
    packet_index = 1;
+   auto start = std::chrono::system_clock::now();			
 
-   picture = fopen("top.ppm", "r");
-   printf("Getting Picture Size\n");   
+   //picture = fopen("top.ppm", "r");
+   //printf("Getting Picture Size\n");   
 
    if(picture == NULL) {
         printf("Error Opening Image File"); } 
@@ -87,22 +88,22 @@ int speak_img(int socket){
    fseek(picture, 0, SEEK_END);
    size = ftell(picture);
    fseek(picture, 0, SEEK_SET);
-   printf("Total Picture size: %i\n",size);
+   //printf("Total Picture size: %i\n",size);
 
    //Send Picture Size
-   printf("Sending Picture Size\n");
+   //printf("Sending Picture Size\n");
    write(socket, (void *)&size, sizeof(int));
 
    //Send Picture as Byte Array
-   printf("Sending Picture as Byte Array\n");
+   //printf("Sending Picture as Byte Array\n");
 
    do { //Read while we get errors that are due to signals.
       stat=read(socket, &read_buffer , 255);
       //printf("Bytes read: %i\n",stat);
    } while (stat < 0);
 
-   printf("Received data in socket\n");
-   printf("Socket data: %c\n", read_buffer);
+   //printf("Received data in socket\n");
+   //printf("Socket data: %c\n", read_buffer);
 
    while(!feof(picture)) {
    //while(packet_index = 1){
@@ -125,4 +126,10 @@ int speak_img(int socket){
       //Zero out our send buffer
       bzero(send_buffer, sizeof(send_buffer));
      }
+				
+	auto end = std::chrono::system_clock::now();				
+	std::chrono::duration<double> elapsed_seconds = end-start;
+	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+	std::cout << "speak_img(): " << elapsed_seconds.count() << "s\n";	 
+	 
     }

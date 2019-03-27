@@ -7,8 +7,8 @@
 using namespace std;
 
 #define NFRAMES 1000
-#define WIDTH   1280
-#define HEIGHT  960
+#define WIDTH   640
+#define HEIGHT  480
 
 extern raspicam::RaspiCam Camera;
 
