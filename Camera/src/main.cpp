@@ -3,6 +3,7 @@
 #include <string.h>
 #include "speaker.h"
 #include "camera.h"
+#include "listener.h"
 
 int main(int argc, char *argv[]) {
 
@@ -38,6 +39,8 @@ int main(int argc, char *argv[]) {
 	
 			
 		if(trigger == 1){
+			camera_recv(cconection);
+			printf("Req arrived Synch\n");
 			speak_img(cconection);
 		}
 		
