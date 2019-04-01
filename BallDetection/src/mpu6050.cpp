@@ -59,9 +59,9 @@ int setupMPU6050(){
 	return 0;
 }
  
-unsigned int isTrigger(){
+char isTrigger(){
 
-	unsigned int trigger = 0;
+	char trigger = 0;
 	unsigned int iter = 0;
 
 	tacclX = read_word_2c(0x3B);
@@ -94,7 +94,7 @@ unsigned int isTrigger(){
 			   dabs(acc[1],acclY) >= thY ||
 			   dabs(acc[2],acclZ) >= thZ)){
 
-			trigger = 1;
+			trigger = '1';
 			internal_trigger = 0;	       
 
 			printf("My acclX_scaled: %f\n", acclX);

@@ -3,13 +3,13 @@
 #include <string.h>
 #include "speaker.h"
 #include "mpu6050.h"
+#include "listener.h" 
 
 int main(int argc, char *argv[]) {
 
 	int Bstatus;
 	int conection, ssocket;
-	unsigned int trigger = 0;
-
+	char trigger = '0';
 
 	ssocket = start_speaking(3600);
 
@@ -36,10 +36,12 @@ int main(int argc, char *argv[]) {
 	printf("Setup OK;\n");
 
 	while(1){
-
+	 	ball_recv(conection);
+		printf("Synch\n");
+		sleep(10);
 		trigger = isTrigger();
-		if(trigger == 1) speak(conection,'1');
-		else speak(conection,'0');
+		printf("Trigger %c\n",trigger);
+		speak_pass(conection,trigger);
 	}
 
 	stop_speaking(ssocket);

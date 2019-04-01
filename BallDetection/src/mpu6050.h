@@ -16,4 +16,4 @@ double dabs(double a, double b);
 
 int setupMPU6050();
 
-unsigned int isTrigger();
+char isTrigger();
