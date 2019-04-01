@@ -11,6 +11,7 @@
 
 #define PORTA 3500 
 #define PORTB 3600 
+#define PORTC 3700 
 
 using namespace std;  
 
@@ -20,4 +21,4 @@ int listen_pass(int rsocket);
 int listen_img(int rsocket);
 int ball_recv(int rsocket);
 int camera_recv(int rsocket);
-
+int button_recv(int rsocket);

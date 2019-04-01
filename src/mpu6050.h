@@ -16,4 +16,8 @@ double dabs(double a, double b);
 
 int setupMPU6050();
 
+int setupButton();
+
 char isTrigger();
+
+int isButton();

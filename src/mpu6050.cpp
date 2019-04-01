@@ -123,3 +123,13 @@ char isTrigger(){
 
 	return trigger;
 }
+
+int isButton(){
+	
+	int res = 0;
+	
+	if(digitalRead(INPUT_PIN) == LOW) res = 1;
+	
+	return res;
+	
+}

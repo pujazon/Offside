@@ -10,32 +10,54 @@ int main(int argc, char *argv[]) {
 	int Bstatus;
 	int conection, ssocket;
 	char trigger = '0';
+	const int INPUT_PIN = 1;
+	button = 0;
 
+	//Open 2 sockets: Button && Ball
 	ssocket = start_speaking(3600);
+	bsocket = start_speaking(3700);
 
 	if(ssocket <= 0){
 		printf("ssocket <= 0\n");
 		exit(1);
 	}
+	if(bsocket <= 0){
+		printf("bsocket <= 0\n");
+		exit(1);
+	}
 
 	conection = meeting(ssocket);
+	con = meeting(bsocket);
 
 	if(conection <= 0){
 		printf("conection <= 0\n");
 		exit(1);
 	}
+	if(con <= 0){
+		printf("con <= 0\n");
+		exit(1);
+	}
 
-	Bstatus = setupMPU6050();
-
+	//Setup
+	Bstatus = setupMPU6050();	
+	//Button
+	wiringPiSetup();
+    pinMode(INPUT_PIN, INPUT);
 	if(Bstatus != 0){
 		printf("Bstatus != 0\n");
 		exit(1);
 	}
-
-
 	printf("Setup OK;\n");
 
+	//Main Loop
 	while(1){
+		//TODO button_recv && button_req ?
+	 	button_recv(con);
+		printf("Synch button\n");
+		button = isButton();
+		printf("Button %c\n",button);
+		speak_button(con,button);			
+		
 	 	ball_recv(conection);
 		printf("Synch\n");
 		trigger = isTrigger();
@@ -44,5 +66,4 @@ int main(int argc, char *argv[]) {
 	}
 
 	stop_speaking(ssocket);
-
 }

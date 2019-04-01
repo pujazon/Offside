@@ -3,8 +3,10 @@
 #include <stdlib.h>
 
 char PASS[256];
+int BUTTON[256];
 char BALL_REQ[256];
 char CAMERA_REQ[256];
+char BUTTON_REQ[256];
 
 
 int start_speaking(int port){
@@ -57,14 +59,12 @@ int meeting(int sock){
     return childSocket;
 }
 
-
 int stop_speaking(int sock){
   
   close(sock);
   return 0;
   
 }
-
 
 int speak_pass(int ssocket, char value){
 
@@ -77,6 +77,16 @@ int speak_pass(int ssocket, char value){
 	return 0;
 }
 
+int speak_button(int ssock, int value){
+
+	BUTTON[0] =  value;
+	printf("Button() == %d\n",BUTTON[0]);
+
+	send(ssocket,&BUTTON[0],1,0);
+	//write(childSocket, OUTPUT, sizeof(OUTPUT));
+
+	return 0;
+}
 
 int req_ball(int ssocket){
 
@@ -89,8 +99,6 @@ int req_ball(int ssocket){
 	return 0;
 }
 
-
-
 int req_camera(int ssocket){
 
 	CAMERA_REQ[0] =  '1';
@@ -102,7 +110,16 @@ int req_camera(int ssocket){
 	return 0;
 }
 
+int req_button(int ssocket){
 
+	BUTTON_REQ[0] =  '1';
+	printf("CAMERA_REQ() == %c\n",BUTTON_REQ[0]);
+
+	send(ssocket,&BUTTON_REQ[0],1,0);
+	//write(childSocket, OUTPUT, sizeof(OUTPUT));
+
+	return 0;
+}
 
 int speak_img(int socket){
 

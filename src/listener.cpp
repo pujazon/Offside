@@ -4,6 +4,7 @@
 //Globals
 char buffer[256];
 char BALL_RECV[256];
+char BUTTON_RECV[256];
 char CAMERA_RECV[256];
  
 int sock;
@@ -48,7 +49,6 @@ int stop_listening(int rsocket){
 
 }
 
-
 int listen_pass(int rsocket){
 
   int result = -1;
@@ -62,7 +62,6 @@ int listen_pass(int rsocket){
   return result;
 
 }
-
 
 int ball_recv(int rsocket){
 
@@ -78,7 +77,6 @@ int ball_recv(int rsocket){
 
 }
 
-
 int camera_recv(int rsocket){
 
   int result = -1;
@@ -93,6 +91,19 @@ int camera_recv(int rsocket){
 
 }
 
+int button_recv(int rsocket){
+
+  int result = -1;
+
+  //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
+  //status = read(sock,&buffer[0],1);
+  status = recv(rsocket,&BUTTON_RECV[0],1,0);
+
+  if (status > 0) result = atoi(&BUTTON_RECV[0]);
+
+  return result;
+
+}
 
 int listen_img(int socket){
 

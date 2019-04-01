@@ -1,4 +1,3 @@
-
 #include <chrono>
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,10 +186,11 @@ int main(int argc, char *argv[]) {
 	MATLAB_status = iniMATLAB();
 	Camera_socket = start_listening(PORTA,"192.168.1.43");
 	Ball_socket = start_listening(PORTB,"192.168.1.44");
+	Button_socket = start_listening(PORTC,"192.168.1.44");
 
-	printf("Camera Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Ball_socket,MATLAB_status);
+	printf("Camera Socket == %d  Button Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Button_socket,Ball_socket,MATLAB_status);
 
-	if(Ball_socket > 0 && Camera_socket > 0 && MATLAB_status == 0){
+	if(Ball_socket > 0 && Camera_socket > 0 && Button_socket > 0 && MATLAB_status == 0){
 		
 		printf("Ini()...\n");
 
@@ -213,15 +213,18 @@ int main(int argc, char *argv[]) {
 			req_camera(Camera_socket);
 			listen_img(Camera_socket);
 	
+			printf("Req Ball\n");	
 			req_ball(Ball_socket);
 			pass_trigger = listen_pass(Ball_socket);
-
-			printf("Passing == %d\n",pass_trigger);
-			track_trigger = 0;
-					
-			if(track_trigger == 1){			
-				
+			
+			printf("Req Button\n");	
+			req_button(Button_socket);
+			track_trigger = listen_pass(Button_socket);
+			
+						
+			if(track_trigger == 1){							
 				printf("Tracking!\n");
+				
 				//Profiling
 				auto start = std::chrono::system_clock::now();
 		
@@ -238,11 +241,11 @@ int main(int argc, char *argv[]) {
 			    	std::chrono::duration<double> elapsed_seconds = end-start;
 			    	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 			    	std::cout << "Tracking(): " << elapsed_seconds.count() << "s\n";
-
-
 			}
 				
-			if(pass_trigger == 1){				
+			if(pass_trigger == 1){	
+				printf("Passing == %d\n",pass_trigger);			
+				
 				// Profiling
 				auto start = std::chrono::system_clock::now();
 				
