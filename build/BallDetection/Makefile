@@ -13,6 +13,10 @@ SRC=../../src/
 
 #all: BallDetection
 
+Button:
+	g++ $(SRC)button.cpp -lwiringPi
+	mv a.out ./button.out
+
 BallDetection: main.o speaker.o mpu6050.o listener.o
 	
 	$(CCC) -o $(BIN)BallDetection $(OBJS)main_ball.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(OBJS)listener.o $(RBPI_CFLAGS) -lm
