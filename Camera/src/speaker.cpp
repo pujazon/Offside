@@ -120,10 +120,10 @@ int speak_img(int socket){
    fseek(picture, 0, SEEK_END);
    size = ftell(picture);
    fseek(picture, 0, SEEK_SET);
-   printf("Total Picture size: %i\n",size);
+   //printf("Total Picture size: %i\n",size);
 
    //Send Picture Size
-   printf("Sending Picture Size\n");
+   //printf("Sending Picture Size\n");
    write(socket, (void *)&size, sizeof(int));
 
    //Send Picture as Byte Array
@@ -131,11 +131,11 @@ int speak_img(int socket){
 
    do { //Read while we get errors that are due to signals.
       stat=read(socket, &read_buffer , 255);
-      printf("Bytes read: %i\n",stat);
+    //  printf("Bytes read: %i\n",stat);
    } while (stat < 0);
 
-   printf("Received data in socket\n");
-   printf("Socket data: %c\n", read_buffer);
+   //printf("Received data in socket\n");
+   //printf("Socket data: %c\n", read_buffer);
 
    while(!feof(picture)) {
    //while(packet_index = 1){
@@ -147,14 +147,14 @@ int speak_img(int socket){
         stat = write(socket, send_buffer, read_size);  
       }while (stat < 0);
 
-      printf("Packet Number: %i\n",packet_index);
-      printf("Packet Size Sent: %i\n",read_size);     
-      printf(" \n");
-      printf(" \n");
+      //printf("Packet Number: %i\n",packet_index);
+      //printf("Packet Size Sent: %i\n",read_size);     
+      //printf(" \n");
+      //printf(" \n");
 
 
       packet_index++;  
-
+	printf("Send img correctly()\n");
       //Zero out our send buffer
       bzero(send_buffer, sizeof(send_buffer));
      }
