@@ -193,17 +193,29 @@ int main(int argc, char *argv[]) {
 	if(Ball_socket > 0 && Camera_socket > 0 && MATLAB_status == 0){
 		
 		printf("Ini()...\n");
+
+		printf("Req camera\n");	
+		req_camera(Camera_socket);
 		listen_img(Camera_socket);
+
 		pOut = getPlayersMatrix(1);	
 		for (i=0; i<(1+NPlayers*Fields); i++) {
 			old_PlayersMatrix[i] = current_PlayersMatrix[i];
 			current_PlayersMatrix[i] = pOut[i];
 		}
-		
+	
+		printf("Ini 3 seconds synchronizing whole system\n");
+		sleep(3);	
+
 		while(1){
-						
+
+			printf("Req camera\n");	
+			req_camera(Camera_socket);
 			listen_img(Camera_socket);
+	
+			req_ball(Ball_socket);
 			pass_trigger = listen_pass(Ball_socket);
+
 			printf("Passing == %d\n",pass_trigger);
 			track_trigger = 0;
 					
