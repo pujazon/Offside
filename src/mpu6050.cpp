@@ -10,6 +10,7 @@ double acc[3];
 double thX, thY, thZ;
 unsigned long long int internal_trigger;
 char trigger;
+unsigned int retorno;
 
 int read_word_2c(int addr)	{
 	int val;
@@ -67,11 +68,13 @@ int setupMPU6050(){
 	acc[2] = tacclZ / 16384.0;
 	
 	trigger = '0';
+	retorno = 0;
 
 	return 0;
 }
  
 char isTrigger(){
+
 
 	tacclX = read_word_2c(0x3B);
 	tacclY = read_word_2c(0x3D);
@@ -92,25 +95,31 @@ char isTrigger(){
 	//and only should be one
 	
 
-	if(internal_trigger > 10){
+	//if(internal_trigger > 10){
 		
-		if (dabs(acc[0],acclX) >= thX || dabs(acc[1],acclY) >= thY || dabs(acc[2],acclZ) >= thZ)){
-			trigger = '1';
-			internal_trigger = 0;	       
+		if (dabs(acc[0],acclX) >= thX || dabs(acc[1],acclY) >= thY || dabs(acc[2],acclZ) >= thZ){
+			if(retorno == 0){
+				trigger = '1';
+				retorno = 1;
+				printf("Passing!!!!!!!!!!!: \n");
 
-			printf("My acclX_scaled: %f\n", acclX);
-			printf("My acclY_scaled: %f\n", acclY);
-			printf("My acclZ_scaled: %f\n", acclZ);
-		}
-		else { trigger = '0'; }
+			}
+			else{
+				retorno = 0;
+				trigger = '0';
+			}
+			//internal_trigger = 0;	       
+
 	}
+		else { trigger = '0'; }
+	//}
 
 	
 	acc[0] = acclX;
 	acc[1] = acclY;
 	acc[2] = acclZ;
 
-	internal_trigger++;
+	//internal_trigger++;
 
 	return trigger;
 }

@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
 	
 			
 		if(trigger == 1){
-			//camera_recv(cconection);
-			//printf("Req arrived Synch\n");
+			camera_recv(cconection);
+			printf("Req arrived Synch\n");
 			speak_img(cconection);
 		}
 		

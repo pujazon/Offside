@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
 	printf("Setup OK;\n");
 
 	while(1){
-	 	//ball_recv(conection);
-		//printf("Synch\n");
+	 	ball_recv(conection);
+		printf("Synch\n");
 		trigger = isTrigger();
 		printf("Trigger %c\n",trigger);
 		speak_pass(conection,trigger);
