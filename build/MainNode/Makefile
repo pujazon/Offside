@@ -10,7 +10,7 @@ OBJS=./objs/
 HEADERS=./include/
 BIN=./bin/
 SRC=../../src/
-MATLAB_ROOT=../Tools/MATLAB_libs/extern/
+MATLAB_ROOT=../../Tools/MATLAB_libs/extern/
 MATLAB_CC_API_LIB=-lMatlabDataArray -lMatlabEngine
 
 #TODO:if not exist mkdir $(OBJS)
@@ -30,15 +30,15 @@ MainNode: main.o listener.o interlanguage.o speaker.o
 	#$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/glnxa64/ $(MATLAB_CC_API_LIB) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(OBJS)interlanguage.o -lm
 
 setup:	
-	cp ../Tools/setup_var.sh .
+	cp ../../Tools/setup_var.sh .
 	./setup_var.sh
 	rm setup_var.sh
 	mkdir $(OBJS) 
 	mkdir $(BIN)
 	mkdir MATLAB_libs
-	mv  MATLAB_libs ../Tools/
+	mv  MATLAB_libs ../../Tools/
 	cp -r /usr/local/MATLAB/R2018b/extern/ $(MATLAB_ROOT)
-	cp -r ../PlayerDetection/* $(BIN)	
+	cp -r ../../src/*.m $(BIN)	
 	#cp -r /mnt/c/Program\ Files/MATLAB/glib/extern/ $(MATLAB_ROOT)
 	#cp $(MATLAB_ROOT)bin/glnxa64/* /usr/lib/
 	#cp /mnt/c/Program\ Files/MATLAB/R2017b/extern/include/MatlabDataArray.hpp ./src/
@@ -79,7 +79,7 @@ interlanguage.o:
 	
 	#g++ -std=c++11 -I '../../Tools/MATLAB_libs/extern/include/' -L '../../Tools/MATLAB_libs/extern/bin/glnxa64/' -pthread interlanguage.cpp -lMatlabEngine -lMatlabDataArray 
 
-	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) ./src/interlanguage.cpp 
+	$(CCC) -c $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ $(MATLAB_CC_API_LIB) $(SRC)interlanguage.cpp 
 	#$(MATLAB_CC_API_LIB) glnxa64 win64
 	# if not exist mkdir $(OBJS)
 	mv interlanguage.o $(OBJS)	

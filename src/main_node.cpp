@@ -194,8 +194,8 @@ int main(int argc, char *argv[]) {
 		
 		printf("Ini()...\n");
 
-		//printf("Req camera\n");	
-		//req_camera(Camera_socket);
+		printf("Req camera\n");	
+		req_camera(Camera_socket);
 		listen_img(Camera_socket);
 
 		pOut = getPlayersMatrix(1);	
@@ -209,11 +209,11 @@ int main(int argc, char *argv[]) {
 
 		while(1){
 
-			//printf("Req camera\n");	
-			//req_camera(Camera_socket);
+			printf("Req camera\n");	
+			req_camera(Camera_socket);
 			listen_img(Camera_socket);
 	
-			//req_ball(Ball_socket);
+			req_ball(Ball_socket);
 			pass_trigger = listen_pass(Ball_socket);
 
 			printf("Passing == %d\n",pass_trigger);
