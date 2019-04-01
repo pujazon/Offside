@@ -1,7 +1,7 @@
 # RafVAR
 
 Real-time system which detects Offside situation of the offense team in a Footbal match.
-It has 3 sub-systems:
+It has 3 sub-systems::
 <hr>
 <h2>PlayerDetection:</h2>
 There are 3 Cameras: Top ,bottom and left camera.
