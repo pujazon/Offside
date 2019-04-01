@@ -13,9 +13,9 @@ SRC=./src/
 
 #all: BallDetection
 
-BallDetection: main.o speaker.o mpu6050.o
+BallDetection: main.o speaker.o mpu6050.o listener.o
 	
-	$(CCC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(RBPI_CFLAGS) -lm
+	$(CCC) -o $(BIN)BallDetection $(OBJS)main.o $(OBJS)mpu6050.o $(OBJS)speaker.o $(OBJS)listener.o $(RBPI_CFLAGS) -lm
 
 setup: 
 	mkdir $(OBJS)
@@ -25,6 +25,11 @@ mpu6050.o:
 
 	$(CCC) -c $(RBPI_CFLAGS) ./src/mpu6050.cpp
 	mv mpu6050.o $(OBJS)	
+		
+listener.o:
+
+	$(CCC) -c $(CFLAGS) ./src/listener.cpp
+	mv listener.o $(OBJS)		
 	
 speaker.o:
 

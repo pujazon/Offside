@@ -16,15 +16,20 @@ SRC=./src/
 
 #all: BallDetection
 
-Camera: main.o speaker.o camera.o 
+Camera: main.o speaker.o camera.o listener.o 
 	
-	$(CCC) -I '/usr/local/include/raspicam' -o $(BIN)Camera  $(OBJS)main.o $(OBJS)camera.o $(OBJS)speaker.o $(RBPI_CFLAGS) $(RBPI_CAM_CFLAGS) -lm
+	$(CCC) -I '/usr/local/include/raspicam' -o $(BIN)Camera  $(OBJS)main.o $(OBJS)listener.o $(OBJS)camera.o $(OBJS)speaker.o $(RBPI_CFLAGS) $(RBPI_CAM_CFLAGS) -lm
 
 
 setup: 
 	mkdir $(OBJS)
 	mkdir $(BIN)
 
+listener.o:
+
+	$(CCC) -c $(CFLAGS) ./src/listener.cpp
+	mv listener.o $(OBJS)		
+	
 speaker.o:
 
 	$(CCC) -c $(CFLAGS) ./src/speaker.cpp

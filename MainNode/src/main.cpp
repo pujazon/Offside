@@ -4,8 +4,11 @@
 #include <string.h>
 #include "listener.h"
 #include "interlanguage.h"
+#include "speaker.h"
 #include <chrono>
-#include <ctime>    
+#include <chrono>
+#include <ctime>
+   
 
 using namespace std;
 
@@ -198,7 +201,8 @@ int main(int argc, char *argv[]) {
 		while(1){
 						
 			listen_img(Camera_socket);
-			pass_trigger = listen(Ball_socket);
+			pass_trigger = listen_pass(Ball_socket);
+			printf("Passing == %d\n",pass_trigger);
 			track_trigger = 0;
 					
 			if(track_trigger == 1){			
@@ -226,7 +230,7 @@ int main(int argc, char *argv[]) {
 				
 			if(pass_trigger == 1){				
 				// Profiling
-				auto end = std::chrono::system_clock::now();
+				auto start = std::chrono::system_clock::now();
 				
 				Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
 				

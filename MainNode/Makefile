@@ -23,10 +23,10 @@ Debug: main_debug.o
 	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ -o $(BIN)Debug $(OBJS)main_debug.o  $(MATLAB_CC_API_LIB) -lm 
 	
 
-MainNode: main.o listener.o interlanguage.o
+MainNode: main.o listener.o interlanguage.o speaker.o
 	
 	#mkdir $(BIN)
-	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ -o $(BIN)MainNode $(OBJS)interlanguage.o $(OBJS)main.o  $(OBJS)listener.o  $(MATLAB_CC_API_LIB) -lm 
+	$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)include/ -L $(MATLAB_ROOT)bin/glnxa64/ -o $(BIN)MainNode  $(OBJS)interlanguage.o $(OBJS)speaker.o $(OBJS)main.o  $(OBJS)listener.o  $(MATLAB_CC_API_LIB) -lm 
 	#$(CCC) $(CFLAGS) -I $(MATLAB_ROOT)extern/include/ -L $(MATLAB_ROOT)extern/bin/glnxa64/ $(MATLAB_CC_API_LIB) -o $(BIN)MainNode $(OBJS)main.o $(OBJS)listener.o $(OBJS)interlanguage.o -lm
 
 setup:	
@@ -48,6 +48,12 @@ lib: l_listener.o l_interlanguage.o
 
 	#mkdir $(BIN)
 	$(CCC) $(OBJS)l_listener.o $(OBJS)l_interlanguage.o -shared -o $(BIN)lib_Server.so
+		
+speaker.o:
+
+	$(CCC) -c $(CFLAGS) $(SRC)speaker.cpp
+	# if not exist mkdir $(OBJS)
+	mv speaker.o $(OBJS)		
 	
 listener.o:
 

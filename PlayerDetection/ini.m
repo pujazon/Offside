@@ -11,8 +11,8 @@ classdef ini
         function res=getPlayersMatrix()
             
             %addpath '/home/pujazon/Escriptori/Offside/PlayerDetection/testcases'
-            %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-            addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\testcases'
+            addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
+%            addpath 'C:\Users\danie\Desktop\TFG\Offside\PlayerDetection\testcases'
             
             %Profiling
             format shortg

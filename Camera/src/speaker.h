@@ -14,12 +14,16 @@
 
 using namespace std;
 
-extern char OUTPUT[256];
+extern char PASS[256];
+extern char BALL_REQ[256];
+extern char CAMERA_REQ[256];
 
 void error(char *msg);
 
 int start_speaking(int port);
 int meeting(int sock);
 int stop_speaking(int sock);
-int speak(int ssocket);
+int req_ball(int ssocket);
+int req_camera(int ssocket);
+int speak_pass(int ssocketnt,char value);
 int speak_img(int ssock);
