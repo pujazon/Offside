@@ -112,7 +112,7 @@ int speak_img(int socket){
    packet_index = 1;
 
    picture = fopen("top.ppm", "r");
-   printf("Getting Picture Size\n");   
+   //printf("Getting Picture Size\n");   
 
    if(picture == NULL) {
         printf("Error Opening Image File"); } 

@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 	while(1){
 	
 		int res_photo = photo();	
-		//if(res_photo == 0) printf("Photo was taken OK;\n");
+		if(res_photo == 0) printf("Photo was taken OK;\n");
 	
 			
 		if(trigger == 1){
