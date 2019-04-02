@@ -133,7 +133,7 @@ classdef tracker < handle
             Gth = 80;
             Bth = 80;
 
-            FieldMask = zeros(rows,columns);
+             FieldMask = zeros(rows,columns);
             tmp_PlayersMask = zeros(rows,columns);
 
             for i = 1: rows
@@ -141,15 +141,34 @@ classdef tracker < handle
             %        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
             %        %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
             %        %%fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
-                    if (diff_abs(RChannel(i,j),obj.R_Field) < Rth &&...
-                        diff_abs(GChannel(i,j),obj.G_Field) < Gth &&...
-                        diff_abs(BChannel(i,j),obj.B_Field) < Bth )   
+            
+            %       With three last conditions we delte White and black
+            %       pixels which can pass through first conditions.
+            %       Third is an empiristic one
+
+                        
+            
+                    %TODO: Field lines
+                   if(RChannel(i,j) > 190 &&...
+                        GChannel(i,j) > 190 &&...
+                        BChannel(i,j) > 190 && i > 100 && j < 350)                                                        
+                        FieldMask(i,j) = 0;
+                    else
+
+                    if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
+                        diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
+                        diff_abs(BChannel(i,j),max_BLevels) < Bth && ...
+                        RChannel(i,j) < GChannel(i,j) &&...
+                        RChannel(i,j) < BChannel(i,j) &&...
+                        RChannel(i,j) < 50)   
 
                         %It's grass
                         tmp_PlayersMask(i,j) = 255;
+                        
                     else
                         FieldMask(i,j) = 255;
-                    end        
+                    end  
+                   end
                 end
             end
 
@@ -186,7 +205,7 @@ classdef tracker < handle
 
             Blobs = Player.empty(N,0);
             Processed = zeros(rows,columns);
-            minWeight = 1000;
+            minWeight = 300;
 			vel = 50;
 			
             %Tracking player by player

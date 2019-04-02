@@ -11,7 +11,7 @@ classdef ini
         function res=getPlayersMatrix()
             
             %addpath '/home/pujazon/Escriptori/Offside/tests/PlayerDetection/'
-            addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
+            %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
 			%addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
             
             %Profiling
@@ -161,15 +161,34 @@ classdef ini
             %        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
             %        %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
             %        %%fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
+            
+            %       With three last conditions we delte White and black
+            %       pixels which can pass through first conditions.
+            %       Third is an empiristic one
+
+                        
+            
+                    %TODO: Field lines
+                   if(RChannel(i,j) > 190 &&...
+                        GChannel(i,j) > 190 &&...
+                        BChannel(i,j) > 190 && i > 100 && j < 350)                                                        
+                        FieldMask(i,j) = 0;
+                    else
+
                     if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
                         diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
-                        diff_abs(BChannel(i,j),max_BLevels) < Bth )   
+                        diff_abs(BChannel(i,j),max_BLevels) < Bth && ...
+                        RChannel(i,j) < GChannel(i,j) &&...
+                        RChannel(i,j) < BChannel(i,j) &&...
+                        RChannel(i,j) < 50)   
 
                         %It's grass
                         tmp_PlayersMask(i,j) = 255;
+                        
                     else
                         FieldMask(i,j) = 255;
-                    end        
+                    end  
+                   end
                 end
             end
 
@@ -249,7 +268,7 @@ classdef ini
             %Difficult to do it dinamically. It will be hardcoded but must be good
             %justifyed
 
-            minWeight = 1000;
+            minWeight = 300;
 
             id = 1;   
 
@@ -281,7 +300,7 @@ classdef ini
                                 Blobs(id).weight = weight;   
                                 Blobs(id).width = right-left;   
                                 Blobs(id).height = bottom-top;                 
-                                fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                                %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                                 id = id+1; 
                             end 
 
@@ -420,20 +439,20 @@ classdef ini
 
             for id=1:NBlobs
 
-				fprintf("top = %d\n",top);
-				fprintf("bottom = %d\n",bottom);
-				fprintf("left  = %d\n",left);
-				fprintf("right  = %d\n",right);
+				%fprintf("top = %d\n",top);
+				%fprintf("bottom = %d\n",bottom);
+				%fprintf("left  = %d\n",left);
+				%fprintf("right  = %d\n",right);
                 
             top = y_coords_from_camera_to_real(FinalBlobs(id).top);
             bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
             left = x_coords_from_camera_to_real(FinalBlobs(id).left);
             right = x_coords_from_camera_to_real(FinalBlobs(id).right);
             
-				fprintf("top = %d\n",top);
-				fprintf("bottom = %d\n",bottom);
-				fprintf("left  = %d\n",left);
-				fprintf("right  = %d\n",right);
+				%fprintf("top = %d\n",top);
+				%fprintf("bottom = %d\n",bottom);
+				%fprintf("left  = %d\n",left);
+				%fprintf("right  = %d\n",right);
 
             FinalBlobs(id).top = top;
             FinalBlobs(id).bottom = bottom;
@@ -441,10 +460,10 @@ classdef ini
             FinalBlobs(id).right = right;
             
             
-				fprintf("top = %d\n",top);
-				fprintf("bottom = %d\n",bottom);
-				fprintf("left  = %d\n",left);
-				fprintf("right  = %d\n",right);
+				%fprintf("top = %d\n",top);
+				%fprintf("bottom = %d\n",bottom);
+				%fprintf("left  = %d\n",left);
+				%fprintf("right  = %d\n",right);
 
             FinalBlobs(id).width = right-left;   
             FinalBlobs(id).height = bottom-top;                 
