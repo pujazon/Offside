@@ -12,7 +12,7 @@ classdef ini
             
             %addpath '/home/pujazon/Escriptori/Offside/tests/PlayerDetection/'
             %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-			%addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
+			addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
             
             %Profiling
             format shortg
@@ -431,11 +431,10 @@ classdef ini
             x_pixel_per_cm = round(field_width/camera_width,5);
             y_pixel_per_cm = round(field_height/camera_height,5);
                 
-            fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
-            fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
-
-            fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
-            fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
+            %fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
+            %fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
+            %fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
+            %fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
 
             for id=1:NBlobs
 
@@ -444,41 +443,60 @@ classdef ini
 				%fprintf("left  = %d\n",left);
 				%fprintf("right  = %d\n",right);
                 
-            top = y_coords_from_camera_to_real(FinalBlobs(id).top);
-            bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
-            left = x_coords_from_camera_to_real(FinalBlobs(id).left);
-            right = x_coords_from_camera_to_real(FinalBlobs(id).right);
+                top = y_coords_from_camera_to_real(FinalBlobs(id).top);
+                bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
+                left = x_coords_from_camera_to_real(FinalBlobs(id).left);
+                right = x_coords_from_camera_to_real(FinalBlobs(id).right);
             
 				%fprintf("top = %d\n",top);
 				%fprintf("bottom = %d\n",bottom);
 				%fprintf("left  = %d\n",left);
 				%fprintf("right  = %d\n",right);
 
-            FinalBlobs(id).top = top;
-            FinalBlobs(id).bottom = bottom;
-            FinalBlobs(id).left = left;
-            FinalBlobs(id).right = right;
-            
-            
+                FinalBlobs(id).top = top;
+                FinalBlobs(id).bottom = bottom;
+                FinalBlobs(id).left = left;
+                FinalBlobs(id).right = right;
+
 				%fprintf("top = %d\n",top);
 				%fprintf("bottom = %d\n",bottom);
 				%fprintf("left  = %d\n",left);
 				%fprintf("right  = %d\n",right);
 
-            FinalBlobs(id).width = right-left;   
-            FinalBlobs(id).height = bottom-top;                 
-            fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(id).top,FinalBlobs(id).bottom,FinalBlobs(id).right,FinalBlobs(id).left);                                    
+                FinalBlobs(id).width = right-left;   
+                FinalBlobs(id).height = bottom-top;                 
+                fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,FinalBlobs(id).top,FinalBlobs(id).bottom,FinalBlobs(id).right,FinalBlobs(id).left);                                    
 
+                res(1+(((id-1)*4)+1))= FinalBlobs(id).top;
+                res(1+(((id-1)*4)+2))= FinalBlobs(id).bottom;
+                res(1+(((id-1)*4)+3))= FinalBlobs(id).left;
+                res(1+(((id-1)*4)+4))= FinalBlobs(id).right;
             end
 
             end
 
             %% Profiling
-            format shortg
-            c = clock
+            %format shortg
+            %c = clock
             
-            res = randi(9,33,1);
-            
+            %TODO: Ball detection            
+            res(1)=2;  
+            res(34)=max_RLevels;
+            res(35)=max_GLevels;
+            res(36)=max_BLevels;
+
+            fprintf("RES: {%d,",res(1));
+            for i=2:33
+                fprintf("%d,",res(i));
+            end
+            fprintf("}\n");
+        
+            fprintf("Colors: {%d,",res(34));
+            for i=35:36
+                fprintf("%d,",res(i));
+            end
+            fprintf("}\n");            
+
         end
    end
 end

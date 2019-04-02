@@ -1,5 +1,5 @@
 
-function res=test()
+function res=handler_ini()
     fprintf("Testing PlayersMatrix()\n");
     %2 equipos*(4 jugadores/equipo *4 atrr/jug)+1 = 33 posiciones (del 0 al 32)
 

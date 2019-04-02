@@ -9,12 +9,13 @@ classdef tracker < handle
         R_Field;
         G_Field; 
         B_Field;
+        Ball;
 
     end
 
     methods
         %(!) The first value on the call will be unsued.
-        function obj = tracker(obj,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,...
+        function obj = tracker(obj,bb,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,...
                 a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1,l1,m1,n1,o1,p1,rc,gc,bc)
          obj.old(1,1)   = a;
          obj.old(1,2)   = b;
@@ -53,6 +54,8 @@ classdef tracker < handle
          obj.G_Field = gc;
          obj.B_Field = bc;
          
+         obj.Ball = bb;
+         
         end   
         
         function echo(obj)
@@ -72,7 +75,7 @@ classdef tracker < handle
             fprintf("Tracking...\n"); 
             %addpath '/home/pujazon/Escriptori/Offside/tests/PlayerDetection/'
             %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-			%addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'     
+			addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'     
             maxNumCompThreads(16);
 
             I = imread('top.ppm');
@@ -202,11 +205,10 @@ classdef tracker < handle
                 x_pixel_per_cm = round(field_width/camera_width,5);
                 y_pixel_per_cm = round(field_height/camera_height,5);
                 
-                fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
-                fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
-                
-                fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
-                fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
+                %fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
+                %fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);                
+                %fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
+                %fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
 
             end
 
@@ -228,8 +230,8 @@ classdef tracker < handle
                 
 				old_top 		= obj.old(1,(i_id*4)+1);
 				old_bottom 		= obj.old(1,(i_id*4)+2);
-				old_right 		= obj.old(1,(i_id*4)+3);
-				old_left 		= obj.old(1,(i_id*4)+4);
+				old_left 		= obj.old(1,(i_id*4)+3);
+				old_right 		= obj.old(1,(i_id*4)+4);
 
                 old_top 		= y_coords_from_real_to_camera(old_top)+top_field;
                 old_bottom 		= y_coords_from_real_to_camera(old_bottom)+top_field;
@@ -319,8 +321,34 @@ classdef tracker < handle
             
             %% Output            
             imshow(Ori);
+
+            for id=1:8
+                
+                res(1+(((id-1)*4)+1))= Blobs(id).top;
+                res(1+(((id-1)*4)+2))= Blobs(id).bottom;
+                res(1+(((id-1)*4)+3))= Blobs(id).left;
+                res(1+(((id-1)*4)+4))= Blobs(id).right;
+            end
+            %TODO: Ball Detection
+            res(1)=obj.Ball;  
             
-            res = 7;
+            res(34)=obj.R_Field;
+            res(35)=obj.G_Field;
+            res(36)=obj.B_Field;
+
+            fprintf("RES: {%d,",res(1));
+            for i=2:33
+                fprintf("%d,",res(i));
+            end
+            fprintf("}\n");
+        
+            fprintf("Colors: {%d,",res(34));
+            for i=35:36
+                fprintf("%d,",res(i));
+            end
+            fprintf("}\n");                
+            
+            
         end        
 
     end
