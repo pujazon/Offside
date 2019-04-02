@@ -1,4 +1,3 @@
-
 #include <chrono>
 #include <ctime>
 #include <stdio.h>
@@ -21,9 +20,7 @@ extern char PASS[256];
 extern int BUTTON[256];
 extern char BALL_REQ[256];
 extern char CAMERA_REQ[256];
-extern int BUTTON_REQ[256];
-
-int button;
+extern char BUTTON_REQ[256];
 
 void error(char *msg);
 

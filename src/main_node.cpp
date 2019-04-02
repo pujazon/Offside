@@ -173,6 +173,7 @@ int main(int argc, char *argv[]) {
 	int i;
 	int MATLAB_status;
 	int Camera_socket;
+	int Button_socket;
 	int Ball_socket;
 	int pass_trigger;
 	int track_trigger;

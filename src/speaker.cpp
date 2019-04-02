@@ -82,7 +82,7 @@ int speak_button(int ssock, int value){
 	BUTTON[0] =  value;
 	printf("Button() == %d\n",BUTTON[0]);
 
-	send(ssocket,&BUTTON[0],1,0);
+	send(ssock,&BUTTON[0],1,0);
 	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
