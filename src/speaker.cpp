@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 char PASS[256];
-int BUTTON[256];
+char BUTTON[256];
 char BALL_REQ[256];
 char CAMERA_REQ[256];
 char BUTTON_REQ[256];
@@ -77,10 +77,10 @@ int speak_pass(int ssocket, char value){
 	return 0;
 }
 
-int speak_button(int ssock, int value){
+int speak_button(int ssock, char value){
 
 	BUTTON[0] =  value;
-	printf("Button() == %d\n",BUTTON[0]);
+	printf("Button() == %c\n",BUTTON[0]);
 
 	send(ssock,&BUTTON[0],1,0);
 	//write(childSocket, OUTPUT, sizeof(OUTPUT));

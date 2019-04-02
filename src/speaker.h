@@ -17,7 +17,7 @@
 using namespace std;
 
 extern char PASS[256];
-extern int BUTTON[256];
+extern char BUTTON[256];
 extern char BALL_REQ[256];
 extern char CAMERA_REQ[256];
 extern char BUTTON_REQ[256];
@@ -32,4 +32,4 @@ int req_camera(int ssocket);
 int req_button(int ssocket);
 int speak_pass(int ssocketnt,char value);
 int speak_img(int ssock);
-int speak_button(int ssock, int value);
+int speak_button(int ssock, char value);

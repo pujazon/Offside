@@ -12,6 +12,8 @@ unsigned long long int internal_trigger;
 char trigger;
 unsigned int retorno;
 
+char button;
+
 int read_word_2c(int addr)	{
 	int val;
 	val = wiringPiI2CReadReg8(fd, addr);
@@ -124,11 +126,11 @@ char isTrigger(){
 	return trigger;
 }
 
-int isButton(){
+char isButton(){
 	
-	int res = 0;
+	char res = '0';
 	
-	if(digitalRead(INPUT_PIN) == LOW) res = 1;
+	if(!(digitalRead(INPUT_PIN) == HIGH)) res = '1';
 	
 	return res;
 	

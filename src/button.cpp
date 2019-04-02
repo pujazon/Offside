@@ -10,15 +10,16 @@ int main(int argc, char** argv)
 	
     // Read input on this pin
     pinMode(INPUT_PIN, INPUT);
-//    pullUpDnControl(INPUT_PIN,PUD_UP);
+    pullUpDnControl(INPUT_PIN,PUD_UP);
     while(true)
     {
 
         // As soon as we dedect an input, log and quit.
-        if(digitalRead(INPUT_PIN) == LOW)
+        printf("--> %d\n",digitalRead(INPUT_PIN));
+        if (!(digitalRead(INPUT_PIN) == HIGH))
 		{
 			printf("Button is pressed!\n");	
-			break;
+//			break;
 		}
     }
 

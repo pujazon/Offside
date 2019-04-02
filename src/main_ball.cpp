@@ -8,9 +8,9 @@
 int main(int argc, char *argv[]) {
 
 	int Bstatus;
-	int conection, ssocket;
+	int conection,con,ssocket,bsocket;
 	char trigger = '0';
-	const int INPUT_PIN = 1;
+
 	button = 0;
 
 	//Open 2 sockets: Button && Ball
@@ -42,7 +42,8 @@ int main(int argc, char *argv[]) {
 	Bstatus = setupMPU6050();	
 	//Button
 	wiringPiSetup();
-    pinMode(INPUT_PIN, INPUT);
+        pinMode(INPUT_PIN, INPUT);
+        pullUpDnControl(INPUT_PIN, PUD_UP);
 	if(Bstatus != 0){
 		printf("Bstatus != 0\n");
 		exit(1);
@@ -52,17 +53,19 @@ int main(int argc, char *argv[]) {
 	//Main Loop
 	while(1){
 		//TODO button_recv && button_req ?
-	 	button_recv(con);
-		printf("Synch button\n");
-		button = isButton();
-		printf("Button %c\n",button);
-		speak_button(con,button);			
-		
+	 
 	 	ball_recv(conection);
 		printf("Synch\n");
 		trigger = isTrigger();
 		printf("Trigger %c\n",trigger);
 		speak_pass(conection,trigger);
+
+		button_recv(con);
+		printf("Synch button\n");
+		button = isButton();
+		printf("Button %c\n",button);
+		speak_button(con,button);			
+			
 	}
 
 	stop_speaking(ssocket);
