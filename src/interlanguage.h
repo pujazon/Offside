@@ -17,4 +17,4 @@ using namespace matlab::engine;
 
 int iniMATLAB();
 int endMATLAB();
-uint32_t* getPlayersMatrix(int isIni, int *old);
+uint32_t* getPlayersMatrix(int isIni, uint32_t *old);

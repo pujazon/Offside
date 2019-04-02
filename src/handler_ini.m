@@ -15,5 +15,5 @@ function res=test()
     res = Program.getPlayersMatrix();
     fprintf("OUT\n");
     
-    %res = tmp;
+    res = tmp;
 end
