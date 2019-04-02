@@ -22,8 +22,8 @@ uint32_t right_offset = 3;
 
 uint32_t* pOut;
 
-uint32_t old_PlayersMatrix[1+NPlayers*Fields];
-uint32_t current_PlayersMatrix[1+NPlayers*Fields];
+uint32_t old_PlayersMatrix[N];
+uint32_t current_PlayersMatrix[N];
 
 
 uint32_t top[NPlayers/2];
@@ -199,8 +199,8 @@ int main(int argc, char *argv[]) {
 		req_camera(Camera_socket);
 		listen_img(Camera_socket);
 
-		pOut = getPlayersMatrix(1);	
-		for (i=0; i<(1+NPlayers*Fields); i++) {
+		pOut = getPlayersMatrix(1,current_PlayersMatrix);	
+		for (i=0; i<N; i++) {
 			old_PlayersMatrix[i] = current_PlayersMatrix[i];
 			current_PlayersMatrix[i] = pOut[i];
 		}
@@ -229,9 +229,9 @@ int main(int argc, char *argv[]) {
 				//Profiling
 				auto start = std::chrono::system_clock::now();
 		
-				pOut = getPlayersMatrix(0);
+				pOut = getPlayersMatrix(0,current_PlayersMatrix);
 	
-				for (i=0; i<(1+NPlayers*Fields); i++) {
+				for (i=0; i<N; i++) {
 					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
 					//Keep las PlayersMatrix in Old and get new in Current 
 					old_PlayersMatrix[i] = current_PlayersMatrix[i];

@@ -6,11 +6,15 @@
 #include <iostream>
 #include <unistd.h>
 
-#define NPlayers 8
-#define Fields 4
+#define BallOwner_Fields	1
+#define NPlayers 			8
+#define Fields 				4
+#define Grass_Fields		3
+
+#define N BallOwner_Fields+(NPlayers*Fields)+Grass_Fields
 
 using namespace matlab::engine;
 
 int iniMATLAB();
 int endMATLAB();
-uint32_t* getPlayersMatrix(int isIni);
+uint32_t* getPlayersMatrix(int isIni, int *old);

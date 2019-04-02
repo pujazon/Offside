@@ -6,7 +6,7 @@ matlab::data::ArrayFactory Factory;
 std::vector<matlab::data::Array> PlayersMatrix; 
   
 //+1 because first element is id_ball
-uint32_t C_PlayersMatrix[1+NPlayers*Fields];
+uint32_t C_PlayersMatrix[N];
 
 int i;
 
@@ -21,16 +21,22 @@ int endMATLAB(){
 	return 0;
 }
 
-uint32_t *getPlayersMatrix(int isIni) {     
+uint32_t *getPlayersMatrix(int isIni, int *old) {   
+	
+	std::vector<int> tmp;
+	for(i = 0; i < (1+(NPlayers*Fields)+3);i++) old_local_PlayerMatrix.push_back(old[i]);
 
-	//matlab::data::Array X = Factory.createArray<uint8_t>({ 2,2 }); //,         { 1.0, 3.0, 2.0, 4.0 });
+    // Create MATLAB input array with PlayersMatrix
+    matlab::data::ArrayFactory factory;
+    auto old_PlayersMatrix = factory.createArray({1,1}, tmp.cbegin(), tmp.cend());
+	
 	if(isIni)
 		PlayersMatrix = matlabPtr->feval(("handler_ini"),1,{});
 	else 
-		PlayersMatrix = matlabPtr->feval(("handler_tracking"),1,{});		
+		PlayersMatrix = matlabPtr->feval(("handler_tracking"),1,old_PlayersMatrix);		
 
-	auto tmp = PlayersMatrix[0]; 
-	for (i=0; i<1+NPlayers*Fields; i++) { C_PlayersMatrix[i] = uint32_t(tmp[i]); }		
+	auto ttmp = PlayersMatrix[0]; 
+	for (i=0; i<(1+NPlayers*Fields+3); i++) { C_PlayersMatrix[i] = uint32_t(ttmp[i]); }		
 
 	return C_PlayersMatrix;
 

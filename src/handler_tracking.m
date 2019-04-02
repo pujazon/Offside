@@ -1,5 +1,7 @@
 
-function res=handler_tracking()
+function res=handler_tracking(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,...
+                a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1,l1,m1,n1,o1,p1,rc,gc,bc)
+            
     fprintf("Testing PlayersMatrix()\n");
     %2 equipos*(4 jugadores/equipo *4 atrr/jug)+1 = 33 posiciones (del 0 al 32)
 
@@ -13,8 +15,8 @@ function res=handler_tracking()
     %Primer parametro NULLL
     trash = 0;
     
-    Program = tracker(trash,8,13,25,22,10,15,38,35,21,24,43,40,25,28,48,45,26,29,12,8,29,32,29,26,31,33,40,37,32,35,22,19,...
-        10,82,103);    
+    Program = tracker(trash,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,...
+                a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1,l1,m1,n1,o1,p1,rc,gc,bc);  
     Program.echo();
     res=Program.tracking();
     
@@ -22,3 +24,6 @@ function res=handler_tracking()
     
     %res = tmp;
 end
+
+%8,13,25,22,10,15,38,35,21,24,43,40,25,28,48,45,26,29,12,8,29,32,29,26,31,33,40,37,32,35,22,19,...
+        %10,82,103);    
