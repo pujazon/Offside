@@ -127,7 +127,7 @@ classdef ini
             end
 
             end
-            %%%%fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+            fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
             %% Preprocessing
             %  FieldMask:
@@ -171,7 +171,7 @@ classdef ini
                     %TODO: Field lines
                    if(RChannel(i,j) > 190 &&...
                         GChannel(i,j) > 190 &&...
-                        BChannel(i,j) > 190 && i > 100 && j < 350)                                                        
+                        BChannel(i,j) > 190)                                                        
                         FieldMask(i,j) = 0;
                     else
 
@@ -426,16 +426,16 @@ classdef ini
             field_width = right_field - left_field;
             field_height = bottom_field - top_field;
 
-            x_cm_per_pixel = (camera_width/field_width);
-            y_cm_per_pixel = (camera_height/field_height);
-            x_pixel_per_cm = (field_width/camera_width);
-            y_pixel_per_cm = (field_height/camera_height);
+            x_cm_per_pixel = round(camera_width/field_width,5);
+            y_cm_per_pixel = round(camera_height/field_height,5);
+            x_pixel_per_cm = round(field_width/camera_width,5);
+            y_pixel_per_cm = round(field_height/camera_height,5);
+                
+            fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
+            fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
 
-            % %fprintf("camera_width = %d\n",camera_width);
-            % %fprintf("camera_height = %d\n",camera_height);
-            % 
-            % %fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
-            % %fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
+            fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
+            fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
 
             for id=1:NBlobs
 

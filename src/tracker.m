@@ -71,7 +71,7 @@ classdef tracker < handle
             for compress=1:1
             fprintf("Tracking...\n"); 
             %addpath '/home/pujazon/Escriptori/Offside/tests/PlayerDetection/'
-            addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
+            %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
 			%addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'     
             maxNumCompThreads(16);
 
@@ -110,6 +110,13 @@ classdef tracker < handle
             end
             
             %% Preprocessing
+            
+            max_RLevels = obj.R_Field;
+            max_GLevels = obj.G_Field;
+            max_BLevels = obj.B_Field;         
+            
+            fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
+            
             %  FieldMask:
             %  Apply thresholding with Grass mean color and offset
             %  FieldBoundaries:
@@ -151,7 +158,7 @@ classdef tracker < handle
                     %TODO: Field lines
                    if(RChannel(i,j) > 190 &&...
                         GChannel(i,j) > 190 &&...
-                        BChannel(i,j) > 190 && i > 100 && j < 350)                                                        
+                        BChannel(i,j) > 190)                                                        
                         FieldMask(i,j) = 0;
                     else
 
@@ -172,7 +179,7 @@ classdef tracker < handle
                 end
             end
 
-             PlayersMask = tmp_PlayersMask;
+             PlayersMask = imgaussfilt(tmp_PlayersMask);
              %figure, imshow(PlayersMask);
              figure, imshow(PlayersMask);
 
@@ -190,10 +197,16 @@ classdef tracker < handle
                 field_width = right_field - left_field;
                 field_height = bottom_field - top_field;
 
-                x_cm_per_pixel = (camera_width/field_width);
-                y_cm_per_pixel = (camera_height/field_height);
-                x_pixel_per_cm = (field_width/camera_width);
-                y_pixel_per_cm = (field_height/camera_height);
+                x_cm_per_pixel = round(camera_width/field_width,5);
+                y_cm_per_pixel = round(camera_height/field_height,5);
+                x_pixel_per_cm = round(field_width/camera_width,5);
+                y_pixel_per_cm = round(field_height/camera_height,5);
+                
+                fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
+                fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
+                
+                fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
+                fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
 
             end
 
@@ -205,7 +218,7 @@ classdef tracker < handle
 
             Blobs = Player.empty(N,0);
             Processed = zeros(rows,columns);
-            minWeight = 300;
+            minWeight = 1;
 			vel = 50;
 			
             %Tracking player by player
@@ -215,24 +228,24 @@ classdef tracker < handle
                 
 				old_top 		= obj.old(1,(i_id*4)+1);
 				old_bottom 		= obj.old(1,(i_id*4)+2);
-				old_left 		= obj.old(1,(i_id*4)+3);
-				old_right 		= obj.old(1,(i_id*4)+4);
+				old_right 		= obj.old(1,(i_id*4)+3);
+				old_left 		= obj.old(1,(i_id*4)+4);
 
                 old_top 		= y_coords_from_real_to_camera(old_top)+top_field;
                 old_bottom 		= y_coords_from_real_to_camera(old_bottom)+top_field;
                 old_left 		= x_coords_from_real_to_camera(old_left)+left_field;
                 old_right 		= x_coords_from_real_to_camera(old_right)+left_field;
 
-                fprintf("old_top = %d\n",old_top);
-                fprintf("old_bottom = %d\n",old_bottom);
-                fprintf("old_left = %d\n",old_left);
-                fprintf("old_right = %d\n",old_right);
+                %fprintf("old_top = %d\n",old_top);
+                %fprintf("old_bottom = %d\n",old_bottom);
+                %fprintf("old_left = %d\n",old_left);
+                %fprintf("old_right = %d\n",old_right);
                 
 				box_x_offset	= floor((old_bottom-old_top)/2);
 				box_y_offset	= floor((old_right-old_left)/2);
 				
-				ori_x 			= old_top+box_x_offset;
-				ori_y 			= old_left+box_y_offset;
+				ori_x 			= old_top-box_x_offset;
+				ori_y 			= old_left-box_y_offset;
                 
 
                 %fprintf("ori_x = %d\n",ori_x);
@@ -245,12 +258,27 @@ classdef tracker < handle
 				right 			= ori_y;
 				weight 			= 1;                              
 				
-				top_bound		= old_top-vel;
-				bottom_bound	= old_bottom+vel;
-				left_bound		= old_left-vel;
-				right_bound		= old_right+vel; 
-
-                Blob(ori_x,ori_y,top_bound,bottom_bound,left_bound,right_bound);
+				top_bound		= old_top-box_x_offset;
+				bottom_bound	= old_bottom+box_x_offset;
+				left_bound		= old_left-box_y_offset;
+				right_bound		= old_right+box_y_offset; 
+                
+                i = ori_x;
+                j = ori_y;
+                trobat = 0;
+                
+                while(i < bottom_bound && trobat == 0)
+                    while(j < right_bound && trobat == 0)
+                        if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
+                            top = i;
+                            Blob(i,j,top_bound,bottom_bound,left_bound,right_bound);
+                            trobat = 1;
+                        end                        
+                        j = j+1;
+                    end
+                    i = i+1;
+                    j = ori_y;
+                end
 
                 %fprintf("top = %d\n",top);
                 %fprintf("bottom = %d\n",bottom);
@@ -263,20 +291,35 @@ classdef tracker < handle
                 
 				if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
 
-					Blobs(id).top = top-top_field;
-					Blobs(id).bottom = bottom-top_field;
-					Blobs(id).left = left-left_field;
-					Blobs(id).right = right-left_field;
+					Blobs(id).top = top;
+					Blobs(id).bottom = bottom;
+					Blobs(id).left = left;
+					Blobs(id).right = right;
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
 					fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                    
+                    
+                %Debug
+                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
+                    for iii= Blobs(id).top:Blobs(id).bottom 
+                        for jjj = Blobs(id).left:Blobs(id).right
+                            Ori(iii,jjj,1) = 234;
+                            Ori(iii,jjj,2) = 34;
+                            Ori(iii,jjj,3) = 234;
+                        end                        
+                end
+
+                    
 				end 
 
             end
             end 
             
-            %% Output
+            %% Output            
+            imshow(Ori);
+            
             res = 7;
         end        
 
@@ -314,7 +357,7 @@ function Blob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
         
     %fprintf("Pos [%d,%d]\n",ii,jj);
     if(in_of_bounds(ii+1,jj,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
-            PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
+        PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
         %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
@@ -500,6 +543,7 @@ function find_left()
     end
 
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ret = x_coords_from_camera_to_real(x_camera_coord)
 

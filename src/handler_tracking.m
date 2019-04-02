@@ -13,8 +13,8 @@ function res=handler_tracking()
     %Primer parametro NULLL
     trash = 0;
     
-    Program = tracker(trash,10,13,26,29,19,21,33,36,19,22,19,22,27,29,26,29,28,31,44,47,30,32,3,7,37,40,34,36,38,41,17,20,...
-        1,7,57);    
+    Program = tracker(trash,8,13,25,22,10,15,38,35,21,24,43,40,25,28,48,45,26,29,12,8,29,32,29,26,31,33,40,37,32,35,22,19,...
+        10,82,103);    
     Program.echo();
     res=Program.tracking();
     
