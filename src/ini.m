@@ -12,7 +12,7 @@ classdef ini
             
             %addpath '/home/pujazon/Escriptori/Offside/tests/PlayerDetection/'
             %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-			addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
+			%addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
             
             %Profiling
             format shortg
@@ -66,31 +66,6 @@ classdef ini
             
 
             N = 30;
-
-            %% Plotting Image Histogram:
-            %  Plot image histogram in order to get an image
-            %  that there are big acumulation of pixels in each components
-            %  which are grass pixels
-            % 
-             for compress=1:1
-            %     
-            % %%%figure, subplot(3,1,1);
-            % x = linspace(0,10,50);
-            % R=imhist(I(:,:,1));
-            % plot(R,'r');
-            % title('RED 1')
-            % 
-            % subplot(3,1,2);
-            % G=imhist(I(:,:,2));
-            % plot(G,'g');
-            % title('GREEN 2')
-            % 
-            % subplot(3,1,3);
-            % B=imhist(I(:,:,3));
-            % plot(B,'b');
-            % title('BLUE 3')
-            % 
-             end
 
             %% RGB Peks Grass:
             %  Get R,G,B Peaks of each components
@@ -208,46 +183,6 @@ classdef ini
 
             end
 
-            %% Edge detection
-            %Not needed. Adds more problems than solutions
-
-             for compress=1:1
-            % 
-            %     IGray = rgb2gray(I);
-            %     IGray2 = imgaussfilt(IGray,10);
-            %     Edges = edge(IGray2,'sobel');
-            %     %%figure, imshow(BW1);
-            % 
-            % end
-            % 
-            % Merge filters
-            % 
-            % for compress=1:1
-            % 
-            %     MergeMap = ones(rows,columns);
-            % 
-            %     for i = 1: rows
-            %         for j = 1: columns  
-            %             if (FieldMask(i,j) == 255 && Edges(i,j) == 1)
-            %                 MergeMap(i,j) = 0;
-            %             end
-            %         end
-            %     end
-            %     
-            %     
-            %     PlayersMask = imgaussfilt(MergeMap,10);    
-            %     %%figure, imshow(PlayersMask);
-            %     
-            %     Debug
-            %     for i = 1: rows
-            %         for j = 1: columns  
-            %             if (PlayersMask(i,j) == 0)               
-            %                 %%%fprintf("%i == d; j == %d\n",i,j);
-            %             end
-            %         end
-            %     end
-            %     
-             end
 
             %% Blob detection:
             %  Detect all Blobs, filtered by size (not too much pixels means is no a

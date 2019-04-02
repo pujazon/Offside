@@ -273,6 +273,7 @@ classdef tracker < handle
                     while(j < right_bound && trobat == 0)
                         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
                             top = i;
+                            left = j;
                             Blob(i,j,top_bound,bottom_bound,left_bound,right_bound);
                             trobat = 1;
                         end                        
@@ -292,15 +293,14 @@ classdef tracker < handle
                 %fprintf("right_bound = %d\n",right_bound);  
                 
 				if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
-
-					Blobs(id).top = top;
-					Blobs(id).bottom = bottom;
-					Blobs(id).left = left;
-					Blobs(id).right = right;
+					Blobs(id).top = top-top_field;
+					Blobs(id).bottom = bottom-top_field;
+					Blobs(id).left = left-left_field;
+					Blobs(id).right = right-left_field;
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
-					fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+					%fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     
                     
                 %Debug
@@ -323,11 +323,19 @@ classdef tracker < handle
             imshow(Ori);
 
             for id=1:8
+
+                top = y_coords_from_camera_to_real(Blobs(id).top);
+                bottom = y_coords_from_camera_to_real(Blobs(id).bottom);
+                left = x_coords_from_camera_to_real(Blobs(id).left);
+                right = x_coords_from_camera_to_real(Blobs(id).right);
                 
-                res(1+(((id-1)*4)+1))= Blobs(id).top;
-                res(1+(((id-1)*4)+2))= Blobs(id).bottom;
-                res(1+(((id-1)*4)+3))= Blobs(id).left;
-                res(1+(((id-1)*4)+4))= Blobs(id).right;
+                res(1+(((id-1)*4)+1))= top;
+                res(1+(((id-1)*4)+2))= bottom;
+                res(1+(((id-1)*4)+3))=left;
+                res(1+(((id-1)*4)+4))= right;
+                
+                fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,top,bottom,right,left);                                    
+                
             end
             %TODO: Ball Detection
             res(1)=obj.Ball;  
