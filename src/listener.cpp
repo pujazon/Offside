@@ -2,6 +2,7 @@
 
 
 //Globals
+char buff[256];
 char buffer[256];
 char BALL_RECV[256];
 char BUTTON_RECV[256];
@@ -55,9 +56,9 @@ int listen_pass(int rsocket){
 
   //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
   //status = read(sock,&buffer[0],1);
-  status = recv(rsocket,&buffer[0],1,0);
-  printf("recivido %c\n",buffer[0]);
-  if (status > 0) result = atoi(&buffer[0]);
+  status = recv(rsocket,&buff[0],1,0);
+  //printf("recivido %c\n",buffer[0]);
+  if (status > 0) result = atoi(&buff[0]);
 
   return result;
 

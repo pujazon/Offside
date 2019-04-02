@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
 			printf("Req Button\n");	
 			req_button(Button_socket);
 			track_trigger = listen_pass(Button_socket);
-			
+		        printf("Button %d \n",track_trigger);	
 						
 			if(track_trigger == 1){							
 				printf("Tracking!\n");
