@@ -12,8 +12,8 @@ function res=handler_ini()
 
 
     Program = ini.empty(1,0);
-    res = Program.getPlayersMatrix();
+    tres = Program.getPlayersMatrix();
     fprintf("OUT\n");
     
-    res = tmp;
+    res = tres;
 end
