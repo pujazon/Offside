@@ -274,7 +274,7 @@ classdef tracker < handle
                         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
                             top = i;
                             left = j;
-                            Blob(i,j,top_bound,bottom_bound,left_bound,right_bound);
+                            TrackBlob(i,j,top_bound,bottom_bound,left_bound,right_bound);
                             trobat = 1;
                         end                        
                         j = j+1;
@@ -300,7 +300,7 @@ classdef tracker < handle
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
-					%fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+					%fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     
                     
                 %Debug
@@ -364,7 +364,7 @@ classdef tracker < handle
 end
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function ret = in_of_bounds(i,j,top_bound,bottom_bound,left_bound,right_bound)
+function ret = in_of_bounds_box(i,j,top_bound,bottom_bound,left_bound,right_bound)
     global top_field; 
     global bottom_field;  
     global right_field;  
@@ -382,7 +382,7 @@ function ret = diff_abs(a,b)
     end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function Blob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
+function TrackBlob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
 
     global PlayersMask;
     global Processed;
@@ -392,34 +392,34 @@ function Blob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
     global weight;
         
     %fprintf("Pos [%d,%d]\n",ii,jj);
-    if(in_of_bounds(ii+1,jj,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
+    if(in_of_bounds_box(ii+1,jj,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
         PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
-        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
+        %%%%%%fprintf('TmpTrackBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
         bottom = max(ii+1,bottom);
         %%fprintf('bottom = %d\n',bottom);
-        Blob(ii+1,jj,top_bound,bottom_bound,left_bound,right_bound);
+        TrackBlob(ii+1,jj,top_bound,bottom_bound,left_bound,right_bound);
     end  
             
-    if(in_of_bounds(ii,jj-1,top_bound,bottom_bound,left_bound,right_bound)== 1 &&...
+    if(in_of_bounds_box(ii,jj-1,top_bound,bottom_bound,left_bound,right_bound)== 1 &&...
             PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
-        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
+        %%%%%%fprintf('TmpTrackBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
         left = min(jj-1,left);
         %%fprintf('left = %d\n',left);
-        Blob(ii,jj-1,top_bound,bottom_bound,left_bound,right_bound);
+        TrackBlob(ii,jj-1,top_bound,bottom_bound,left_bound,right_bound);
     end
     
-    if(in_of_bounds(ii,jj+1,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
+    if(in_of_bounds_box(ii,jj+1,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
             PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
+        %%%%%%fprintf('TmpTrackBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
         right = max(jj+1,right);
         %%fprintf('right = %d\n',right);
-        Blob(ii,jj+1,top_bound,bottom_bound,left_bound,right_bound);
+        TrackBlob(ii,jj+1,top_bound,bottom_bound,left_bound,right_bound);
     end    
 
 end

@@ -12,31 +12,21 @@ classdef ini
             
             %addpath '/home/pujazon/Escriptori/Offside/tests/PlayerDetection/'
             %addpath '/home/pujazon/Escriptori/Offside/MainNode/bin/testcases'
-			%addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
+			addpath 'C:\Users\danie\Desktop\TFG\Offside\test\PlayerDetection\'
             
             %Profiling
             format shortg
             c = clock
-
-            for compress=1:1
-
-            maxNumCompThreads(16);
-            %%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
-
-            I = imread('top.ppm');
-            Ori = imread('top.ppm');
-
-            figure, imshow(Ori);
-
-            end
 
             %GLOBALS
             global Processed;
             global TmpBlobMap;
             global PlayersMask;
             global Blobs;
+            global Ball;
             global N;    
-            global NBlobs;   
+            global NBlobs; 
+            global FinalBlobs;
 
             global rows;
             global columns;
@@ -54,7 +44,18 @@ classdef ini
             
             global row_avg;
             global col_avg;
+            
+            global R_Ball;
+            global G_Ball;
+            global B_Ball;
+            global Ball_th;
 
+            R_Ball=162;
+            G_Ball=135;
+            B_Ball=165;
+            
+            Ball_th = 15;
+            
             %Camera units in cm
             camera_width = 50;
             camera_height = 50;
@@ -64,8 +65,22 @@ classdef ini
             global y_pixel_per_cm;
             global x_pixel_per_cm;  
             
-
+            global Ori;
+            
             N = 30;
+
+            for compress=1:1
+
+            maxNumCompThreads(16);
+            %%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
+
+            I = imread('top.ppm');
+            Ori = imread('top.ppm');
+
+            figure, imshow(Ori);
+
+            end
+
 
             %% RGB Peks Grass:
             %  Get R,G,B Peaks of each components
@@ -144,11 +159,11 @@ classdef ini
                         
             
                     %TODO: Field lines
-                   if(RChannel(i,j) > 190 &&...
-                        GChannel(i,j) > 190 &&...
-                        BChannel(i,j) > 190)                                                        
-                        FieldMask(i,j) = 0;
-                    else
+%                    if(RChannel(i,j) > 190 &&...
+%                         GChannel(i,j) > 190 &&...
+%                         BChannel(i,j) > 190)                                                        
+%                         FieldMask(i,j) = 0;
+%                     else
 
                     if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
                         diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
@@ -163,7 +178,7 @@ classdef ini
                     else
                         FieldMask(i,j) = 255;
                     end  
-                   end
+                   %end
                 end
             end
 
@@ -194,6 +209,7 @@ classdef ini
             for compress=1:1
 
             Blobs = Player.empty(N,0);
+            Ball = Player.empty(1,0);
             Processed = zeros(rows,columns);
 
             %Initial set. Each position stores 0 (== no player)
@@ -227,7 +243,18 @@ classdef ini
                         %too fake values           
 
                             if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
-
+                            
+                                if(isBall())
+                                    Ball(1).top = top-top_field;
+                                    Ball(1).bottom = bottom-top_field;
+                                    Ball(1).left = left-left_field;
+                                    Ball(1).right = right-left_field;  
+                                    Ball(1).weight = weight;   
+                                    Ball(1).width = right-left;   
+                                    Ball(1).height = bottom-top; 
+                                    fprintf('Ball has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).weight,Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
+                                else
+                                    
                                 Blobs(id).top = top-top_field;
                                 Blobs(id).bottom = bottom-top_field;
                                 Blobs(id).left = left-left_field;
@@ -235,8 +262,10 @@ classdef ini
                                 Blobs(id).weight = weight;   
                                 Blobs(id).width = right-left;   
                                 Blobs(id).height = bottom-top;                 
-                                %fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
-                                id = id+1; 
+                                fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                                id = id+1;
+                                end
+                                
                             end 
 
                     end       
@@ -347,6 +376,15 @@ classdef ini
                         end
                     end    
                 end
+                %Debug
+                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
+                    for iii= Ball(1).top:Ball(1).bottom 
+                        for jjj = Ball(1).left:Ball(1).right
+                            I(iii,jjj,1) = 100;
+                            I(iii,jjj,2) = 100;
+                            I(iii,jjj,3) = 50;
+                        end
+                    end   
 
                 %%fprintf('Really, there are %d Blobs!\n',fid);
                 NBlobs = fid;
@@ -407,15 +445,34 @@ classdef ini
                 res(1+(((id-1)*4)+3))= FinalBlobs(id).left;
                 res(1+(((id-1)*4)+4))= FinalBlobs(id).right;
             end
+            
+            %Ball Posprocessing
+                
+                top = y_coords_from_camera_to_real(Ball(1).top);
+                bottom = y_coords_from_camera_to_real(Ball(1).bottom);
+                left = x_coords_from_camera_to_real(Ball(1).left);
+                right = x_coords_from_camera_to_real(Ball(1).right);           
 
+                Ball(1).top = top;
+                Ball(1).bottom = bottom;
+                Ball(1).left = left;
+                Ball(1).right = right;
+                
+                Ball(1).width = right-left;   
+                Ball(1).height = bottom-top;                 
+                fprintf('Ball; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
+                
+                BallId = BallOwner();
+                
             end
 
             %% Profiling
             %format shortg
             %c = clock
             
+            for compress=1:1
             %TODO: Ball detection            
-            res(1)=2;  
+            res(1)=BallId;  
             res(34)=max_RLevels;
             res(35)=max_GLevels;
             res(36)=max_BLevels;
@@ -430,7 +487,8 @@ classdef ini
             for i=35:36
                 fprintf("%d,",res(i));
             end
-            fprintf("}\n");            
+            fprintf("}\n"); 
+            end
 
         end
    end
@@ -673,7 +731,6 @@ function ret = y_coords_from_camera_to_real(y_camera_coord)
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ret = x_coords_from_real_to_camera(x_real_coord)
 
     global x_pixel_per_cm;
@@ -698,3 +755,99 @@ function ret = y_coords_from_real_to_camera(y_real_coord)
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = isBall()
+
+    global Ball;
+    global Ori;
+    global PlayersMask;
+    global top;
+    global bottom;
+    global left;
+    global right; 
+
+    global R_Ball;
+    global G_Ball;
+    global B_Ball;
+    global Ball_th;
+    
+    Rc = uint32(0);
+    Gc = uint32(0);
+    Bc = uint32(0);
+    N = uint32(0);
+    
+    RM = Ori(:,:,1); 
+    GM = Ori(:,:,2); 
+    BM = Ori(:,:,3);
+    
+    ret = 0;
+    
+    for i=top:bottom
+        for j=left:right
+            
+        if (PlayersMask(i,j) == 0)
+            Rc = Rc+uint32(RM(i,j));
+            Gc = Gc+uint32(GM(i,j));
+            Bc = Bc+uint32(BM(i,j));
+            N = N+1;
+        end
+        %fprintf("(%d,%d) -> [%d,%d,%d])\n",i,j,RM(i,j),GM(i,j),BM(i,j)); 
+            
+        end
+    end
+    
+    Rh = floor(Rc/N);
+    Gh = floor(Gc/N);
+    Bh = floor(Bc/N); 
+
+    %fprintf("isBall() = [%d,%d,%d]\n == %d %d %d\n",Rh,Gh,Bh,diff_abs(Rc,R_Ball),diff_abs(Gc,G_Ball),diff_abs(Bc,B_Ball));
+
+    if (diff_abs(Rh,R_Ball) < Ball_th &&...
+    diff_abs(Gh,G_Ball) < Ball_th &&...
+    diff_abs(Bh,B_Ball) < Ball_th)
+        ret = 1;
+    end
+    
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function res=BallOwner()
+    global NBlobs;
+    global FinalBlobs;
+    global Ball;
+
+    ballOwner_id = 0;
+    distance = 100;
+
+    for id=1:NBlobs
+
+
+        c1_up = Ball(1).top-FinalBlobs(id).bottom;
+        c1_down = FinalBlobs(id).top-Ball(1).bottom;
+
+        if(c1_up > -2)
+             c1 = c1_up;
+        else
+            c1 = c1_down;
+        end                    
+
+        c2_left = Ball(1).left-FinalBlobs(id).right;
+        c2_right = FinalBlobs(id).left-Ball(1).right;
+
+        if(c2_left > -2)
+             c2 = c2_left;
+        else
+            c2 = c2_right;
+        end                    
+
+        distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
+
+        if(distance_tmp < distance)
+            distance = distance_tmp;
+            ballOwner_id = id;
+        end
+
+        %fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+
+    end
+    %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+    res = ballOwner_id;
+end

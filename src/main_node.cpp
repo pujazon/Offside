@@ -15,6 +15,8 @@ using namespace std;
 
 //TODO: Main.h
 
+uint32_t reciver;
+
 uint32_t top_offset = 0;
 uint32_t bottom_offset = 1;
 uint32_t left_offset = 2;
@@ -205,6 +207,8 @@ int main(int argc, char *argv[]) {
 			current_PlayersMatrix[i] = pOut[i];
 		}
 	
+		reciver = 0;
+	
 		printf("Ini 3 seconds synchronizing whole system\n");
 		sleep(3);	
 
@@ -244,21 +248,31 @@ int main(int argc, char *argv[]) {
 			    	std::cout << "Tracking(): " << elapsed_seconds.count() << "s\n";
 			}
 				
-			if(pass_trigger == 1){	
-				printf("Passing == %d\n",pass_trigger);			
+			if(pass_trigger == 1){
 				
-				// Profiling
-				auto start = std::chrono::system_clock::now();
-				
-				Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
-				
-				auto end = std::chrono::system_clock::now();				
-				std::chrono::duration<double> elapsed_seconds = end-start;
-				std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-				std::cout << "isOffside(): " << elapsed_seconds.count() << "s\n";
-				
-				if(Offside) printf("Rafa, no me jodas. Fuera de juego!\n");
-				else printf("Sigan!\n");
+				if(reciver == 1){
+					printf("Pass recived!!!!!! Offside ? == %d\n",pass_trigger);			
+					
+					// Profiling
+					auto start = std::chrono::system_clock::now();
+					
+					Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
+					
+					auto end = std::chrono::system_clock::now();				
+					std::chrono::duration<double> elapsed_seconds = end-start;
+					std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+					std::cout << "isOffside(): " << elapsed_seconds.count() << "s\n";
+					
+					if(Offside) printf("Rafa, no me jodas. Fuera de juego!\n");
+					else printf("Sigan!\n");
+					
+					reciver = 0;
+					
+				}				
+				else {
+					reciver = 1;
+					printf("Pass done!!!!!!!!!!!!!\n");
+				}
 
 			}
 				
@@ -276,3 +290,4 @@ int main(int argc, char *argv[]) {
 	return 0;
 
 }
+
