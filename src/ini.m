@@ -245,20 +245,20 @@ classdef ini
                             if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
                             
                                 if(isBall())
-                                    Ball(1).top = top-top_field;
-                                    Ball(1).bottom = bottom-top_field;
-                                    Ball(1).left = left-left_field;
-                                    Ball(1).right = right-left_field;  
+                                    Ball(1).top = top;
+                                    Ball(1).bottom = bottom;
+                                    Ball(1).left = left;
+                                    Ball(1).right = right;  
                                     Ball(1).weight = weight;   
                                     Ball(1).width = right-left;   
                                     Ball(1).height = bottom-top; 
                                     fprintf('Ball has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).weight,Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
                                 else
                                     
-                                Blobs(id).top = top-top_field;
-                                Blobs(id).bottom = bottom-top_field;
-                                Blobs(id).left = left-left_field;
-                                Blobs(id).right = right-left_field;
+                                Blobs(id).top = top;
+                                Blobs(id).bottom = bottom;
+                                Blobs(id).left = left;
+                                Blobs(id).right = right;
                                 Blobs(id).weight = weight;   
                                 Blobs(id).width = right-left;   
                                 Blobs(id).height = bottom-top;                 

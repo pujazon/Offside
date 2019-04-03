@@ -230,10 +230,10 @@ classdef tracker < handle
 
                 i_id = id-1;
                 
-				old_top 		= obj.old(1,(i_id*4)+1)+top_field;
-				old_bottom 		= obj.old(1,(i_id*4)+2)+top_field;
-				old_left 		= obj.old(1,(i_id*4)+3)+left_field;
-				old_right 		= obj.old(1,(i_id*4)+4)+left_field;
+				old_top 		= obj.old(1,(i_id*4)+1);
+				old_bottom 		= obj.old(1,(i_id*4)+2);
+				old_left 		= obj.old(1,(i_id*4)+3);
+				old_right 		= obj.old(1,(i_id*4)+4);
 % 
 %                 old_top 		= floor(y_coords_from_real_to_camera(old_top)+top_field);
 %                 old_bottom 		= floor(y_coords_from_real_to_camera(old_bottom)+top_field);
@@ -299,10 +299,10 @@ classdef tracker < handle
                 %fprintf("right_bound = %d\n",right_bound);  
                 
 				if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
-					Blobs(id).top = top-top_field;
-					Blobs(id).bottom = bottom-top_field;
-					Blobs(id).left = left-left_field;
-					Blobs(id).right = right-left_field;
+					Blobs(id).top = top;
+					Blobs(id).bottom = bottom;
+					Blobs(id).left = left;
+					Blobs(id).right = right;
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
@@ -335,10 +335,10 @@ classdef tracker < handle
 %                 left = x_coords_from_camera_to_real(Blobs(id).left);
 %                 right = x_coords_from_camera_to_real(Blobs(id).right);
                 
-                res(1+(((id-1)*4)+1))= top;
-                res(1+(((id-1)*4)+2))= bottom;
-                res(1+(((id-1)*4)+3))=left;
-                res(1+(((id-1)*4)+4))= right;
+                res(1+(((id-1)*4)+1))= Blobs(id).top;
+                res(1+(((id-1)*4)+2))= Blobs(id).bottom;
+                res(1+(((id-1)*4)+3))= Blobs(id).left;
+                res(1+(((id-1)*4)+4))= Blobs(id).right;
                 
                 fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,top,bottom,right,left);                                    
                 
