@@ -108,7 +108,7 @@ classdef tracker < handle
             G_Ball=135;
             B_Ball=165;
             
-            Ball_th = 15;
+            Ball_th = 25;
             
             global N;
             N = 8;
@@ -119,6 +119,14 @@ classdef tracker < handle
             global y_cm_per_pixel; 
             global y_pixel_per_cm;
             global x_pixel_per_cm;  
+            
+            global RM;
+            global GM;
+            global BM;
+
+            RM = Ori(:,:,1); 
+            GM = Ori(:,:,2); 
+            BM = Ori(:,:,3);
             
             figure, imshow(Ori);
             end
@@ -223,7 +231,6 @@ classdef tracker < handle
             Blobs = Player.empty(N,0);
             Processed = zeros(rows,columns);
             minWeight = 1;
-			vel = 50;
 			
             %Tracking player by player
             for id = 1:8                 
@@ -325,6 +332,34 @@ classdef tracker < handle
             end
             end 
             
+            
+            %Ball Detection            
+            Processed = zeros(rows,columns);
+            i = top_field+2;
+            trobat = 0;
+            
+            while(trobat == 0 && i < bottom_field-2)
+                j = left_field+2;
+                while (trobat == 0 && j < right_field-2)                
+
+                    if (isBallPixel(i,j) == 1)
+                        %Ini setup before Blob detection function
+                        Processed(i,j) = 1;
+                        top = i;
+                        bottom = i;
+                        left = j;
+                        right = j;
+                        weight = 1; 
+                        Blob(i,j);
+                        trobat = 1;
+                    end
+                    j = j+1;                    
+                end
+                i = i+1;
+            end
+            %fprintf("Ball: [%d,%d,%d,%d,]\n",top,bottom,left,right);
+            Bid = BallOwner();
+            
             %% Output            
             imshow(Ori);
 
@@ -340,11 +375,11 @@ classdef tracker < handle
                 res(1+(((id-1)*4)+3))= Blobs(id).left;
                 res(1+(((id-1)*4)+4))= Blobs(id).right;
                 
-                fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,top,bottom,right,left);                                    
+                fprintf('Player(%d); top: %d, bottom: %d, right: %d, left: %d\n',id,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                 
             end
             %TODO: Ball Detection
-            res(1)=obj.Ball;  
+            res(1)=Bid;  
             
             res(34)=obj.R_Field;
             res(35)=obj.G_Field;
@@ -637,8 +672,6 @@ function ret = y_coords_from_real_to_camera(y_real_coord)
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ret = isBall()
 
     global Ball;
@@ -703,7 +736,6 @@ function res=BallOwner()
 
     for id=1:NBlobs
 
-
         c1_up = Ball(1).top-FinalBlobs(id).bottom;
         c1_down = FinalBlobs(id).top-Ball(1).bottom;
 
@@ -735,19 +767,16 @@ function res=BallOwner()
     %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
     res = ballOwner_id;
 end
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function res=isBallPixel(i,j)
             
     global R_Ball;
     global G_Ball;
     global B_Ball;
     global Ball_th;
-    global Ori;
-    
-        
-    RM = Ori(:,:,1); 
-    GM = Ori(:,:,2); 
-    BM = Ori(:,:,3);
+    global RM;
+    global GM;
+    global BM;
 
     R = RM(i,j);
     G = GM(i,j);
@@ -762,4 +791,53 @@ function res=isBallPixel(i,j)
     end
     
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = in_of_bounds(i,j)    
+    global top_field; 
+    global bottom_field;  
+    global right_field;  
+    global left_field; 
+
+    ret = (i > top_field && j > left_field && i < bottom_field && j < right_field);
     
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function Blob(ii,jj)
+
+    global PlayersMask;
+    global Processed;
+    global bottom;
+    global right;
+    global left;
+    global weight;
+        
+    %fprintf("Pos [%d,%d]\n",ii,jj);
+    if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
+        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
+        Processed(ii+1,jj) = 1;
+        weight = weight +1;        
+        bottom = max(ii+1,bottom);
+        %%fprintf('bottom = %d\n',bottom);
+        Blob(ii+1,jj);
+    end  
+            
+    if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
+        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
+        Processed(ii,jj-1) = 1;
+        weight = weight +1;        
+        left = min(jj-1,left);
+        %%fprintf('left = %d\n',left);
+        Blob(ii,jj-1);
+    end
+    
+    if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
+        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
+        Processed(ii,jj+1) = 1;
+        weight = weight +1; 
+        right = max(jj+1,right);
+        %%fprintf('right = %d\n',right);
+        Blob(ii,jj+1);
+    end    
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
