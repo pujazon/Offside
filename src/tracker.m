@@ -98,6 +98,17 @@ classdef tracker < handle
             global right;
             global left;
             global weight;
+                        
+            global R_Ball;
+            global G_Ball;
+            global B_Ball;
+            global Ball_th;
+
+            R_Ball=162;
+            G_Ball=135;
+            B_Ball=165;
+            
+            Ball_th = 15;
             
             global N;
             N = 8;
@@ -148,16 +159,7 @@ classdef tracker < handle
 
             for i = 1: rows
                 for j = 1: columns                        
-            %        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-            %        %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
-            %        %%fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
-            
-            %       With three last conditions we delte White and black
-            %       pixels which can pass through first conditions.
-            %       Third is an empiristic one
 
-                        
-            
                     %TODO: Field lines
                    if(RChannel(i,j) > 190 &&...
                         GChannel(i,j) > 190 &&...
@@ -228,24 +230,28 @@ classdef tracker < handle
 
                 i_id = id-1;
                 
-				old_top 		= obj.old(1,(i_id*4)+1);
-				old_bottom 		= obj.old(1,(i_id*4)+2);
-				old_left 		= obj.old(1,(i_id*4)+3);
-				old_right 		= obj.old(1,(i_id*4)+4);
-
-                old_top 		= y_coords_from_real_to_camera(old_top)+top_field;
-                old_bottom 		= y_coords_from_real_to_camera(old_bottom)+top_field;
-                old_left 		= x_coords_from_real_to_camera(old_left)+left_field;
-                old_right 		= x_coords_from_real_to_camera(old_right)+left_field;
+				old_top 		= obj.old(1,(i_id*4)+1)+top_field;
+				old_bottom 		= obj.old(1,(i_id*4)+2)+top_field;
+				old_left 		= obj.old(1,(i_id*4)+3)+left_field;
+				old_right 		= obj.old(1,(i_id*4)+4)+left_field;
+% 
+%                 old_top 		= floor(y_coords_from_real_to_camera(old_top)+top_field);
+%                 old_bottom 		= floor(y_coords_from_real_to_camera(old_bottom)+top_field);
+%                 old_left 		= floor(x_coords_from_real_to_camera(old_left)+left_field);
+%                 old_right 		= floor(x_coords_from_real_to_camera(old_right)+left_field);
 
                 %fprintf("old_top = %d\n",old_top);
                 %fprintf("old_bottom = %d\n",old_bottom);
                 %fprintf("old_left = %d\n",old_left);
                 %fprintf("old_right = %d\n",old_right);
                 
-				box_x_offset	= floor((old_bottom-old_top)/2);
-				box_y_offset	= floor((old_right-old_left)/2);
+				box_x_offset	= 20; %floor((old_bottom-old_top)/2);
+				box_y_offset	= 20; %floor((old_right-old_left)/2);
 				
+                %Bug! If there are too near there is a problem
+                %Of course related with MergeBlob   
+                %Save mean color of each player and distinguish (?)
+                
 				ori_x 			= old_top-box_x_offset;
 				ori_y 			= old_left-box_y_offset;
                 
@@ -300,7 +306,7 @@ classdef tracker < handle
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
-					%fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+					fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                     
                     
                 %Debug
@@ -324,10 +330,10 @@ classdef tracker < handle
 
             for id=1:8
 
-                top = y_coords_from_camera_to_real(Blobs(id).top);
-                bottom = y_coords_from_camera_to_real(Blobs(id).bottom);
-                left = x_coords_from_camera_to_real(Blobs(id).left);
-                right = x_coords_from_camera_to_real(Blobs(id).right);
+%                 top = y_coords_from_camera_to_real(Blobs(id).top);
+%                 bottom = y_coords_from_camera_to_real(Blobs(id).bottom);
+%                 left = x_coords_from_camera_to_real(Blobs(id).left);
+%                 right = x_coords_from_camera_to_real(Blobs(id).right);
                 
                 res(1+(((id-1)*4)+1))= top;
                 res(1+(((id-1)*4)+2))= bottom;
@@ -364,6 +370,8 @@ classdef tracker < handle
 end
 %% Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%(!) TODO CANNOT BE ON THE MARGINS DUE TO ERROR CAMERA DISTORSION MAKES OUT
+%OF BOUND A BLOBL WHICH IS NOT
 function ret = in_of_bounds_box(i,j,top_bound,bottom_bound,left_bound,right_bound)
     global top_field; 
     global bottom_field;  
@@ -393,7 +401,7 @@ function TrackBlob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
         
     %fprintf("Pos [%d,%d]\n",ii,jj);
     if(in_of_bounds_box(ii+1,jj,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
-        PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
+        PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0 && isBallPixel(ii+1,jj) == 0) 
         %%%%%%fprintf('TmpTrackBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
@@ -403,7 +411,7 @@ function TrackBlob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
     end  
             
     if(in_of_bounds_box(ii,jj-1,top_bound,bottom_bound,left_bound,right_bound)== 1 &&...
-            PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
+            PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0 && isBallPixel(ii,jj-1) == 0)     
         %%%%%%fprintf('TmpTrackBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
@@ -413,7 +421,7 @@ function TrackBlob(ii,jj,top_bound,bottom_bound,left_bound,right_bound)
     end
     
     if(in_of_bounds_box(ii,jj+1,top_bound,bottom_bound,left_bound,right_bound)==1 &&...
-            PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
+            PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0 && isBallPixel(ii,jj+1) == 0)
         %%%%%%fprintf('TmpTrackBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
@@ -589,7 +597,7 @@ function ret = x_coords_from_camera_to_real(x_camera_coord)
     %%fprintf("x_real_coord: %d\n",x_real_coord);
 
     %TODO: Precision level (?)
-    ret = round(x_real_coord);
+    ret = round(x_real_coord,5);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -601,7 +609,7 @@ function ret = y_coords_from_camera_to_real(y_camera_coord)
     %%fprintf("y_real_coord: %d\n",y_real_coord);
 
     %TODO: Precision level (?)
-    ret = round(y_real_coord);
+    ret = round(y_real_coord,5);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -613,7 +621,7 @@ function ret = x_coords_from_real_to_camera(x_real_coord)
     %%fprintf("x_real_coord: %d\n",x_real_coord);
 
     %TODO: Precision level (?)
-    ret = round(x_real_coord);
+    ret = round(x_real_coord,5);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -625,7 +633,133 @@ function ret = y_coords_from_real_to_camera(y_real_coord)
     %%fprintf("y_real_coord: %d\n",y_real_coord);
 
     %TODO: Precision level (?)
-    ret = round(y_real_coord);
+    ret = round(y_real_coord,5);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function ret = isBall()
+
+    global Ball;
+    global Ori;
+    global PlayersMask;
+    global top;
+    global bottom;
+    global left;
+    global right; 
+
+    global R_Ball;
+    global G_Ball;
+    global B_Ball;
+    global Ball_th;
+    
+    Rc = uint32(0);
+    Gc = uint32(0);
+    Bc = uint32(0);
+    N = uint32(0);
+    
+    RM = Ori(:,:,1); 
+    GM = Ori(:,:,2); 
+    BM = Ori(:,:,3);
+    
+    ret = 0;
+    
+    for i=top:bottom
+        for j=left:right
+            
+        if (PlayersMask(i,j) == 0)
+            Rc = Rc+uint32(RM(i,j));
+            Gc = Gc+uint32(GM(i,j));
+            Bc = Bc+uint32(BM(i,j));
+            N = N+1;
+        end
+        %fprintf("(%d,%d) -> [%d,%d,%d])\n",i,j,RM(i,j),GM(i,j),BM(i,j)); 
+            
+        end
+    end
+    
+    Rh = floor(Rc/N);
+    Gh = floor(Gc/N);
+    Bh = floor(Bc/N); 
+
+    %fprintf("isBall() = [%d,%d,%d]\n == %d %d %d\n",Rh,Gh,Bh,diff_abs(Rc,R_Ball),diff_abs(Gc,G_Ball),diff_abs(Bc,B_Ball));
+
+    if (diff_abs(Rh,R_Ball) < Ball_th &&...
+    diff_abs(Gh,G_Ball) < Ball_th &&...
+    diff_abs(Bh,B_Ball) < Ball_th)
+        ret = 1;
+    end
+    
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function res=BallOwner()
+    global NBlobs;
+    global FinalBlobs;
+    global Ball;
+
+    ballOwner_id = 0;
+    distance = 100;
+
+    for id=1:NBlobs
+
+
+        c1_up = Ball(1).top-FinalBlobs(id).bottom;
+        c1_down = FinalBlobs(id).top-Ball(1).bottom;
+
+        if(c1_up > -2)
+             c1 = c1_up;
+        else
+            c1 = c1_down;
+        end                    
+
+        c2_left = Ball(1).left-FinalBlobs(id).right;
+        c2_right = FinalBlobs(id).left-Ball(1).right;
+
+        if(c2_left > -2)
+             c2 = c2_left;
+        else
+            c2 = c2_right;
+        end                    
+
+        distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
+
+        if(distance_tmp < distance)
+            distance = distance_tmp;
+            ballOwner_id = id;
+        end
+
+        %fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+
+    end
+    %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+    res = ballOwner_id;
+end
+
+function res=isBallPixel(i,j)
+            
+    global R_Ball;
+    global G_Ball;
+    global B_Ball;
+    global Ball_th;
+    global Ori;
+    
+        
+    RM = Ori(:,:,1); 
+    GM = Ori(:,:,2); 
+    BM = Ori(:,:,3);
+
+    R = RM(i,j);
+    G = GM(i,j);
+    B = BM(i,j);
+    
+    if (diff_abs(R,R_Ball) < Ball_th &&...
+    diff_abs(G,G_Ball) < Ball_th &&...
+    diff_abs(B,B_Ball) < Ball_th)
+        res = 1;
+    else
+        res = 0;
+    end
+    
+end
+    

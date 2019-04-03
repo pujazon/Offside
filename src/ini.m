@@ -415,21 +415,21 @@ classdef ini
 				%fprintf("bottom = %d\n",bottom);
 				%fprintf("left  = %d\n",left);
 				%fprintf("right  = %d\n",right);
-                
-                top = y_coords_from_camera_to_real(FinalBlobs(id).top);
-                bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
-                left = x_coords_from_camera_to_real(FinalBlobs(id).left);
-                right = x_coords_from_camera_to_real(FinalBlobs(id).right);
-            
-				%fprintf("top = %d\n",top);
-				%fprintf("bottom = %d\n",bottom);
-				%fprintf("left  = %d\n",left);
-				%fprintf("right  = %d\n",right);
-
-                FinalBlobs(id).top = top;
-                FinalBlobs(id).bottom = bottom;
-                FinalBlobs(id).left = left;
-                FinalBlobs(id).right = right;
+%                 
+%                 top = y_coords_from_camera_to_real(FinalBlobs(id).top);
+%                 bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
+%                 left = x_coords_from_camera_to_real(FinalBlobs(id).left);
+%                 right = x_coords_from_camera_to_real(FinalBlobs(id).right);
+%             
+% 				%fprintf("top = %d\n",top);
+% 				%fprintf("bottom = %d\n",bottom);
+% 				%fprintf("left  = %d\n",left);
+% 				%fprintf("right  = %d\n",right);
+% 
+%                 FinalBlobs(id).top = top;
+%                 FinalBlobs(id).bottom = bottom;
+%                 FinalBlobs(id).left = left;
+%                 FinalBlobs(id).right = right;
 
 				%fprintf("top = %d\n",top);
 				%fprintf("bottom = %d\n",bottom);
@@ -448,18 +448,18 @@ classdef ini
             
             %Ball Posprocessing
                 
-                top = y_coords_from_camera_to_real(Ball(1).top);
-                bottom = y_coords_from_camera_to_real(Ball(1).bottom);
-                left = x_coords_from_camera_to_real(Ball(1).left);
-                right = x_coords_from_camera_to_real(Ball(1).right);           
-
-                Ball(1).top = top;
-                Ball(1).bottom = bottom;
-                Ball(1).left = left;
-                Ball(1).right = right;
-                
-                Ball(1).width = right-left;   
-                Ball(1).height = bottom-top;                 
+%                 top = y_coords_from_camera_to_real(Ball(1).top);
+%                 bottom = y_coords_from_camera_to_real(Ball(1).bottom);
+%                 left = x_coords_from_camera_to_real(Ball(1).left);
+%                 right = x_coords_from_camera_to_real(Ball(1).right);           
+% 
+%                 Ball(1).top = top;
+%                 Ball(1).bottom = bottom;
+%                 Ball(1).left = left;
+%                 Ball(1).right = right;
+%                 
+%                 Ball(1).width = right-left;   
+%                 Ball(1).height = bottom-top;                 
                 fprintf('Ball; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
                 
                 BallId = BallOwner();
@@ -819,10 +819,10 @@ function res=BallOwner()
 
     for id=1:NBlobs
 
-
+        fprintf("ID %d\n");
         c1_up = Ball(1).top-FinalBlobs(id).bottom;
         c1_down = FinalBlobs(id).top-Ball(1).bottom;
-
+        fprintf("c1 up %d, c down %d\n",c1_up,c1_down);
         if(c1_up > -2)
              c1 = c1_up;
         else
@@ -838,6 +838,7 @@ function res=BallOwner()
             c2 = c2_right;
         end                    
 
+        fprintf("c2_left %d, c2_right %d\n",c2_left,c2_right);
         distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
 
         if(distance_tmp < distance)
@@ -845,9 +846,9 @@ function res=BallOwner()
             ballOwner_id = id;
         end
 
-        %fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+        fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
 
     end
-    %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+    fprintf("Ball owner is Player(%d)\n",ballOwner_id);
     res = ballOwner_id;
 end
