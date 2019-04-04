@@ -195,8 +195,7 @@ classdef tracker < handle
                 end
             end
 
-             PlayersMask = imgaussfilt(tmp_PlayersMask);
-             
+             PlayersMask = imgaussfilt(tmp_PlayersMask);             
             for i = 1: rows
                 for j = 1: columns     
                     if(PlayersMask(i,j) < 255 ) PlayersMask(i,j) = 0; end                        
@@ -262,8 +261,8 @@ classdef tracker < handle
                 %fprintf("old_left = %d\n",old_left);
                 %fprintf("old_right = %d\n",old_right);
                 
-				box_x_offset	= 2; %floor((old_bottom-old_top)/2);
-				box_y_offset	= 2; %floor((old_right-old_left)/2);
+				box_x_offset	= 10; %floor((old_bottom-old_top)/2);
+				box_y_offset	= 10; %floor((old_right-old_left)/2);
 				
                 %Bug! If there are too near there is a problem
                 %Of course related with MergeBlob   
@@ -295,8 +294,12 @@ classdef tracker < handle
                 while(i < bottom_bound && trobat == 0)
                     while(j < right_bound && trobat == 0)
                         if (PlayersMask(i,j) == 0 && Processed(i,j) == 0)
+                            Processed(i,j) = 1;
                             top = i;
+                            bottom = i;
                             left = j;
+                            right = j;
+                            weight = 1; 
                             TrackBlob(i,j,top_bound,bottom_bound,left_bound,right_bound);
                             trobat = 1;
                         end                        
@@ -436,9 +439,10 @@ function ret = in_of_bounds_box(i,j,top_bound,bottom_bound,left_bound,right_boun
     global right_field;  
     global left_field; 
     
-    ret = (i > top_bound && j > left_bound && i < bottom_bound && j < right_bound)&&...
-        (top_bound > top_field && left_bound > left_field && bottom_bound < bottom_field &&...
-        right_bound < right_field);
+    ret = (i > top_bound && j > left_bound && i < bottom_bound && j < right_bound);...%&&...
+        %(top_bound > top_field && left_bound > left_field && bottom_bound < bottom_field &&...
+        %right_bound < right_field)
+
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
