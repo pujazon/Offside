@@ -12,8 +12,8 @@
             maxNumCompThreads(16);
             %%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
-            I = imread('ball.png');
-            Ori = imread('ball.png');
+            I = imread('ball_2.png');
+            Ori = imread('ball_2.png');
 
             figure, imshow(Ori);
 

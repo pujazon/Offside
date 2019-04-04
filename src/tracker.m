@@ -102,13 +102,13 @@ classdef tracker < handle
             global R_Ball;
             global G_Ball;
             global B_Ball;
-            global Ball_th;
+            global Ball_th;            
 
             R_Ball=162;
             G_Ball=135;
             B_Ball=165;
             
-            Ball_th = 25;
+            Ball_th = 20;
             
             global N;
             N = 8;
@@ -127,6 +127,9 @@ classdef tracker < handle
             RM = Ori(:,:,1); 
             GM = Ori(:,:,2); 
             BM = Ori(:,:,3);
+            
+            Ball_dim_x = 150;
+            Ball_dim_y = 150;
             
             figure, imshow(Ori);
             end
@@ -193,6 +196,13 @@ classdef tracker < handle
             end
 
              PlayersMask = imgaussfilt(tmp_PlayersMask);
+             
+            for i = 1: rows
+                for j = 1: columns     
+                    if(PlayersMask(i,j) < 255 ) PlayersMask(i,j) = 0; end                        
+                end
+            end
+            
              %figure, imshow(PlayersMask);
              figure, imshow(PlayersMask);
 
@@ -252,8 +262,8 @@ classdef tracker < handle
                 %fprintf("old_left = %d\n",old_left);
                 %fprintf("old_right = %d\n",old_right);
                 
-				box_x_offset	= 20; %floor((old_bottom-old_top)/2);
-				box_y_offset	= 20; %floor((old_right-old_left)/2);
+				box_x_offset	= 2; %floor((old_bottom-old_top)/2);
+				box_y_offset	= 2; %floor((old_right-old_left)/2);
 				
                 %Bug! If there are too near there is a problem
                 %Of course related with MergeBlob   
@@ -314,7 +324,10 @@ classdef tracker < handle
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
 					fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+                   
+
                     
+				end 
                     
                 %Debug
                     %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
@@ -325,10 +338,6 @@ classdef tracker < handle
                             Ori(iii,jjj,3) = 234;
                         end                        
                 end
-
-                    
-				end 
-
             end
             end 
             
@@ -351,13 +360,27 @@ classdef tracker < handle
                         right = j;
                         weight = 1; 
                         Blob(i,j);
-                        trobat = 1;
+                        
+                        if( ((bottom-top) < Ball_dim_y && (right-left)) < Ball_dim_x)
+                            trobat = 1;
+                        end
                     end
                     j = j+1;                    
                 end
                 i = i+1;
             end
-            %fprintf("Ball: [%d,%d,%d,%d,]\n",top,bottom,left,right);
+            fprintf("Ball: [%d,%d,%d,%d,]\n",top,bottom,left,right);
+            
+             %Debug
+                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
+                    for iii= top:bottom 
+                        for jjj = left:right
+                            Ori(iii,jjj,1) = 100;
+                            Ori(iii,jjj,2) = 100;
+                            Ori(iii,jjj,3) = 50;
+                        end
+                    end   
+            
             Bid = BallOwner();
             
             %% Output            
@@ -477,6 +500,7 @@ function find_top()
     
     ii = 1;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && ii < rows)
         jj = 1;
@@ -486,22 +510,23 @@ function find_top()
             %if != 0 -> Is not grass
             %fprintf("Grass is %d\n",FieldMask(ii,jj));
             if (FieldMask(ii,jj) == 0)
-                
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > col_avg)
-                    trobat = 1; 
-                end
             end
             jj = jj+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
-        
-        if (trobat == 1)
+   
+        %Cannot be used avg because 
+        if(counter > col_avg && counter < old_counter)
+           % fprintf("ii %d counter %d\n",ii,counter);
+            trobat = 1; 
             top_field = ii;
         end
         
+        %fprintf("Fila %d counter %d\n",ii,counter);
+        old_counter = counter;
         ii=ii+1;
     end
 
@@ -517,6 +542,7 @@ function find_bottom()
     
     ii = rows;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && ii > 1)
         jj = 1;
@@ -529,18 +555,17 @@ function find_bottom()
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > col_avg)
-                    trobat = 1; 
-                end
             end
             jj = jj+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (trobat == 1)
+        if(counter > col_avg && counter < old_counter)
+            trobat = 1; 
             bottom_field = ii;
         end
         
+        old_counter = counter;
         ii=ii-1;
     end
 
@@ -556,6 +581,7 @@ function find_right()
     
     jj = columns-1;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && jj > 1)
         ii = 1;
@@ -568,18 +594,18 @@ function find_right()
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > row_avg)
-                    trobat = 1; 
-                end
+
             end      
             ii = ii+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (trobat == 1)
+        if(counter > row_avg && counter < old_counter)
+            trobat = 1;                 
             right_field = jj;
         end
         
+        old_counter = counter;
         jj=jj-1;
     end
 
@@ -595,6 +621,7 @@ function find_left()
     
     jj = 1;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && jj < columns)
         ii = 1;
@@ -607,22 +634,20 @@ function find_left()
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > row_avg)
-                    trobat = 1; 
-                end
             end      
             ii = ii+1;
         end
         
-        if (trobat == 1)            
+        if(counter > row_avg && counter < old_counter)
+            trobat = 1;                        
             left_field = jj;
         end
         
+        old_counter = counter;
         jj=jj+1;
     end
 
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ret = x_coords_from_camera_to_real(x_camera_coord)
 

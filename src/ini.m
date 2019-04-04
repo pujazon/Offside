@@ -54,7 +54,7 @@ classdef ini
             G_Ball=135;
             B_Ball=165;
             
-            Ball_th = 15;
+            Ball_th = 20;
             
             %Camera units in cm
             camera_width = 50;
@@ -131,8 +131,8 @@ classdef ini
             rows = size(I,1);
             columns = size(I,2);
                         
-            row_avg = floor(rows*0.5)
-            col_avg = floor(columns*0.5)
+            row_avg = floor(rows*0.5);
+            col_avg = floor(columns*0.5);
 
             RChannel = I(:,:,1);
             GChannel = I(:,:,2);
@@ -561,6 +561,7 @@ function find_top()
     
     ii = 1;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && ii < rows)
         jj = 1;
@@ -570,22 +571,23 @@ function find_top()
             %if != 0 -> Is not grass
             %fprintf("Grass is %d\n",FieldMask(ii,jj));
             if (FieldMask(ii,jj) == 0)
-                
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > col_avg)
-                    trobat = 1; 
-                end
             end
             jj = jj+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
-        
-        if (trobat == 1)
+   
+        %Cannot be used avg because 
+        if(counter < old_counter)
+           % fprintf("ii %d counter %d\n",ii,counter);
+            trobat = 1; 
             top_field = ii;
         end
         
+        %fprintf("Fila %d counter %d\n",ii,counter);
+        old_counter = counter;
         ii=ii+1;
     end
 
@@ -601,6 +603,7 @@ function find_bottom()
     
     ii = rows;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && ii > 1)
         jj = 1;
@@ -613,18 +616,17 @@ function find_bottom()
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > col_avg)
-                    trobat = 1; 
-                end
             end
             jj = jj+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (trobat == 1)
+        if(counter > col_avg && counter < old_counter)
+            trobat = 1; 
             bottom_field = ii;
         end
         
+        old_counter = counter;
         ii=ii-1;
     end
 
@@ -640,6 +642,7 @@ function find_right()
     
     jj = columns-1;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && jj > 1)
         ii = 1;
@@ -652,18 +655,18 @@ function find_right()
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > row_avg)
-                    trobat = 1; 
-                end
+
             end      
             ii = ii+1;
             %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
-        if (trobat == 1)
+        if(counter > row_avg && counter < old_counter)
+            trobat = 1;                 
             right_field = jj;
         end
         
+        old_counter = counter;
         jj=jj-1;
     end
 
@@ -679,6 +682,7 @@ function find_left()
     
     jj = 1;
     trobat = 0;
+    old_counter = 0;
     
     while(trobat == 0 && jj < columns)
         ii = 1;
@@ -691,17 +695,16 @@ function find_left()
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
-                if(counter > row_avg)
-                    trobat = 1; 
-                end
             end      
             ii = ii+1;
         end
         
-        if (trobat == 1)            
+        if(counter > row_avg && counter < old_counter)
+            trobat = 1;                        
             left_field = jj;
         end
         
+        old_counter = counter;
         jj=jj+1;
     end
 
@@ -819,10 +822,10 @@ function res=BallOwner()
 
     for id=1:NBlobs
 
-        fprintf("ID %d\n");
+        %fprintf("ID %d\n");
         c1_up = Ball(1).top-FinalBlobs(id).bottom;
         c1_down = FinalBlobs(id).top-Ball(1).bottom;
-        fprintf("c1 up %d, c down %d\n",c1_up,c1_down);
+        %fprintf("c1 up %d, c down %d\n",c1_up,c1_down);
         if(c1_up > -2)
              c1 = c1_up;
         else
@@ -838,7 +841,7 @@ function res=BallOwner()
             c2 = c2_right;
         end                    
 
-        fprintf("c2_left %d, c2_right %d\n",c2_left,c2_right);
+        %fprintf("c2_left %d, c2_right %d\n",c2_left,c2_right);
         distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
 
         if(distance_tmp < distance)
@@ -846,9 +849,9 @@ function res=BallOwner()
             ballOwner_id = id;
         end
 
-        fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+        %fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
 
     end
-    fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+    %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
     res = ballOwner_id;
 end
