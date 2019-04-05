@@ -54,7 +54,11 @@ classdef ini
             G_Ball=136;
             B_Ball=165;
             
-            Ball_th = 20;
+            Ball_th = 30;
+            
+            %Size filter to avoid noise blobs
+            min_ball_x = 20;
+            min_ball_y = 20;
             
             %Camera units in cm
             camera_width = 50;
@@ -332,7 +336,8 @@ classdef ini
 
                 if (diff_abs(Rh,R_Ball) < Ball_th &&...
                 diff_abs(Gh,G_Ball) < Ball_th &&...
-                diff_abs(Bh,B_Ball) < Ball_th)
+                diff_abs(Bh,B_Ball) < Ball_th &&...
+                  (bbottom-btop) > min_ball_x && (bright-bleft) > min_ball_y)
                     isBall = 1;
                 end
                 

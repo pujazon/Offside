@@ -109,7 +109,7 @@ classdef tracker < handle
             G_Ball=135;
             B_Ball=165;
             
-            Ball_th = 20;
+            Ball_th = 30;
             
             global N;
             N = 8;
@@ -347,6 +347,10 @@ classdef tracker < handle
             
             N2 = size(ncenter);
             
+            %Size filter to avoid noise blobs
+            min_ball_x = 20;
+            min_ball_y = 20;
+            
             for i=1:N2               
                 
                 ycenter = floor(ncenter(i,1));
@@ -387,7 +391,8 @@ classdef tracker < handle
 
                 if (diff_abs(Rh,R_Ball) < Ball_th &&...
                 diff_abs(Gh,G_Ball) < Ball_th &&...
-                diff_abs(Bh,B_Ball) < Ball_th)
+                diff_abs(Bh,B_Ball) < Ball_th &&...
+                (bbottom-btop) > min_ball_x && (bright-bleft) > min_ball_y)
                     isBall = 1;
                 end
                 
