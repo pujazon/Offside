@@ -98,6 +98,7 @@ classdef tracker < handle
             global right;
             global left;
             global weight;
+            global Ball;
                         
             global R_Ball;
             global G_Ball;
@@ -261,8 +262,8 @@ classdef tracker < handle
                 %fprintf("old_left = %d\n",old_left);
                 %fprintf("old_right = %d\n",old_right);
                 
-				box_x_offset	= 10; %floor((old_bottom-old_top)/2);
-				box_y_offset	= 10; %floor((old_right-old_left)/2);
+				box_x_offset	= 20; %floor((old_bottom-old_top)/2);
+				box_y_offset	= 20; %floor((old_right-old_left)/2);
 				
                 %Bug! If there are too near there is a problem
                 %Of course related with MergeBlob   
@@ -326,65 +327,105 @@ classdef tracker < handle
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
-					fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
-                   
-
-                    
+					fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                             
 				end 
                     
-                %Debug
-                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
-                    for iii= Blobs(id).top:Blobs(id).bottom 
-                        for jjj = Blobs(id).left:Blobs(id).right
-                            Ori(iii,jjj,1) = 234;
-                            Ori(iii,jjj,2) = 34;
-                            Ori(iii,jjj,3) = 234;
-                        end                        
-                end
             end
             end 
             
             
-            %Ball Detection            
-            Processed = zeros(rows,columns);
-            i = top_field+2;
-            trobat = 0;
+            %% Ball Detection
+            %  First get the Candidates
+            %  Compare with precalculated mean histogram.
             
-            while(trobat == 0 && i < bottom_field-2)
-                j = left_field+2;
-                while (trobat == 0 && j < right_field-2)                
+            for compress=1:1
+            
+            [centers, radii, metric] = imfindcircles(Ori,[1 20]);
+            ncenter = centers(1:10,:);
+            nradio = radii(1:10);
+            viscircles(ncenter, nradio,'EdgeColor','b');      
+            
+            N2 = size(ncenter);
+            
+            for i=1:N2               
+                
+                ycenter = floor(ncenter(i,1));
+                xcenter = floor(ncenter(i,2));
+                radio   = floor(nradio(i));
+                
+                btop    = (xcenter-radio);
+                bbottom = (xcenter+radio);
+                bleft   = (ycenter-radio);
+                bright  = (ycenter+radio);
+                
+                %checkHistogram
+                isBall = 0;
+                Rc = uint32(0);
+                Gc = uint32(0);
+                Bc = uint32(0);
+                Np = uint32(0);
 
-                    if (isBallPixel(i,j) == 1)
-                        %Ini setup before Blob detection function
-                        Processed(i,j) = 1;
-                        top = i;
-                        bottom = i;
-                        left = j;
-                        right = j;
-                        weight = 1; 
-                        Blob(i,j);
-                        
-                        if( ((bottom-top) < Ball_dim_y && (right-left)) < Ball_dim_x)
-                            trobat = 1;
+                RM = Ori(:,:,1); 
+                GM = Ori(:,:,2); 
+                BM = Ori(:,:,3);
+
+                for iii=btop:bbottom
+                    for jjj=bleft:bright
+                        if (PlayersMask(i,j) == 0)
+                            Rc = Rc+uint32(RM(iii,jjj));
+                            Gc = Gc+uint32(GM(iii,jjj));
+                            Bc = Bc+uint32(BM(iii,jjj));
+                            Np = Np+1;
                         end
                     end
-                    j = j+1;                    
                 end
-                i = i+1;
-            end
-            fprintf("Ball: [%d,%d,%d,%d,]\n",top,bottom,left,right);
-            
-             %Debug
-                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
-                    for iii= top:bottom 
-                        for jjj = left:right
-                            Ori(iii,jjj,1) = 100;
-                            Ori(iii,jjj,2) = 100;
-                            Ori(iii,jjj,3) = 50;
-                        end
-                    end   
-            
+
+                Rh = floor(Rc/Np);
+                Gh = floor(Gc/Np);
+                Bh = floor(Bc/Np); 
+
+
+                if (diff_abs(Rh,R_Ball) < Ball_th &&...
+                diff_abs(Gh,G_Ball) < Ball_th &&...
+                diff_abs(Bh,B_Ball) < Ball_th)
+                    isBall = 1;
+                end
+                
+                fprintf("Ball candidate %d POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
+                if(isBall == 1)
+                fprintf("BAAALL POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",btop,bbottom,bleft,bright,Rh,Gh,Bh);
+                 Ball(1).top = btop;
+                 Ball(1).bottom = bbottom;
+                 Ball(1).left = bleft;
+                 Ball(1).right = bright;                    
+                    
+                for ii=btop:bbottom
+                    for jj=bleft:bright
+                            Ori(ii,jj,1) = 130;
+                            Ori(ii,jj,2) = 130;
+                            Ori(ii,jj,3) = 130;  
+                    end
+                end
+                end
+                                               
+            end            
             Bid = BallOwner();
+            
+            %Debug
+            for id=1:8
+                %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
+                for iii= Blobs(id).top:Blobs(id).bottom 
+                    for jjj = Blobs(id).left:Blobs(id).right
+                        Ori(iii,jjj,1) = 234;
+                        Ori(iii,jjj,2) = 34;
+                        Ori(iii,jjj,3) = 234;
+                    end                        
+                end      
+            end
+            imshow(Ori);
+                  
+            end
+            
             
             %% Output            
             imshow(Ori);
@@ -434,7 +475,7 @@ end
 %(!) TODO CANNOT BE ON THE MARGINS DUE TO ERROR CAMERA DISTORSION MAKES OUT
 %OF BOUND A BLOBL WHICH IS NOT
 function ret = in_of_bounds_box(i,j,top_bound,bottom_bound,left_bound,right_bound)
-    global top_field; 
+     
     global bottom_field;  
     global right_field;  
     global left_field; 
@@ -757,25 +798,27 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function res=BallOwner()
     global NBlobs;
-    global FinalBlobs;
+    global Blobs;
     global Ball;
 
     ballOwner_id = 0;
     distance = 100;
 
     for id=1:NBlobs
-
-        c1_up = Ball(1).top-FinalBlobs(id).bottom;
-        c1_down = FinalBlobs(id).top-Ball(1).bottom;
-
+  %fprintf("ID %d\n");
+  
+  fprintf('TrackBlob(%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',id,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+        c1_up = Ball(1).top-Blobs(id).bottom;
+        c1_down = Blobs(id).top-Ball(1).bottom;
+        %fprintf("c1 up %d, c down %d\n",c1_up,c1_down);
         if(c1_up > -2)
              c1 = c1_up;
         else
             c1 = c1_down;
         end                    
 
-        c2_left = Ball(1).left-FinalBlobs(id).right;
-        c2_right = FinalBlobs(id).left-Ball(1).right;
+        c2_left = Ball(1).left-Blobs(id).right;
+        c2_right = Blobs(id).left-Ball(1).right;
 
         if(c2_left > -2)
              c2 = c2_left;
@@ -783,6 +826,7 @@ function res=BallOwner()
             c2 = c2_right;
         end                    
 
+        fprintf("c2_left %d, c2_right %d\n",c2_left,c2_right);
         distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
 
         if(distance_tmp < distance)
@@ -790,10 +834,10 @@ function res=BallOwner()
             ballOwner_id = id;
         end
 
-        %fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+        fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
 
     end
-    %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+    fprintf("Ball owner is Player(%d)\n",ballOwner_id);
     res = ballOwner_id;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

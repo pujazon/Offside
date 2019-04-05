@@ -50,8 +50,8 @@ classdef ini
             global B_Ball;
             global Ball_th;
 
-            R_Ball=162;
-            G_Ball=135;
+            R_Ball=159;
+            G_Ball=136;
             B_Ball=165;
             
             Ball_th = 20;
@@ -183,8 +183,8 @@ classdef ini
             end
 
              PlayersMask = tmp_PlayersMask;
-             %figure, imshow(PlayersMask);
-             figure, imshow(FieldMask);
+             figure, imshow(PlayersMask);
+             %figure, imshow(FieldMask);
 
              %Field Boundaries
               find_top();
@@ -242,18 +242,19 @@ classdef ini
                         %noise. Else STD calcus won't be realistic because there were
                         %too fake values           
 
-                            if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0) && (weight > minWeight))
-                            
-                                if(isBall())
-                                    Ball(1).top = top;
-                                    Ball(1).bottom = bottom;
-                                    Ball(1).left = left;
-                                    Ball(1).right = right;  
-                                    Ball(1).weight = weight;   
-                                    Ball(1).width = right-left;   
-                                    Ball(1).height = bottom-top; 
-                                    fprintf('Ball has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).weight,Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
-                                else
+                            if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0)...
+                                    && (weight > minWeight) && isBall() == 0)
+%                             
+%                                 if(isBall())
+%                                     Ball(1).top = top;
+%                                     Ball(1).bottom = bottom;
+%                                     Ball(1).left = left;
+%                                     Ball(1).right = right;  
+%                                     Ball(1).weight = weight;   
+%                                     Ball(1).width = right-left;   
+%                                     Ball(1).height = bottom-top; 
+%                                     fprintf('Ball has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).weight,Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
+%                                 else
                                     
                                 Blobs(id).top = top;
                                 Blobs(id).bottom = bottom;
@@ -264,7 +265,7 @@ classdef ini
                                 Blobs(id).height = bottom-top;                 
                                 fprintf('Blob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',i,j,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
                                 id = id+1;
-                                end
+                                %end
                                 
                             end 
 
@@ -276,6 +277,86 @@ classdef ini
             NBlobs = id-1;
             %%figure, imshow(Processed); 
 
+            end
+            
+            %% Ball Detection
+            %  First get the Candidates
+            %  Compare with precalculated mean histogram.
+            
+            for compress=1:1
+            
+            [centers, radii, metric] = imfindcircles(Ori,[1 20]);
+            ncenter = centers(1:10,:);
+            nradio = radii(1:10);
+            viscircles(ncenter, nradio,'EdgeColor','b');      
+            
+            N2 = size(ncenter);
+            
+            for i=1:N2               
+                
+                ycenter = floor(ncenter(i,1));
+                xcenter = floor(ncenter(i,2));
+                radio   = floor(nradio(i));
+                
+                btop    = (xcenter-radio);
+                bbottom = (xcenter+radio);
+                bleft   = (ycenter-radio);
+                bright  = (ycenter+radio);
+                
+                %checkHistogram
+                isBall = 0;
+                Rc = uint32(0);
+                Gc = uint32(0);
+                Bc = uint32(0);
+                Np = uint32(0);
+
+                RM = Ori(:,:,1); 
+                GM = Ori(:,:,2); 
+                BM = Ori(:,:,3);
+
+                for iii=btop:bbottom
+                    for jjj=bleft:bright
+                        if (PlayersMask(i,j) == 0)
+                            Rc = Rc+uint32(RM(iii,jjj));
+                            Gc = Gc+uint32(GM(iii,jjj));
+                            Bc = Bc+uint32(BM(iii,jjj));
+                            Np = Np+1;
+                        end
+                    end
+                end
+
+                Rh = floor(Rc/Np);
+                Gh = floor(Gc/Np);
+                Bh = floor(Bc/Np); 
+
+
+                if (diff_abs(Rh,R_Ball) < Ball_th &&...
+                diff_abs(Gh,G_Ball) < Ball_th &&...
+                diff_abs(Bh,B_Ball) < Ball_th)
+                    isBall = 1;
+                end
+                
+                %fprintf("Ball candidate %d POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
+                if(isBall == 1)
+
+                 Ball(1).top = btop;
+                 Ball(1).bottom = bbottom;
+                 Ball(1).left = bleft;
+                 Ball(1).right = bright;                    
+                    
+                for ii=btop:bbottom
+                    for jj=bleft:bright
+                            I(ii,jj,1) = 130;
+                            I(ii,jj,2) = 130;
+                            I(ii,jj,3) = 130;  
+                    end
+                end
+                end
+                                               
+            end
+      
+            imshow(I);
+                  
             end
 
             %% Postprocessing
@@ -446,22 +527,9 @@ classdef ini
                 res(1+(((id-1)*4)+4))= FinalBlobs(id).right;
             end
             
-            %Ball Posprocessing
-                
-%                 top = y_coords_from_camera_to_real(Ball(1).top);
-%                 bottom = y_coords_from_camera_to_real(Ball(1).bottom);
-%                 left = x_coords_from_camera_to_real(Ball(1).left);
-%                 right = x_coords_from_camera_to_real(Ball(1).right);           
-% 
-%                 Ball(1).top = top;
-%                 Ball(1).bottom = bottom;
-%                 Ball(1).left = left;
-%                 Ball(1).right = right;
-%                 
-%                 Ball(1).width = right-left;   
-%                 Ball(1).height = bottom-top;                 
-                fprintf('Ball; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
-                
+            %% Ball Posprocessing
+              
+                fprintf('Ball; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                                    
                 BallId = BallOwner();
                 
             end
