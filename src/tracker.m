@@ -263,8 +263,8 @@ classdef tracker < handle
                 %fprintf("old_left = %d\n",old_left);
                 %fprintf("old_right = %d\n",old_right);
                 
-				box_x_offset	= 20; %floor((old_bottom-old_top)/2);
-				box_y_offset	= 20; %floor((old_right-old_left)/2);
+				box_x_offset	= 10; %floor((old_bottom-old_top)/2);
+				box_y_offset	= 10; %floor((old_right-old_left)/2);
 				
                 %Bug! If there are too near there is a problem
                 %Of course related with MergeBlob   

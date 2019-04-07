@@ -185,9 +185,9 @@ int main(int argc, char *argv[]) {
 
 	//Important the order
 	MATLAB_status = iniMATLAB();
-	Camera_socket = start_listening(PORTA,"192.168.1.43");
-	Ball_socket = start_listening(PORTB,"192.168.1.44");
-	Button_socket = start_listening(PORTC,"192.168.1.44");
+	Camera_socket = start_listening(PORTA,"192.168.1.34");
+	Ball_socket = start_listening(PORTB,"192.168.1.33");
+	Button_socket = start_listening(PORTC,"192.168.1.33");
 
 	printf("Camera Socket == %d  Button Socket == %d  Ball_socket == %d and Mstatus == %d\n",Camera_socket,Button_socket,Ball_socket,MATLAB_status);
 
