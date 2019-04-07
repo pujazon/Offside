@@ -811,12 +811,13 @@ function res=BallOwner(xball,yball)
 
     ballOwner_id = 0;
     distance = 100;
+    fprintf('Ball; x: %d, y: %d \n',xball,yball);                                    
 
     for id=1:NBlobs
-  
-        fprintf('TrackBlob(%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',id,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
-        xplayer = floor((Ball(1).bottom-Ball(1).top)/2);
-        yplayer = floor((Ball(1).right-Ball(1).left)/2);
+ 
+        xplayer = Blobs(id).top  + floor((Blobs(id).bottom-Blobs(id).top)/2);
+        yplayer = Blobs(id).left + floor((Blobs(id).right-Blobs(id).left)/2);                
+        fprintf('Player(%d); x: %d, y: %d \n',id,xplayer,yplayer); 
         
         t1 = (xplayer-xball);     
         t2 = (yplayer-yball);
@@ -828,7 +829,7 @@ function res=BallOwner(xball,yball)
             ballOwner_id = id;
         end
 
-        fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+        fprintf("%d: = %d\n",id,distance_tmp);
 
     end
     fprintf("Ball owner is Player(%d)\n",ballOwner_id);
