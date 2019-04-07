@@ -892,8 +892,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function res=BallOwner(xball,yball)
     global NBlobs;
-    global Blobs;
-    global Ball;
+    global FinalBlobs;
 
     ballOwner_id = 0;
     distance = 100;
@@ -901,8 +900,8 @@ function res=BallOwner(xball,yball)
 
     for id=1:NBlobs
  
-        xplayer = Blobs(id).top  + floor((Blobs(id).bottom-Blobs(id).top)/2);
-        yplayer = Blobs(id).left + floor((Blobs(id).right-Blobs(id).left)/2);                
+        xplayer = FinalBlobs(id).top  + floor((FinalBlobs(id).bottom-FinalBlobs(id).top)/2);
+        yplayer = FinalBlobs(id).left + floor((FinalBlobs(id).right-FinalBlobs(id).left)/2);                
         fprintf('Player(%d); x: %d, y: %d \n',id,xplayer,yplayer); 
         
         t1 = (xplayer-xball);     
