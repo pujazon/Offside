@@ -29,6 +29,7 @@ int meeting(int sock);
 int stop_speaking(int sock);
 int req_ball(int ssocket);
 int req_camera(int ssocket);
+int req_photo(int ssocket);
 int req_button(int ssocket);
 int speak_pass(int ssocketnt,char value);
 int speak_img(int ssock);

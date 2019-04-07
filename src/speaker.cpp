@@ -110,6 +110,17 @@ int req_camera(int ssocket){
 	return 0;
 }
 
+int req_photo(int ssocket){
+
+	CAMERA_REQ[0] =  '2';
+	printf("PHOTO_REQ() == %c\n",CAMERA_REQ[0]);
+
+	send(ssocket,&CAMERA_REQ[0],1,0);
+	//write(childSocket, OUTPUT, sizeof(OUTPUT));
+
+	return 0;
+}
+
 int req_button(int ssocket){
 
 	BUTTON_REQ[0] =  '1';

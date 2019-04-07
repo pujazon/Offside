@@ -250,15 +250,19 @@ int main(int argc, char *argv[]) {
 				
 			if(pass_trigger == 1){				
 	
-					printf("Pass recived!!!!!! Offside ? == %d\n",pass_trigger);			
-				
+					printf("Pass recived!!!!!! Offside ? == %d\n",pass_trigger);	
+
+					//Take photo again because ball could have been in movement when it was token
+					
+							
+					printf("Rafa a \n");	
+					req_photo(Camera_socket);
+					req_camera(Camera_socket);
+					listen_img(Camera_socket);
 
 					getPlayersMatrix(0,current_PlayersMatrix);
-					//pOut=getPlayersMatrix(0,current_PlayersMatrix);
 
 					for (i=0; i<N; i++) {
-					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
-					//Keep las PlayersMatrix in Old and get new in Current 
 						old_PlayersMatrix[i] = current_PlayersMatrix[i];
 						current_PlayersMatrix[i] = pOut[i];
 					}
