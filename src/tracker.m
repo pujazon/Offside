@@ -98,6 +98,7 @@ classdef tracker < handle
             global right;
             global left;
             global weight;
+            global Blobs;
             global Ball;
                         
             global R_Ball;
@@ -327,7 +328,7 @@ classdef tracker < handle
 					Blobs(id).weight = weight;   
 					Blobs(id).width = right-left;   
 					Blobs(id).height = bottom-top;                 
-					fprintf('TrackBlob(%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                             
+					fprintf('TrackBlob[%d](%d,%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',id,old_top,old_left,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                             
 				end 
                     
             end
@@ -340,12 +341,11 @@ classdef tracker < handle
             
             for compress=1:1
             
-            [centers, radii, metric] = imfindcircles(Ori,[1 20]);
-            ncenter = centers(1:10,:);
-            nradio = radii(1:10);
-            viscircles(ncenter, nradio,'EdgeColor','b');      
-            
-            N2 = size(ncenter);
+            [centers, radii, metric] = imfindcircles(Ori,[9 15]);
+            N2 = size(centers);
+            ncenter = centers(1:N2,:);
+            nradio = radii(1:N2);
+            %viscircles(ncenter, nradio,'EdgeColor','b');                 
             
             %Size filter to avoid noise blobs
             min_ball_x = 20;
@@ -805,16 +805,14 @@ function ret = isBall()
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function res=BallOwner(xball,yball)
-    global NBlobs;
     global Blobs;
-    global Ball;
 
     ballOwner_id = 0;
     distance = 100;
     fprintf('Ball; x: %d, y: %d \n',xball,yball);                                    
 
-    for id=1:NBlobs
- 
+    for id=1:8
+        fprintf('Player[%d] -> top: %d, bottom: %d, right: %d, left: %d\n',id,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                             
         xplayer = Blobs(id).top  + floor((Blobs(id).bottom-Blobs(id).top)/2);
         yplayer = Blobs(id).left + floor((Blobs(id).right-Blobs(id).left)/2);                
         fprintf('Player(%d); x: %d, y: %d \n',id,xplayer,yplayer); 
