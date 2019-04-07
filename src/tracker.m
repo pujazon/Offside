@@ -341,7 +341,7 @@ classdef tracker < handle
             
             for compress=1:1
             
-            [centers, radii, metric] = imfindcircles(Ori,[9 15]);
+            [centers, radii, metric] = imfindcircles(Ori,[9 20]);
             N2 = size(centers);
             ncenter = centers(1:N2,:);
             nradio = radii(1:N2);

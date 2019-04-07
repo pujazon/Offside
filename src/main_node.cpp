@@ -248,11 +248,21 @@ int main(int argc, char *argv[]) {
 			    	std::cout << "Tracking(): " << elapsed_seconds.count() << "s\n";
 			}
 				
-			if(pass_trigger == 1){
-				
-				if(reciver == 1){
+			if(pass_trigger == 1){				
+	
 					printf("Pass recived!!!!!! Offside ? == %d\n",pass_trigger);			
-					
+				
+
+					getPlayersMatrix(0,current_PlayersMatrix);
+					//pOut=getPlayersMatrix(0,current_PlayersMatrix);
+
+					for (i=0; i<N; i++) {
+					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
+					//Keep las PlayersMatrix in Old and get new in Current 
+						old_PlayersMatrix[i] = current_PlayersMatrix[i];
+						current_PlayersMatrix[i] = pOut[i];
+					}
+
 					// Profiling
 					auto start = std::chrono::system_clock::now();
 					
@@ -265,15 +275,6 @@ int main(int argc, char *argv[]) {
 					
 					if(Offside) printf("Rafa, no me jodas. Fuera de juego!\n");
 					else printf("Sigan!\n");
-					
-					reciver = 0;
-					
-				}				
-				else {
-					reciver = 1;
-					printf("Pass done!!!!!!!!!!!!!\n");
-				}
-
 			}
 				
 		}
