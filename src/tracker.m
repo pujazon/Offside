@@ -398,11 +398,14 @@ classdef tracker < handle
                 
                 fprintf("Ball candidate %d POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
                 if(isBall == 1)
-                fprintf("BAAALL POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",btop,bbottom,bleft,bright,Rh,Gh,Bh);
+                 
+                 fprintf("BAAALL POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",btop,bbottom,bleft,bright,Rh,Gh,Bh);
                  Ball(1).top = btop;
                  Ball(1).bottom = bbottom;
                  Ball(1).left = bleft;
-                 Ball(1).right = bright;                    
+                 Ball(1).right = bright;   
+                 final_xcenter = xcenter;
+                 final_ycenter = ycenter;
                     
                 for ii=btop:bbottom
                     for jj=bleft:bright
@@ -414,7 +417,7 @@ classdef tracker < handle
                 end
                                                
             end            
-            Bid = BallOwner();
+            Bid = BallOwner(final_xcenter,final_ycenter);
             
             %Debug
             for id=1:8
@@ -801,7 +804,7 @@ function ret = isBall()
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function res=BallOwner()
+function res=BallOwner(xball,yball)
     global NBlobs;
     global Blobs;
     global Ball;
@@ -810,29 +813,15 @@ function res=BallOwner()
     distance = 100;
 
     for id=1:NBlobs
-  %fprintf("ID %d\n");
   
-  fprintf('TrackBlob(%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',id,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
-        c1_up = Ball(1).top-Blobs(id).bottom;
-        c1_down = Blobs(id).top-Ball(1).bottom;
-        %fprintf("c1 up %d, c down %d\n",c1_up,c1_down);
-        if(c1_up > -2)
-             c1 = c1_up;
-        else
-            c1 = c1_down;
-        end                    
+        fprintf('TrackBlob(%d) has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',id,Blobs(id).weight,Blobs(id).top,Blobs(id).bottom,Blobs(id).right,Blobs(id).left);                                    
+        xplayer = floor((Ball(1).bottom-Ball(1).top)/2);
+        yplayer = floor((Ball(1).right-Ball(1).left)/2);
+        
+        t1 = (xplayer-xball);     
+        t2 = (yplayer-yball);
 
-        c2_left = Ball(1).left-Blobs(id).right;
-        c2_right = Blobs(id).left-Ball(1).right;
-
-        if(c2_left > -2)
-             c2 = c2_left;
-        else
-            c2 = c2_right;
-        end                    
-
-        fprintf("c2_left %d, c2_right %d\n",c2_left,c2_right);
-        distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
+        distance_tmp = floor(sqrt((t1*t1)+(t2*t2)));
 
         if(distance_tmp < distance)
             distance = distance_tmp;

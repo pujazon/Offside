@@ -289,9 +289,11 @@ classdef ini
             
             for compress=1:1
             
-            [centers, radii, metric] = imfindcircles(Ori,[1 20]);
-            ncenter = centers(1:10,:);
-            nradio = radii(1:10);
+            [centers, radii, metric] = imfindcircles(Ori,[9 20])
+            N2 = size(centers);
+            
+            ncenter = centers(1:N2,:)
+            nradio = radii(1:N2)
             viscircles(ncenter, nradio,'EdgeColor','b');      
             
             N2 = size(ncenter);
@@ -341,13 +343,16 @@ classdef ini
                     isBall = 1;
                 end
                 
-                %fprintf("Ball candidate %d POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
+                fprintf("Ball candidate %d POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
                 if(isBall == 1)
+                fprintf("BALL %d : [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
 
                  Ball(1).top = btop;
                  Ball(1).bottom = bbottom;
                  Ball(1).left = bleft;
-                 Ball(1).right = bright;                    
+                 Ball(1).right = bright;                   
+                 final_xcenter = xcenter;
+                 final_ycenter = ycenter;
                     
                 for ii=btop:bbottom
                     for jj=bleft:bright
@@ -535,7 +540,7 @@ classdef ini
             %% Ball Posprocessing
               
                 fprintf('Ball; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                                    
-                BallId = BallOwner();
+                BallId = BallOwner(final_xcenter,final_ycenter);
                 
             end
 
@@ -885,46 +890,35 @@ function ret = isBall()
     
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function res=BallOwner()
+function res=BallOwner(xball,yball)
     global NBlobs;
-    global FinalBlobs;
+    global Blobs;
     global Ball;
 
     ballOwner_id = 0;
     distance = 100;
+    fprintf('Ball; x: %d, y: %d \n',xball,yball);                                    
 
     for id=1:NBlobs
+ 
+        xplayer = Blobs(id).top  + floor((Blobs(id).bottom-Blobs(id).top)/2);
+        yplayer = Blobs(id).left + floor((Blobs(id).right-Blobs(id).left)/2);                
+        fprintf('Player(%d); x: %d, y: %d \n',id,xplayer,yplayer); 
+        
+        t1 = (xplayer-xball);     
+        t2 = (yplayer-yball);
 
-        %fprintf("ID %d\n");
-        c1_up = Ball(1).top-FinalBlobs(id).bottom;
-        c1_down = FinalBlobs(id).top-Ball(1).bottom;
-        %fprintf("c1 up %d, c down %d\n",c1_up,c1_down);
-        if(c1_up > -2)
-             c1 = c1_up;
-        else
-            c1 = c1_down;
-        end                    
-
-        c2_left = Ball(1).left-FinalBlobs(id).right;
-        c2_right = FinalBlobs(id).left-Ball(1).right;
-
-        if(c2_left > -2)
-             c2 = c2_left;
-        else
-            c2 = c2_right;
-        end                    
-
-        %fprintf("c2_left %d, c2_right %d\n",c2_left,c2_right);
-        distance_tmp = floor(sqrt((c1*c1)+(c2*c2)));
+        distance_tmp = floor(sqrt((t1*t1)+(t2*t2)));
 
         if(distance_tmp < distance)
             distance = distance_tmp;
             ballOwner_id = id;
         end
 
-        %fprintf("%d: (%d,%d)= %d\n",id,c1,c2,distance_tmp);
+        fprintf("%d: = %d\n",id,distance_tmp);
 
     end
-    %fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+    fprintf("Ball owner is Player(%d)\n",ballOwner_id);
     res = ballOwner_id;
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
