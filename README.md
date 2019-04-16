@@ -1,79 +1,40 @@
-# RafVAR
+# Offside Real Time System
 
-Real-time system which detects Offside situation of the offense team in a Footbal match.
-It has 3 sub-systems::
-<hr>
-<h2>PlayerDetection:</h2>
-There are 3 Cameras: Top ,bottom and left camera.
-	
-With top camera image, our visual-computing software must take all players position.
-	
-With team camera, which is moved repected to top one and then is able to get shirt's players information, we must be able to detect each player axis position (Y position with left and X position with bottom) and their team 
-	
-Combinating all results it matches the left-bottom pairs position with their respective top position having then all players team and their positions.
-	
-Also BallDetection algorithm is included on top software camera detecting ball's position and the nearest player will be the ball owner (passer or reciver). So return value related to the Ball will be the index of this player.
+Offside Real Time System és un sistema basat en C++ y MATLAB el qual, en un entorn concret, permet detectar situacions de fora de joc en temps real. La compilació del sistema s'explica en un apartat més endevant.
 
-PlayersMatrix C format
-
-There is: id_ball + TeamA + TeamB
-	
-From [0] to [32] <-> 1 + 4*4 + 4*4 = 33 elments
-
-[0] id_ball : Is the id of ball's owner player (passer or reciver)
-	
-[1-4] TeamA player 0: top,bottom,left,right;
-	
-[5-8] TeamA player 1: top,bottom,left,right;
-	
-Team B subarray begins in 1+4*4 = 17 
-	
-[17-20] TeamB player 0: top,bottom,left,right; ...
-
-<h2>BallDetection:</h2>
-Using an MPU6050 accelerometer we are able to know when a player kicks the ball (high acceleration increase in any of the axis).
-	
-So when that happens a signal must be send to Server. This trigger is the one who forces Main algorithm to process the PlayerDetection algorithm and BallPosition.
-
-<h2>Camera</h2>
-Our cameras are a Raspberry Pi Camera v2. Raspberry uses Raspicam library to work with camera. Then we get the image and send via socket to the MainNode. 
-	
-Images are about 3,5 MB (Our throughput is about 1KB/sec so it takes 3 seconds more or less to transfer a whole image to MainNode. This is too much so we have to reduce image size to 1MB or 500KB in order to get the deadlines in STR)
-
-<h2>MainNode:</h2>
-MainNode is the one who has to process the information recived from Ball,Cameras and decide if there is Offside or not.
-	
-Inside a infinity loop we are getting PLayers' coordinates from PlayerDetection MATLAB process and they are stored.
-	
-When Ball trigger is detected we get the current Players' coordinates and we compare them with the last triggered Players' coordinates. Knowing the team of the owner ball player on the last trigger, the owner ball player on the current trigger and old and current positions the system is able to decide if there is Offside or not.
-
-The comunication between PlayerDetection MATLAB process and MainNode process is done by MATLAB C++ API using "MatlabDataArray.hpp" and "MatlabEngine.hpp"
-
-<h2>Network</h2>
-Speaker and Listener modules let a System speak with other System that is listening. It's implemented using sockets and sending data via TCP. 
-Camera system and Ball system are the Speakers while MainNode is the Listener. 
+El repositori està dividit en 4 carpetes:
 
 <hr>
+<h2>Requisits del Sistema</h2>
+<ul>
+<li>Tots els nodes han de treballar sota una distribució de Linux. \
+<li>El Sistema de Càmera i el Sistema de Pilota han de compilar-se i executar-se en plaques Raspberry Pi.
+<li>El Node Principal ha de tenir instalat MATLAB.
+</ul>
+<hr>
 
-<h2>isOffside TestCases:</h2>
-1. input-> All players positions are the same in i and i+1. Ball owners in each moment are of the same team. 
-	
-   output-> False;
-   
-   
-2. input -> A true Offside situation
-	
-   output -> True;
+<h2>Directoris</h2>
+<h4> /src </h4>
+És on hi ha tot el codi font del sistema. 
+<h4> /test </h4>
+És on hi ha els samples que hem estat utilitzant per a testejar el software. Bàicament hi ha els samples dels algorismes de visió per computadors degut a que el testeig dels demés sitemes o be ha estat a mode de prova-error o be hi ha un driver de test a la carpeta /src.
+<h4> /Tools </h4>
+És on hi ha tots els scripts necessaris per a configurar el sistema. Bàsicament hi ha l'escriptura de les variables d'entorn necessàries per a poder compilar i executar.
+<h4> /build </h4>
+És on hi ha les carpetes per a compilar cadascun dels sistemes. Hi han els Makefiles i els scripts de compilació. 
 
-<h2> TODOs </h2>
-Camera calibration
-Tracking algorithm
-Homography team camera algorithm
-Parallel ToolBox
+<hr>
+<h2>Build</h2>
+Per a compilar el sistema anem a la carpeta de build que volem compilar (pe: /build/BallDetection) i executar:
 
-<h2>Considerations:</h2>
-1. We can use Visual-computing software to detect ball's position because our PoC won't have occlusion above the ball (there are no real players to step the ball).
+<ul>
+<li>build.sh
+</ul>
 
-2. Sliding field on 4 sides from the center A,B,C,D from top and left to right and bottom, if player is in A or B there is big right-left deviation. If it is in C and D there is a big top-bottom deviation
+També es poden còrrer les comandes Makefile (veure dins del build.sh):
 
-3. How more high the camera is less deviation are.
+<ul>
+<li>make clean
+<li>make setup
+<li>make Camera (En el Sistema Càmera, per exemple).
+</ul>
