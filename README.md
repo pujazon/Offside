@@ -21,7 +21,12 @@ El repositori està dividit en 4 carpetes:
 <h4> /Tools </h4>
 És on hi ha tots els scripts necessaris per a configurar el sistema. Bàsicament hi ha l'escriptura de les variables d'entorn necessàries per a poder compilar i executar.
 <h4> /build </h4>
-És on hi ha les carpetes per a compilar cadascun dels sistemes. Hi han els Makefiles i els scripts de compilació. 
+És on hi ha les carpetes per a compilar cadascun dels sistemes. Hi han els Makefiles i els scripts de compilació. Un cop compilat trobem les següents carpetes:
+
+<ul>
+  <li> \bin: Hi ha el binari compliat per a executar
+  <li> \objs: Hi ha els objectes de la compilació.
+</ul>
 
 <hr>
 <h2>Build</h2>
