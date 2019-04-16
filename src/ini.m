@@ -76,12 +76,10 @@ classdef ini
             for compress=1:1
 
             maxNumCompThreads(16);
-            %%%%%fprintf('Hilos: %d\n',maxNumCompThreads);
 
             I = imread('top.ppm');
             Ori = imread('top.ppm');
 
-            figure, imshow(Ori);
 
             end
 
@@ -123,7 +121,7 @@ classdef ini
             end
             fprintf("RGB Grass %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
 
-            %% Preprocessing
+            % Preprocessing
             %  FieldMask:
             %  Apply thresholding with Grass mean color and offset
             %  FieldBoundaries:
@@ -142,7 +140,6 @@ classdef ini
             GChannel = I(:,:,2);
             BChannel = I(:,:,3);
 
-            %Are hardcoded but must be set dinamically
             Rth = 80;
             Gth = 80;
             Bth = 80;
@@ -152,22 +149,12 @@ classdef ini
 
             for i = 1: rows
                 for j = 1: columns                        
-            %        %%fprintf("RGB Grass %d,%d,%d\n",abs(RChannel(i,j)),abs(GChannel(i,j)),abs(BChannel(i,j)));        
-            %        %%fprintf("Shirt color %d,%d,%d\n",max_RLevels,max_GLevels,max_BLevels);
-            %        %%fprintf("Diff RGB Grass %d,%d,%d\n",diff_abs(RChannel(i,j),max_RLevels),diff_abs(GChannel(i,j),max_GLevels),diff_abs(BChannel(i,j),max_BLevels));        
-            
+       
             %       With three last conditions we delte White and black
             %       pixels which can pass through first conditions.
             %       Third is an empiristic one
 
                         
-            
-                    %TODO: Field lines
-%                    if(RChannel(i,j) > 190 &&...
-%                         GChannel(i,j) > 190 &&...
-%                         BChannel(i,j) > 190)                                                        
-%                         FieldMask(i,j) = 0;
-%                     else
 
                     if (diff_abs(RChannel(i,j),max_RLevels) < Rth &&...
                         diff_abs(GChannel(i,j),max_GLevels) < Gth &&...
@@ -188,7 +175,7 @@ classdef ini
 
              PlayersMask = tmp_PlayersMask;
              figure, imshow(PlayersMask);
-             %figure, imshow(FieldMask);
+             figure, imshow(FieldMask);
 
              %Field Boundaries
               find_top();
@@ -221,7 +208,6 @@ classdef ini
 
             %Weight threshold. or put it after too many examples or do it dinamically
             %Difficult to do it dinamically. It will be hardcoded but must be good
-            %justifyed
 
             minWeight = 300;
 
@@ -248,18 +234,7 @@ classdef ini
 
                             if ((top ~= 0) && (bottom ~= 0) && (left ~= 0) && (right ~= 0)...
                                     && (weight > minWeight) && isBall() == 0)
-%                             
-%                                 if(isBall())
-%                                     Ball(1).top = top;
-%                                     Ball(1).bottom = bottom;
-%                                     Ball(1).left = left;
-%                                     Ball(1).right = right;  
-%                                     Ball(1).weight = weight;   
-%                                     Ball(1).width = right-left;   
-%                                     Ball(1).height = bottom-top; 
-%                                     fprintf('Ball has %d pixels; top: %d, bottom: %d, right: %d, left: %d\n',Ball(1).weight,Ball(1).top,Ball(1).bottom,Ball(1).right,Ball(1).left);                                    
-%                                 else
-                                    
+
                                 Blobs(id).top = top;
                                 Blobs(id).bottom = bottom;
                                 Blobs(id).left = left;
@@ -279,7 +254,7 @@ classdef ini
             end
 
             NBlobs = id-1;
-            %%figure, imshow(Processed); 
+            figure, imshow(Processed); 
 
             end
             
@@ -294,7 +269,6 @@ classdef ini
             
             ncenter = centers(1:N2,:);
             nradio = radii(1:N2);
-            viscircles(ncenter, nradio,'EdgeColor','b');      
             
             N2 = size(ncenter);
             
@@ -343,7 +317,6 @@ classdef ini
                     isBall = 1;
                 end
                 
-                fprintf("Ball candidate %d POS: [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
                 if(isBall == 1)
                 fprintf("BALL %d : [%d,%d,%d,%d] RGB: [%d,%d,%d]\n",i,btop,bbottom,bleft,bright,Rh,Gh,Bh);
 
@@ -353,14 +326,7 @@ classdef ini
                  Ball(1).right = bright;                   
                  final_xcenter = xcenter;
                  final_ycenter = ycenter;
-                    
-                for ii=btop:bbottom
-                    for jj=bleft:bright
-                            I(ii,jj,1) = 130;
-                            I(ii,jj,2) = 130;
-                            I(ii,jj,3) = 130;  
-                    end
-                end
+
                 end
                                                
             end
@@ -421,11 +387,6 @@ classdef ini
                 aux2= sqrt(aux);
                 std_height = floor(aux2);  
 
-                %%fprintf('std_width = %d\n',std_width);
-                %%fprintf('mean_width = %d\n',mean_width);
-                %%fprintf('std_height = %d\n',std_height);
-                %%fprintf('mean_height = %d\n',mean_height);
-
                 fid = 1;
 
                 for k=1:NBlobs
@@ -437,8 +398,6 @@ classdef ini
 
                     blob_box_weight = floor(Blobs(k).width*Blobs(k).height);
 
-                    %%fprintf('std_height_i = %d\n',std_height_i);
-                    %%fprintf('std_width_i = %d\n',std_width_i);
 
                     %Processed output shows the curve of camera.
                     %this origins that center players will have less pixels
@@ -455,38 +414,14 @@ classdef ini
                 end    
 
                 fid = fid-1;
-
-                %Debug
-                for w=1:fid
-                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
-                    for iii= FinalBlobs(w).top:FinalBlobs(w).bottom 
-                        for jjj = FinalBlobs(w).left:FinalBlobs(w).right
-                            I(iii,jjj,1) = 234;
-                            I(iii,jjj,2) = 34;
-                            I(iii,jjj,3) = 234;
-                        end
-                    end    
-                end
-                %Debug
-                    %%%%%%fprintf("I(%d)=[%d,%d,%d,%d]; r=%d,c=%d\n",w,FinalBlobs(w).top,FinalBlobs(w).left,FinalBlobs(w).bottom,FinalBlobs(w).right,(FinalBlobs(w).bottom-FinalBlobs(w).top),(FinalBlobs(w).right-FinalBlobs(w).left));        
-                    for iii= Ball(1).top:Ball(1).bottom 
-                        for jjj = Ball(1).left:Ball(1).right
-                            I(iii,jjj,1) = 100;
-                            I(iii,jjj,2) = 100;
-                            I(iii,jjj,3) = 50;
-                        end
-                    end   
-
-                %%fprintf('Really, there are %d Blobs!\n',fid);
                 NBlobs = fid;
-                imshow(I);
             end
 
             %% Coordinates
             % Get each player's coordinates assuming orthogonal camera (unreal)
 
             for compress=1:1
-            %TODO: Player Pixels must be passed to field coordinates;
+
             field_width = right_field - left_field;
             field_height = bottom_field - top_field;
 
@@ -494,38 +429,9 @@ classdef ini
             y_cm_per_pixel = round(camera_height/field_height,5);
             x_pixel_per_cm = round(field_width/camera_width,5);
             y_pixel_per_cm = round(field_height/camera_height,5);
-                
-            %fprintf("x_cm_per_pixel = %d\n",x_cm_per_pixel);
-            %fprintf("y_cm_per_pixel = %d\n",y_cm_per_pixel);
-            %fprintf("x_pixel_per_cm = %d\n",x_pixel_per_cm);
-            %fprintf("y_pixel_per_cm = %d\n",y_pixel_per_cm);
+
 
             for id=1:NBlobs
-
-				%fprintf("top = %d\n",top);
-				%fprintf("bottom = %d\n",bottom);
-				%fprintf("left  = %d\n",left);
-				%fprintf("right  = %d\n",right);
-%                 
-%                 top = y_coords_from_camera_to_real(FinalBlobs(id).top);
-%                 bottom = y_coords_from_camera_to_real(FinalBlobs(id).bottom);
-%                 left = x_coords_from_camera_to_real(FinalBlobs(id).left);
-%                 right = x_coords_from_camera_to_real(FinalBlobs(id).right);
-%             
-% 				%fprintf("top = %d\n",top);
-% 				%fprintf("bottom = %d\n",bottom);
-% 				%fprintf("left  = %d\n",left);
-% 				%fprintf("right  = %d\n",right);
-% 
-%                 FinalBlobs(id).top = top;
-%                 FinalBlobs(id).bottom = bottom;
-%                 FinalBlobs(id).left = left;
-%                 FinalBlobs(id).right = right;
-
-				%fprintf("top = %d\n",top);
-				%fprintf("bottom = %d\n",bottom);
-				%fprintf("left  = %d\n",left);
-				%fprintf("right  = %d\n",right);
 
                 FinalBlobs(id).width = right-left;   
                 FinalBlobs(id).height = bottom-top;                 
@@ -555,17 +461,6 @@ classdef ini
             res(35)=max_GLevels;
             res(36)=max_BLevels;
 
-            fprintf("RES: {%d,",res(1));
-            for i=2:33
-                fprintf("%d,",res(i));
-            end
-            fprintf("}\n");
-        
-            fprintf("Colors: {%d,",res(34));
-            for i=35:36
-                fprintf("%d,",res(i));
-            end
-            fprintf("}\n"); 
             end
 
         end
@@ -599,31 +494,24 @@ function Blob(ii,jj)
     global left;
     global weight;
         
-    %fprintf("Pos [%d,%d]\n",ii,jj);
     if(in_of_bounds(ii+1,jj)==1 && PlayersMask(ii+1,jj) == 0 && Processed(ii+1,jj) == 0) 
-        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii+1,jj));
         Processed(ii+1,jj) = 1;
         weight = weight +1;        
         bottom = max(ii+1,bottom);
-        %%fprintf('bottom = %d\n',bottom);
         Blob(ii+1,jj);
     end  
             
     if(in_of_bounds(ii,jj-1)== 1 && PlayersMask(ii,jj-1) == 0 && Processed(ii,jj-1) == 0)     
-        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj-1));
         Processed(ii,jj-1) = 1;
         weight = weight +1;        
         left = min(jj-1,left);
-        %%fprintf('left = %d\n',left);
         Blob(ii,jj-1);
     end
     
     if(in_of_bounds(ii,jj+1)==1 && PlayersMask(ii,jj+1) == 0 && Processed(ii,jj+1) == 0)
-        %%%%%%fprintf('TmpBlob() = %d\n',TmpBlobMap(ii,jj+1));
         Processed(ii,jj+1) = 1;
         weight = weight +1; 
         right = max(jj+1,right);
-        %%fprintf('right = %d\n',right);
         Blob(ii,jj+1);
     end    
 
@@ -647,24 +535,20 @@ function find_top()
         
         while (trobat == 0 && jj < columns-1)
             %if != 0 -> Is not grass
-            %fprintf("Grass is %d\n",FieldMask(ii,jj));
             if (FieldMask(ii,jj) == 0)
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
             end
             jj = jj+1;
-            %%%fprintf("(%d,%d)\n",ii,jj);
         end
    
         %Cannot be used avg because 
         if(counter < old_counter)
-           % fprintf("ii %d counter %d\n",ii,counter);
             trobat = 1; 
             top_field = ii;
         end
         
-        %fprintf("Fila %d counter %d\n",ii,counter);
         old_counter = counter;
         ii=ii+1;
     end
@@ -689,14 +573,12 @@ function find_bottom()
         
         while (trobat == 0 && jj < columns-1)
             %if != 0 -> Is not grass
-            %fprintf("Grass is %d\n",FieldMask(ii,jj));
             if (FieldMask(ii,jj) == 0)
                 %if is grass we must count and check if we know
                 %already that is row grass one
                 counter = counter +1;
             end
             jj = jj+1;
-            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if(counter > col_avg && counter < old_counter)
@@ -728,7 +610,6 @@ function find_right()
         
         while (trobat == 0 && (ii < rows-1))
             %if != 0 -> Is not grass
-            %fprintf("Grass is %d\n",FieldMask(ii,jj));
             if (FieldMask(ii,jj) == 0)
                 %if is grass we must count and check if we know
                 %already that is row grass one
@@ -736,7 +617,6 @@ function find_right()
 
             end      
             ii = ii+1;
-            %%%fprintf("(%d,%d)\n",ii,jj);
         end
         
         if(counter > row_avg && counter < old_counter)
@@ -768,7 +648,6 @@ function find_left()
         
         while (trobat == 0 && ii < rows-1)
             %if != 0 -> Is not grass
-            %fprintf("Grass [%d,%d] is %d\n",ii,jj,FieldMask(ii,jj));
             if (FieldMask(ii,jj) == 0)
                 %if is grass we must count and check if we know
                 %already that is row grass one
@@ -793,9 +672,7 @@ function ret = x_coords_from_camera_to_real(x_camera_coord)
     global x_cm_per_pixel;
 
     x_real_coord = x_camera_coord*x_cm_per_pixel;
-    %%fprintf("x_real_coord: %d\n",x_real_coord);
 
-    %TODO: Precision level (?)
     ret = round(x_real_coord);
 
 end
@@ -805,9 +682,7 @@ function ret = y_coords_from_camera_to_real(y_camera_coord)
     global y_cm_per_pixel;
 
     y_real_coord = y_camera_coord*y_cm_per_pixel;
-    %%fprintf("y_real_coord: %d\n",y_real_coord);
 
-    %TODO: Precision level (?)
     ret = round(y_real_coord);
 
 end
@@ -817,9 +692,7 @@ function ret = x_coords_from_real_to_camera(x_real_coord)
     global x_pixel_per_cm;
 
     x_real_coord = x_real_coord*x_pixel_per_cm;
-    %%fprintf("x_real_coord: %d\n",x_real_coord);
 
-    %TODO: Precision level (?)
     ret = round(x_real_coord);
 
 end
@@ -829,9 +702,7 @@ function ret = y_coords_from_real_to_camera(y_real_coord)
     global y_pixel_per_cm;
 
     y_real_coord = y_real_coord*y_pixel_per_cm;
-    %%fprintf("y_real_coord: %d\n",y_real_coord);
 
-    %TODO: Precision level (?)
     ret = round(y_real_coord);
 
 end
@@ -871,7 +742,6 @@ function ret = isBall()
             Bc = Bc+uint32(BM(i,j));
             N = N+1;
         end
-        %fprintf("(%d,%d) -> [%d,%d,%d])\n",i,j,RM(i,j),GM(i,j),BM(i,j)); 
             
         end
     end
@@ -880,7 +750,6 @@ function ret = isBall()
     Gh = floor(Gc/N);
     Bh = floor(Bc/N); 
 
-    %fprintf("isBall() = [%d,%d,%d]\n == %d %d %d\n",Rh,Gh,Bh,diff_abs(Rc,R_Ball),diff_abs(Gc,G_Ball),diff_abs(Bc,B_Ball));
 
     if (diff_abs(Rh,R_Ball) < Ball_th &&...
     diff_abs(Gh,G_Ball) < Ball_th &&...
@@ -896,13 +765,11 @@ function res=BallOwner(xball,yball)
 
     ballOwner_id = 0;
     distance = 100;
-    fprintf('Ball; x: %d, y: %d \n',xball,yball);                                    
 
     for id=1:NBlobs
  
         xplayer = FinalBlobs(id).top  + floor((FinalBlobs(id).bottom-FinalBlobs(id).top)/2);
         yplayer = FinalBlobs(id).left + floor((FinalBlobs(id).right-FinalBlobs(id).left)/2);                
-        fprintf('Player(%d); x: %d, y: %d \n',id,xplayer,yplayer); 
         
         t1 = (xplayer-xball);     
         t2 = (yplayer-yball);
@@ -914,10 +781,9 @@ function res=BallOwner(xball,yball)
             ballOwner_id = id;
         end
 
-        fprintf("%d: = %d\n",id,distance_tmp);
 
     end
-    fprintf("Ball owner is Player(%d)\n",ballOwner_id);
+
     res = ballOwner_id;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

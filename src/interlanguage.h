@@ -14,11 +14,9 @@
 #define N BallOwner_Fields+(NPlayers*Fields)+Grass_Fields
 
 using namespace matlab::engine;
-//extern uint32_t C_PlayersMatrix[N];
 
 extern uint32_t pOut[N];
 
 int iniMATLAB();
 int endMATLAB();
 int getPlayersMatrix(int isIni, uint32_t *old);
-//uint32_t* getPlayersMatrix(int isIni, uint32_t *old);

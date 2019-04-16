@@ -68,8 +68,8 @@ int getPlayersMatrix(int isIni, uint32_t *old) {
 	factory.createScalar<double>(old[34]),
 	factory.createScalar<double>(old[35])
    });
-//  auto old_PlayersMatrix = factory.createArray<uint32_t>({1,36},std::begin(form),std::end(form));
-    
+
+   
    if(isIni){		
 		PlayersMatrix  = matlabPtr->feval("handler_ini",1,{});
 		matlab::data::Array ttmp = PlayersMatrix[0]; 

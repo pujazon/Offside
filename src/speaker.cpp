@@ -72,7 +72,6 @@ int speak_pass(int ssocket, char value){
 	printf("speak() == %c\n",PASS[0]);
 
 	send(ssocket,&PASS[0],1,0);
-	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
 }
@@ -83,7 +82,6 @@ int speak_button(int ssock, char value){
 	printf("Button() == %c\n",BUTTON[0]);
 
 	send(ssock,&BUTTON[0],1,0);
-	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
 }
@@ -94,7 +92,6 @@ int req_ball(int ssocket){
 	printf("BALL_REQ() == %c\n",BALL_REQ[0]);
 
 	send(ssocket,&BALL_REQ[0],1,0);
-	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
 }
@@ -105,7 +102,6 @@ int req_camera(int ssocket){
 	printf("CAMERA_REQ() == %c\n",CAMERA_REQ[0]);
 
 	send(ssocket,&CAMERA_REQ[0],1,0);
-	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
 }
@@ -116,7 +112,6 @@ int req_photo(int ssocket){
 	printf("PHOTO_REQ() == %c\n",CAMERA_REQ[0]);
 
 	send(ssocket,&CAMERA_REQ[0],1,0);
-	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
 }
@@ -127,7 +122,6 @@ int req_button(int ssocket){
 	printf("CAMERA_REQ() == %c\n",BUTTON_REQ[0]);
 
 	send(ssocket,&BUTTON_REQ[0],1,0);
-	//write(childSocket, OUTPUT, sizeof(OUTPUT));
 
 	return 0;
 }
@@ -140,7 +134,6 @@ int speak_img(int socket){
    packet_index = 1;
 
    picture = fopen("top.ppm", "r");
-   //printf("Getting Picture Size\n");   
 
    if(picture == NULL) {
         printf("Error Opening Image File"); } 
@@ -148,10 +141,8 @@ int speak_img(int socket){
    fseek(picture, 0, SEEK_END);
    size = ftell(picture);
    fseek(picture, 0, SEEK_SET);
-   //printf("Total Picture size: %i\n",size);
 
    //Send Picture Size
-   //printf("Sending Picture Size\n");
    write(socket, (void *)&size, sizeof(int));
 
    //Send Picture as Byte Array
@@ -159,27 +150,17 @@ int speak_img(int socket){
 
    do { //Read while we get errors that are due to signals.
       stat=read(socket, &read_buffer , 255);
-    //  printf("Bytes read: %i\n",stat);
    } while (stat < 0);
 
-   //printf("Received data in socket\n");
-   //printf("Socket data: %c\n", read_buffer);
 
    while(!feof(picture)) {
-   //while(packet_index = 1){
-      //Read from the file into our send buffer
+
       read_size = fread(send_buffer, 1, sizeof(send_buffer)-1, picture);
 
       //Send data through our socket 
       do{
         stat = write(socket, send_buffer, read_size);  
       }while (stat < 0);
-
-      //printf("Packet Number: %i\n",packet_index);
-      //printf("Packet Size Sent: %i\n",read_size);     
-      //printf(" \n");
-      //printf(" \n");
-
 
       packet_index++;  
 	printf("Send img correctly()\n");

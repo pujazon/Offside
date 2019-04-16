@@ -25,8 +25,7 @@ int setup_camera(){
 
 int photo(){
 
-	auto start = std::chrono::system_clock::now();				
-Camera.grab();
+	Camera.grab();
     //allocate memory
     unsigned char *data=new unsigned char[  Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB )];
     //extract the image in rgb format
@@ -36,12 +35,7 @@ Camera.grab();
     outFile<<"P6\n"<<Camera.getWidth() <<" "<<Camera.getHeight() <<" 255\n";
     outFile.write ( ( char* ) data, Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB ) );
     cout<<"Image saved at raspicam_image.ppm"<<endl;
-sleep(1);
 	
-	auto end = std::chrono::system_clock::now();				
-	std::chrono::duration<double> elapsed_seconds = end-start;
-	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	std::cout << "photo(): " << elapsed_seconds.count() << "s\n";	 
-
+	sleep(1);	
     return 0;
 }

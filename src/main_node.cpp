@@ -13,8 +13,6 @@
 
 using namespace std;
 
-//TODO: Main.h
-
 uint32_t reciver;
 
 uint32_t top_offset = 0;
@@ -29,18 +27,12 @@ uint32_t current_PlayersMatrix[N];
 uint32_t top[NPlayers/2];
 uint32_t bottom[NPlayers/2];
 
-//TODO: Variables or Invariant to know where each has to score (pe: Team A top Team B bottom)
-//		Important in isOffside check (*)
 
-//Workarround. Only one is set because the other team will score on the other direction.
-// 1 means top; 0 means bottom;
 uint32_t dirTeamA = 1;
 
 const uint32_t TeamA = 1;
 const uint32_t TeamB = 0;
 
-//TODO: Each call must have error handling
-//TODO: Format and size of PlayersMatrix is not correct yet. Goalkeapers (?)
 
 uint32_t max_top(uint32_t* old, uint32_t team){
 
@@ -92,7 +84,6 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 
 	uint32_t result = 0;
 
-	//Old == Passer && Current == Receiver
 	uint32_t Passer_Team;
 	uint32_t Receiver_Team;
 
@@ -118,7 +109,7 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 	//with the ball and in each ball touch trigger has been set, but it hasn't be checked
 	if ((Passer_Team == Receiver_Team) && (id_passer != id_receiver)){
 
-		//TODO: Capsule it on a function (?)
+	
 		//First: We must know if passing goes forward or backward
 		//We work with Old positions always because they are the relevant ones
 
@@ -199,7 +190,6 @@ int main(int argc, char *argv[]) {
 		req_camera(Camera_socket);
 		listen_img(Camera_socket);
 
-		//pOut= getPlayersMatrix(1,current_PlayersMatrix);	
 		getPlayersMatrix(1,current_PlayersMatrix);	
 		printf("Getd\n");
 		for (i=0; i<N; i++) {
@@ -231,28 +221,25 @@ int main(int argc, char *argv[]) {
 				printf("Tracking!\n");
 				
 				//Profiling
-				auto start = std::chrono::system_clock::now();
+				//auto start = std::chrono::system_clock::now();
 				getPlayersMatrix(0,current_PlayersMatrix);
-				//pOut=getPlayersMatrix(0,current_PlayersMatrix);
 
+			
 				for (i=0; i<N; i++) {
-					//std::cout << "En el Main[i]: " << pOut[i] << std::endl;
-					//Keep las PlayersMatrix in Old and get new in Current 
 					old_PlayersMatrix[i] = current_PlayersMatrix[i];
 					current_PlayersMatrix[i] = pOut[i];
 				}
 
-					auto end = std::chrono::system_clock::now();
-			    	std::chrono::duration<double> elapsed_seconds = end-start;
-			    	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-			    	std::cout << "Tracking(): " << elapsed_seconds.count() << "s\n";
+					//auto end = std::chrono::system_clock::now();
+			    	//std::chrono::duration<double> elapsed_seconds = end-start;
+			    	//std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+			    	//std::cout << "Tracking(): " << elapsed_seconds.count() << "s\n";
 			}
 				
 			if(pass_trigger == 1){				
 	
 					printf("Pass recived!!!!!! Offside ? == %d\n",pass_trigger);	
 
-					//Take photo again because ball could have been in movement when it was token
 					
 							
 					printf("Rafa a \n");	
@@ -268,16 +255,16 @@ int main(int argc, char *argv[]) {
 					}
 
 					// Profiling
-					auto start = std::chrono::system_clock::now();
+					//auto start = std::chrono::system_clock::now();
 					
 					Offside = isOffside(old_PlayersMatrix,current_PlayersMatrix); 
 					
-					auto end = std::chrono::system_clock::now();				
-					std::chrono::duration<double> elapsed_seconds = end-start;
-					std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-					std::cout << "isOffside(): " << elapsed_seconds.count() << "s\n";
+					//auto end = std::chrono::system_clock::now();				
+					//std::chrono::duration<double> elapsed_seconds = end-start;
+					//std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+					//std::cout << "isOffside(): " << elapsed_seconds.count() << "s\n";
 					
-					if(Offside) printf("Rafa, no me jodas. Fuera de juego!\n");
+					if(Offside) printf("Fuera de juego!\n");
 					else printf("Sigan!\n");
 			}
 				

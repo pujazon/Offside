@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
 
 	//Main Loop
 	while(1){
-		//TODO button_recv && button_req ?
 	 
 	 	ball_recv(conection);
 		printf("Synch\n");

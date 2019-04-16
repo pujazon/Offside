@@ -14,8 +14,6 @@ int status;
 
 struct sockaddr_in servaddr;
 
-
-//TODO: Each function must have error handling
   
 int start_listening(int port, char *ADDR){
 
@@ -54,10 +52,8 @@ int listen_pass(int rsocket){
 
   int result = -1;
 
-  //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
-  //status = read(sock,&buffer[0],1);
+
   status = recv(rsocket,&buff[0],1,0);
-  //printf("recivido %c\n",buffer[0]);
   if (status > 0) result = atoi(&buff[0]);
 
   return result;
@@ -69,7 +65,7 @@ int ball_recv(int rsocket){
   int result = -1;
 
   //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
-  //status = read(sock,&buffer[0],1);
+  
   status = recv(rsocket,&BALL_RECV[0],1,0);
 
   if (status > 0) result = atoi(&BALL_RECV[0]);
@@ -83,7 +79,7 @@ int camera_recv(int rsocket){
   int result = -1;
 
   //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
-  //status = read(sock,&buffer[0],1);
+
   status = recv(rsocket,&CAMERA_RECV[0],1,0);
 
   if (status > 0) result = atoi(&CAMERA_RECV[0]);
@@ -97,7 +93,7 @@ int button_recv(int rsocket){
   int result = -1;
 
   //Only 1 byte is send so sizeof(buffer) cannot be the expected length; infintie loop
-  //status = read(sock,&buffer[0],1);
+
   status = recv(rsocket,&BUTTON_RECV[0],1,0);
 
   if (status > 0) result = atoi(&BUTTON_RECV[0]);
@@ -107,8 +103,7 @@ int button_recv(int rsocket){
 }
 
 int listen_img(int socket){
-
-  auto start = std::chrono::system_clock::now();			
+		
 
   int buffersize = 0, recv_size = 0,size = 0, read_size, write_size, packet_index =1,stat;
 
@@ -120,10 +115,6 @@ int listen_img(int socket){
   stat = read(socket, &size, sizeof(int));
   }while(stat<0);
 
-//  printf("Packet received.\n");
- // printf("Packet size: %i\n",stat);
- // printf("Image size: %i\n",size);
-  //printf(" \n");
 
   char buffer[] = "Got it";
 
@@ -132,8 +123,6 @@ int listen_img(int socket){
   stat = write(socket, &buffer, sizeof(int));
   }while(stat<0);
 
- // printf("Reply sent\n");
-  //printf(" \n");
 
   image = fopen("top.ppm", "w");
 
@@ -150,7 +139,6 @@ int listen_img(int socket){
   int buffer_fd, buffer_out;
 
   while(recv_size < size) {
-  //while(packet_index < 2){
 
       FD_ZERO(&fds);
       FD_SET(socket,&fds);
@@ -169,13 +157,9 @@ int listen_img(int socket){
                  read_size = read(socket,imagearray, 10241);
               }while(read_size <0);
 
-    //          printf("Packet number received: %i\n",packet_index);
-  //        printf("Packet size: %i\n",read_size);
-
 
           //Write the currently read data into our image file
            write_size = fwrite(imagearray,1,read_size, image);
-    //       printf("Written image size: %i\n",write_size); 
 
                if(read_size !=write_size) {
                    printf("error in read write\n");    }
@@ -184,19 +168,13 @@ int listen_img(int socket){
                //Increment the total number of bytes read
                recv_size += read_size;
                packet_index++;
-      //         printf("Total received image size: %i\n",recv_size);
-        //       printf(" \n");
-          //     printf(" \n");
+
       }
 
   }
 
     fclose(image);
-	
-	auto end = std::chrono::system_clock::now();				
-	std::chrono::duration<double> elapsed_seconds = end-start;
-	std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-	std::cout << "listen_img(): " << elapsed_seconds.count() << "s\n";
+
     return 1;
 }
 
