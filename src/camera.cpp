@@ -1,6 +1,8 @@
 #include "camera.h"
 
 raspicam::RaspiCam Camera;
+int photo_id = 0;
+char name[10];
 
 int setup_camera(){
 
@@ -30,11 +32,17 @@ int photo(){
     unsigned char *data=new unsigned char[  Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB )];
     //extract the image in rgb format
     Camera.retrieve ( data,raspicam::RASPICAM_FORMAT_RGB );//get camera image
-
+	
+	sprintf(name, "top_%d.ppm",photo_id);
+	
     std::ofstream outFile ( "top.ppm",std::ios::binary );
+    std::ofstream outFile ( name,std::ios::binary );
+	
     outFile<<"P6\n"<<Camera.getWidth() <<" "<<Camera.getHeight() <<" 255\n";
     outFile.write ( ( char* ) data, Camera.getImageTypeSize ( raspicam::RASPICAM_FORMAT_RGB ) );
     cout<<"Image saved at raspicam_image.ppm"<<endl;
+	
+	photo_id++;
 	
 	sleep(1);	
     return 0;
