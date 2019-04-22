@@ -57,6 +57,30 @@ uint32_t max_top(uint32_t* old, uint32_t team){
 	return result;
 }
 
+
+uint32_t max_bottom(uint32_t* old, uint32_t team){
+
+	uint32_t result = 0;
+	uint32_t i = 0;
+	uint32_t Boffset = 0;
+
+	switch (team){
+	    case TeamA:
+	    	//Prepare team A top array
+	    	for(i=0;i < (NPlayers/2); i++) bottom[i] = old[1+(i*Fields)+bottom_offset];
+	        break;
+
+	    case TeamB:
+	    	//Prepare team B top array
+	    	Boffset = (NPlayers/2)*Fields;
+	    	for(i=0;i < (NPlayers/2); i++) bottom[i] = old[1+Boffset+((i*Fields)+bottom_offset)];
+	        break;
+	}
+
+	result = *max_element(&bottom[0],&bottom[NPlayers/2]);	
+	return result;
+}
+
 uint32_t min_bottom(uint32_t* old, uint32_t team){
 
 	uint32_t result = 0;
@@ -77,6 +101,30 @@ uint32_t min_bottom(uint32_t* old, uint32_t team){
 	}
 
 	result = *min_element(&bottom[0],&bottom[NPlayers/2]);	
+	return result;
+}
+
+
+uint32_t min_top(uint32_t* old, uint32_t team){
+
+	uint32_t result = 0;
+	uint32_t i = 0;
+	uint32_t Boffset = 0;
+
+	switch (team){
+	    case TeamA:
+	    	//Prepare team A top array
+	    	for(i=0;i < (NPlayers/2); i++) top[i] = old[1+(i*Fields)+top_offset];
+	        break;
+
+	    case TeamB:
+	    	//Prepare team B top array
+	    	Boffset = (NPlayers/2)*Fields;
+	    	for(i=0;i < (NPlayers/2); i++) top[i] = old[1+Boffset+((i*Fields)+top_offset)];
+	        break;
+	}
+
+	result = *min_element(&top[0],&top[NPlayers/2]);	
 	return result;
 }
 
@@ -140,14 +188,14 @@ uint32_t isOffside(uint32_t* old, uint32_t* current){
 			switch (Receiver_Team){
 			    case TeamA:
 			    	//TeamA Offense is Offside if Receiver_top is bigger than max(Defense_top)
-			    	max_Defender_top = max_top(old,TeamB);
-			    	if (Receiver_top  > max_Defender_top) result = 1;
+			    	max_Defender_bottom = max_bottom(old,TeamB);
+			    	if (Receiver_bottom  > max_Defender_bottom) result = 1;
 			        break;
 
 			    case TeamB:
 			    	//TeamB Offense is Offside if Receiver_bottom is smaller than min(Defense_top)
-			    	min_Defender_bottom = min_bottom(old,TeamA);
-			    	if (Receiver_bottom  < min_Defender_bottom) result = 1;
+			    	min_Defender_top = min_top(old,TeamA);
+			    	if (Receiver_top  < min_Defender_top) result = 1;
 			        break;
 			}
 
